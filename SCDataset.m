@@ -1,0 +1,209 @@
+classdef SCDataset
+   properties
+      name %the name of the dataset
+      data %genes as rows, samples as columns
+      genes % one column with all gene names. Use name convention "GAPDH" etc and not "ENS..." or "NM..."
+      cellIds % one row of all cell ids
+      sampleIds % one row of all tumors/patients/some other group. Rename this?
+      paperClass % one row describing cell type, the source is what was published. Shall match the Celltype enum
+      custClust % one row describing our own clustering. The clusters have ids only, they are not classified to cell type.
+      custClass % one row describing cell type, our own classification.
+      subClass % one row which can be used for dividing the cells within a celltype into more categories, for example by k-means clustering
+      extraCellInfo % one row (cell array of char arrays) that can be used to describe the cell in more detail
+      readsPerCell % corresponds to the average number of reads per cell given in the paper, before filtration on UMI if applicable. 0 if not available.
+   end
+   methods
+       
+       %usage:
+       %l is a logical vector or a vector of indices
+       %for example
+       %ds2 = ds.cellSubsetLog([1,3,8:23]);
+       %ds2 = ds.cellSubsetLog(strcmp(classification,'Macrophages/Monocytes'));
+       %classification in the example above is expected to be a cell array
+       %with the cell classifications
+       function ds = cellSubset(this, l) %logical vector
+           ds = SCDataset;
+           ds.name = strcat(this.name, '_subset');
+           ds.data = this.data(:, l);
+           ds.genes = this.genes;
+           ds.cellIds = this.cellIds(1, l);
+           ds.sampleIds = this.sampleIds(1, l);
+           if (~isempty(this.paperClass))
+            ds.paperClass = this.paperClass(1, l);
+           end
+           if (~isempty(this.custClust))
+            ds.custClust = this.custClust(1, l);
+           end
+           if (~isempty(this.custClass))
+            ds.custClass = this.custClass(1, l);
+           end
+           if (~isempty(this.subClass))
+               ds.subClass = this.subClass(1, l);
+           end
+           if (~isempty(this.extraCellInfo))
+               ds.extraCellInfo = this.extraCellInfo(1, l);
+           end
+       end
+       
+       %randomly selects numCells cells from the dataset, without
+       %replacement
+       function ds = randSample(this, numCells)
+           indToKeep = randsample(size(this.data,2),numCells);
+           ds = this.cellSubset(indToKeep);
+       end
+
+       function [ds,ia] = geneSubset(this, genesToKeep) %genesToKeep should be a vertical cell array, logical array or array of indices
+           ds = this;
+           if isnumeric(genesToKeep) | islogical(genesToKeep)
+               ds.genes = this.genes(genesToKeep);
+               ds.data = ds.data(genesToKeep,:);
+           else
+               [ds.genes,ia,~] = intersect(this.genes, genesToKeep, 'stable');
+               ds.data = ds.data(ia,:);
+           end
+       end
+       
+       function ds = setCustClass(this, cellIds, values)
+           ds = this;
+           [~,ia,ib] = intersect(ds.cellIds, cellIds);
+           ds.custClass(ia) = values(ib);
+       end
+       
+       function ds = setSubClass(this, cellIds, values)
+           ds = this;
+           [~,ia,ib] = intersect(ds.cellIds, cellIds);
+           ds.subClass(ia) = values(ib);
+       end
+
+       
+       %removes any genes that do not exist in both datasets
+       function dsRes = innerJoin(this, ds)
+           dsRes = SCDataset;
+           dsRes.name = strcat('inner join (', this.name,', ',ds.name, ')');
+           [dsRes.genes, ia, ib] = intersect(this.genes, ds.genes);
+           dsRes.data = [this.data(ia,:) ds.data(ib,:)];
+           dsRes.cellIds = [this.cellIds ds.cellIds];
+           dsRes.sampleIds = [this.sampleIds ds.sampleIds];
+           dsRes.paperClass = [this.paperClass ds.paperClass];
+           dsRes.custClust = [this.custClust ds.custClust];
+           dsRes.custClass = [this.custClass ds.custClass];
+           dsRes.subClass = [this.subClass ds.subClass];
+           dsRes.extraCellInfo = [this.extraCellInfo ds.extraCellInfo];
+           %dsRes = TPM(dsRes);
+           if this.readsPerCell == ds.readsPerCell
+               dsRes.readsPerCell = ds.readsPerCell;
+           else
+               dsRes.readsPerCell = 0;%one could imagine that this could be a weighted average from number of cells also...
+           end
+       end
+       
+       %keeps all genes that exist in any dataset and sets them to zero for
+       %cells where there is no data
+       function dsRes = fullOuterJoin(this, ds)
+           dsRes = SCDataset;
+           dsRes.name = strcat('full outer join (', this.name,', ',ds.name, ')');
+           dsRes.genes = union(this.genes, ds.genes);
+           %join the data matrices and adapt to the new gene set
+           [~,ires,ids] = intersect(dsRes.genes,ds.genes);
+           [numGenes,~] = size(dsRes.genes);
+           [~, numCells] = size(ds.cellIds);
+           dsData = zeros(numGenes, numCells);
+           dsData(ires,:) = ds.data(ids,:);
+           [~,ires,ithis] = intersect(dsRes.genes,this.genes);
+           [~, numCells] = size(this.cellIds);
+           thisData = zeros(numGenes, numCells);
+           thisData(ires,:) = this.data(ithis,:);
+           dsRes.data = [thisData dsData];
+           
+           dsRes.cellIds = [this.cellIds ds.cellIds];
+           dsRes.sampleIds = [this.sampleIds ds.sampleIds];
+           dsRes.paperClass = [this.paperClass ds.paperClass];
+           dsRes.custClust = [this.custClust ds.custClust];
+           dsRes.custClass = [this.custClass ds.custClass];
+           dsRes.subClass = [this.subClass ds.subClass];
+           dsRes.extraCellInfo = [this.extraCellInfo ds.extraCellInfo];
+           if this.readsPerCell == ds.readsPerCell
+               dsRes.readsPerCell = ds.readsPerCell;
+           else
+               dsRes.readsPerCell = 0;%one could imagine that this could be a weighted average from number of cells also...
+           end
+       end
+       
+       %We could also implement left join, which would keep the genes of
+       %this and fill in with zeros for ds if missing, and discard the 
+       %extra genes from the ds set. If we need it...
+       
+       %will save the data, genes and cellIds as a table, the rest is not
+       %saved
+       function saveDataTable(this, filename)
+           t = array2table(this.data);
+           t.Properties.RowNames = this.genes;
+           t.Properties.VariableNames = this.cellIds;
+           writetable(t,filename,'Delimiter','\t','WriteRowNames',true);
+       end
+       
+       %if any of the non-critical member vectors are empty, they
+       %will be filled with appropriate data.
+       % cellIds - generated from name and a number series
+       % sampleIds - all set to 'unknown'
+       % paperClass - all set to Celltype.Unknown
+       % custClust - all set to Celltype.Unknown;
+       function ds = fillEmpties(this)
+           %must copy and return a new val unless we make this a handle
+           %class, which we do not want. In that case objects are 
+           %normally not deep copied when copied, which will cause
+           %a lot of confusion
+           ds = this;
+           [r,c] = size(ds.data);
+           if isempty(ds.cellIds)
+               formatString = strcat(ds.name, '_%d');
+               ds.cellIds = sprintfc(formatString,(1:size(ds.data,2)));
+           end
+           if isempty(ds.sampleIds)
+               [ds.sampleIds{1:c}] = deal('Unknown');
+           end
+           if isempty(ds.paperClass)
+               ds.paperClass = ones(1,c);%one happens to be Celltype.Unknown.
+           end
+           if isempty(ds.custClust)
+               ds.custClust = zeros(1,c);
+           end
+           if isempty(ds.custClass)
+               ds.custClass = ones(1,c);%one happens to be Celltype.Unknown.
+           end
+           if isempty(ds.subClass)
+               ds.subClass = zeros(1,c);
+           end
+           if isempty(ds.extraCellInfo)
+               [ds.extraCellInfo{1:c}] = deal('');
+           end
+           
+           if isempty(ds.readsPerCell)
+               ds.readsPerCell = 0;
+           end
+       end
+       
+       function samples = splitIntoRandomGroupSamples(this, groupSize) %logical vector
+           totNumCells = size(this.cellIds,2);
+           indices = randperm(totNumCells);
+           
+           numSamp = floor(totNumCells/groupSize);
+           numGenes = size(this.genes,1);
+           
+           samples = Samples();
+           samples.genes = this.genes;
+           samples.sampleIds = cell(1,numSamp);
+           samples.data = zeros(numGenes,numSamp);
+           
+           for i = 1:numSamp
+               st = 1 + (i-1)*numSamp;
+               en = i*numSamp;
+               ind = indices(st:en);
+               subds = this.cellSubset(ind);
+               samples.sampleIds{1,i} = strcat(this.name,'_',num2str(i));
+               samples.data(:,i) = mean(subds.data,2);
+           end
+           
+       end
+   end
+end

@@ -1,0 +1,90 @@
+function templInfo = DSAVEGenerateTemplateInfo(ds, datasetsForGenes, numCells, numUMIs, fractionUpperOutliers, fractionLowerOutliers)
+
+%% Binning info
+
+%place the means evenly distributed in log scale
+%we're interested in 10-1000; make sure we cover that range since the x:es
+%are not always that accurate
+lbnonlog = 5;
+ubnonlog = 1300;
+numPoints = 1000;
+meansLog = linspace(log10(lbnonlog), log10(ubnonlog), numPoints);
+templInfo.binningInfo.means = 10.^meansLog;
+
+poolSize = 500;
+
+%get mean values of the genes
+gm = TPM(mean(ds.data,2));
+gmLog = log10(gm);
+
+templInfo.binningInfo.lbs = zeros(1, numPoints);
+templInfo.binningInfo.ubs = zeros(1, numPoints);
+
+ProgressBar(strcat('Creating binning info from dataset ''', ds.name, ''''),true);
+
+for i = 1:numPoints
+    ProgressBar(i/numPoints*100);
+    %now increase the bin size until at least 100 genes are included
+    step = 0.0005;
+    lb = meansLog(1,i) - step;
+    ub = meansLog(1,i) + step;
+    for s = 1:1000
+        sel = gmLog >= lb & gmLog <= ub;
+        numGenes = sum(sel);
+        if numGenes >= poolSize
+            break;
+        end
+        %increase the bounds in a way that conserves the mean
+        meanOfCaughtGenes = mean(gmLog(sel));
+        if (meanOfCaughtGenes > meansLog(i))
+            lb = lb - step;
+        else
+            ub = ub + step;
+        end
+    end
+    templInfo.binningInfo.lbs(1,i) = 10^lb;
+    templInfo.binningInfo.ubs(1,i) = 10^ub;
+end
+
+ProgressBar('Done');
+
+%% Geneset
+disp('Generating gene set...');
+dss = SynchronizeGenes(datasetsForGenes, [], true);
+templInfo.geneSet = dss{1}.genes;
+
+
+%% UMIDistr
+%first remove the genes that should not be included
+disp('Generating UMI distribution...');
+subDs = ds.geneSubset(templInfo.geneSet);
+
+%then select a subset of the cells without replacement
+subDs = subDs.randSample(numCells);
+sumUMIs = sum(subDs.data,1);
+
+%then reduce the number of UMIs until we have the desired average:
+%figure out how many umis to remove
+totUMIs = sum(sumUMIs);
+totTargetUMIs = numCells * numUMIs;
+toRem = totUMIs - totTargetUMIs;
+templInfo.UMIDistr = sumUMIs;%resulting UMIs per cell
+if toRem < 0
+    disp('warning: Could not reach target UMIs per cell due to that the UMIs in the template dataset were to few');
+elseif toRem > 0 %no point doing anything if the UMI count is already right
+    %randomly select toRem number of UMIs to remove
+    indToRem = randsample(totUMIs, toRem);
+    edges = [0 (cumsum(templInfo.UMIDistr,2)+0.01)];%+0.01 changes the check on the upper bound from < to <= and lower bound from >= to >
+    subtr = histcounts(indToRem,edges);
+    templInfo.UMIDistr = templInfo.UMIDistr - subtr;%There is a risk to get cells with 0 UMIs, but we believe this risk is very small and can be neglected
+end
+templInfo.UMIDistr = sort(templInfo.UMIDistr);
+
+%% Some other params
+templInfo.cellPoolSize = 2000;%2000 means bootstrapping since we also have 2000 cells
+templInfo.cellPoolIterations = 400;
+templInfo.dsIterations = 10;
+templInfo.fractionUpperOutliers = fractionUpperOutliers;
+templInfo.fractionLowerOutliers = fractionLowerOutliers;
+
+end
