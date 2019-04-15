@@ -1,6 +1,6 @@
 %Reads liver cancer T-cells from file into an SCDataset class
 %
-function  ds = ReadLiverTCells(pathData, pathCellFilter, geneInfo)
+function  ds = ReadLiverTCells(pathData, pathCellFilter)
 
 ds = SCDataset;
 ds.name = 'LCTCells';

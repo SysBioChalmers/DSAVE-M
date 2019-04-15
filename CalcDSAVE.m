@@ -9,7 +9,6 @@ if skipAlignment
 end
 
 iterations = 15;
-%cellPoolSize = 5000;
 
 lbnonlog = 10;
 ubnonlog = 1000;
@@ -96,29 +95,15 @@ end
 function logcv = GetGeneCVs(ds, templInfo)
 ds_red = TPM(ds);
 
-%ProgressBar(strcat('Calculating logCV for dataset ''', ds.name, ''' as function of gene expr'),true);
-
 totset = ds_red.data;
 numGenes = size(totset, 1);
 
 avgRefExpr = mean(totset,2);
-%{
-%precreate the random selection of subsets and calculate the means of those
-numRepetitions = templInfo.cellPoolIterations;
-poolData = zeros(numGenes, numRepetitions);
-for repetition = 1:numRepetitions
-    ProgressBar(repetition/numRepetitions*100);
-    as = datasample(totset, templInfo.cellPoolSize, 2);%get numSamp number of cells with replacement (meaning one cell can be taken several times)
-    poolData(:,repetition) = TPM(sum(as,2));%take the mean over the cells -> a vertical vector with the mean value for each gene
-end
-%}
 %calc variances
 variances = var(totset, 0, 2);
 sd = sqrt(variances);
 cv_ = sd ./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
 logcv = log2(cv_ + 1);%the + 1 says that no variance -> 0 value
-
-%ProgressBar('Done');
 
 end
 
