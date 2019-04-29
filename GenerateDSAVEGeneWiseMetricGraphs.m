@@ -353,9 +353,80 @@ axis([0 100 0 0.04]);
 h(1).FaceColor = [0.75 0.75 1]
 set(gca,'FontSize',11);
 
+vvv = log2(sqrt(bcSNOVariances));
 
 figure
-histfit(log2(bcSNOVariances(94,:)));
+histfit(vvv(94,:));
+figure
+histfit(vvv(92,:));
+figure
+histfit(vvv(90,:));
+figure
+histfit(vvv(89,:));
+figure
+histfit(vvv(87,:));
+figure
+histfit(vvv(86,:));
+figure
+histfit(vvv(85,:));
+figure
+histfit(vvv(84,:));
+figure
+histfit(vvv(83,:));
+figure
+histfit(vvv(82,:));
+
+
+
+%try to overlay them, scaled by variance
+stddevvars = std(vvv, [], 2);
+meanvars = mean(vvv, 2);
+standardized = vvv - meanvars;
+standardized = standardized ./ stddevvars;
+figure
+histfit(standardized(82,:));
+edges = [-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4];
+xes = -3.75:0.5:3.75
+
+figure
+for i = 1:100
+    a = histcounts(standardized(i,:),edges);
+    plot(xes,a)
+    hold on
+end
+
+%Now try to match a Xsq (Chi Square) curve, by first making sure min of
+%each gene is 0 (i.e. translate), then scale by dividing with the mean:
+chiish = vvv - min(vvv,[],2);
+chiish = chiish ./ mean(chiish,2);
+figure
+histfit(chiish(85,:));
+hold on
+xesxsq = 0:0.1:5;
+b = chi2pdf(xesxsq, 11)*150/5;
+plot(xesxsq * 0.18, b*150/5)
+
+%test to fit a gamma distribution:
+edges2 = 0:0.25:4;
+edges2xes = 0.125:0.25:3.875;
+c = histcounts(chiish(85,:),edges2);
+[phat,pci] = mle(chiish(85,:),'distribution','gamma');
+d = gampdf(xesxsq,phat(:,1), phat(:,2));
+figure
+plot(edges2xes, c);
+hold on
+plot(xesxsq,d*150*0.25);
+
+
+figure
+for i = 1:100
+    a = histcounts(chiish(i,:),edges2);
+    plot(xes,a)
+    hold on
+end
+
+
+%histcounts(X,nbins)
 
 
 %% The Anderson-Darling test for normality on the variances
