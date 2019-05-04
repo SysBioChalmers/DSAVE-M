@@ -63,7 +63,7 @@ for it = 1:iterations
     %remove any NaNs (let linear interpolation fill in)
     
     %now, recalculate the x:es and cvs to the Xes in the template using linear interpolation;
-    %otherwise it will be difficult to take the median later
+    %otherwise it will be difficult to take the mean later
     
     %first remove any points with duplicate x; these will
     %otherwise mess up the linear interpolation.
@@ -80,12 +80,12 @@ for it = 1:iterations
     differenceCVs(it,:) = alignedCVs(it,:) - samplingCVs(it,:);%add a neglectable number to avoid any potential division by 0.
 end
 
-%now, take the median of the iterations from all three curves. 
+%now, take the mean of the iterations from all three curves. 
 
 results = struct();
-results.alignedCVs = median(alignedCVs,1);
-results.samplingCVs = median(samplingCVs,1);
-results.differenceCVs = median(differenceCVs,1);
+results.alignedCVs = mean(alignedCVs,1);
+results.samplingCVs = mean(samplingCVs,1);
+results.differenceCVs = mean(differenceCVs,1);
 results.DSAVEScore = mean(results.differenceCVs);%mean over all points ranging over different TPM
 results.tpms = xes;
 

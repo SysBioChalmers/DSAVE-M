@@ -353,7 +353,13 @@ axis([0 100 0 0.04]);
 h(1).FaceColor = [0.75 0.75 1]
 set(gca,'FontSize',11);
 
-vvv = log2(sqrt(bcSNOVariances));
+bcsubs = bc2tSub.geneSubset(genesbc);%this works since geneSubset is deterministic; however very shaky, the order of the genes could differ
+mns = mean(TPM(bcsubs.data),2);
+counts = sum(bcsubs.data,2);
+vvv = log2(sqrt(bcSNOVariances)./(mns+0.05) + 1);%this is the same logCV as calculated for the observed
+www = log2(sqrt(bcSNOVariances)./(mns+0.05));%this is the same logCV as calculated for the observed
+%get mean of bc
+
 
 figure
 histfit(vvv(94,:));
@@ -385,15 +391,225 @@ standardized = vvv - meanvars;
 standardized = standardized ./ stddevvars;
 figure
 histfit(standardized(82,:));
-edges = [-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4];
-xes = -3.75:0.5:3.75
+%edges = [-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4];
+edges = -6:0.5:6;
+%xes = -3.75:0.5:3.75
+xes = -5.75:0.5:5.75
 
 figure
-for i = 1:100
+for i = 1:size(standardized,1)
     a = histcounts(standardized(i,:),edges);
     plot(xes,a)
     hold on
 end
+
+figure
+histfit(stddevvars)
+
+%rescale and translate observed values with std and mean from SNO
+%first reverse engineer the total variation:
+%hmm, this is actually not needed if translation is done with mean; since translation will exactly undo this!
+SNOMean = mean(vvv,2);
+totalVar = logCVDifferencebc + SNOMean;
+%then translate and rescale (where translation is not needed)
+obsStandardized = logCVDifferencebc ./ stddevvars;
+%plot the real values
+figure
+histfit(obsStandardized.');
+
+%Now calc p values
+%First pool all values for all genes into one vector
+[a,b] = size(standardized2)
+B = reshape(standardized2, [1, a*b]);
+newPVals = zeros(b,1);
+for i = 1:b
+    numLower = sum(B < obsStandardized(i,1));
+    numHigher = sum(B > obsStandardized(i,1));
+    newPVals(i,1) = numHigher / (numLower + numHigher);%ignore all values that are the same
+end
+[newPVals(1:100,1) pvalsbc(1:100,1)]
+
+c = zeros(a,1);
+for i = 1:a
+    [~,c(i,1)] = kstest2(B, standardized2(i,:));
+end
+
+d = c(1:351,1);
+sum(d < 0.05) / size(d,1)
+figure
+histogram(d)
+
+h = zeros(a,1);
+C = B(:,randsample(size(B,2),15000));
+
+size(unique(C))
+figure
+histogram(C,150)
+
+
+for i = 1:a
+    i
+    [~,h(i,1)] = kstest2(C, standardized2(i,:));
+end
+
+figure
+histogram(h,50)
+
+
+e = zeros(1000,1);
+f = randperm(1000);
+for i = 1:1000
+    disp(i);
+    e(i,1) = ranksum(standardized2(i+1,:), standardized2(i,:));
+
+    %[~,e(i,1)] = kstest2(standardized2(i+1,:), standardized2(i,:));
+    %[~,e(i,1)] = kstest2(chi2rnd(5, 1, 150), chi2rnd(5, 1, 150));
+    
+end
+
+figure
+histogram(e)
+
+figure
+histogram(standardized2(150,:),1000);
+
+[f,x] = ecdf(standardized2(114,:));
+[f2,x2] = ecdf(B);
+
+figure
+plot(x2,f2);
+hold on
+plot(x,f);
+
+[~,j] = kstest2(standardized2(114,:), B)
+
+[f,x] = ecdf(chi2rnd(25, 1, 150));
+[f2,x2] = ecdf(chi2rnd(25, 1, 15000));
+
+figure
+plot(x2,f2);
+hold on
+plot(x,f);
+
+%plot CVs against total gene count
+figure
+for i = 1:5
+    scatter(counts, vvv(:,i));
+    hold on
+end
+
+figure
+for i = 1:20
+    scatter(counts, 2.^ vvv(:,i) - 1);
+    hold on
+end
+
+figure
+for i = 1:20
+    scatter(log2(counts), vvv(:,i));
+    hold on
+end
+
+figure
+scatter(log2(sqrt(counts)), vvv(:,1));
+
+figure
+scatter(log2(sqrt(counts)), sqrt(vvv(:,i)));
+
+figure
+scatter(log2(sqrt(counts)), www(:,1));
+
+
+figure
+histogram(standardized2(17,:), 50);
+size(unique(standardized2(17,:)))
+figure
+histogram(e, 50);
+
+
+g = zeros(1000,1);
+for i = 1:1000
+    disp(i);
+    %[~,e(i,1)] = kstest2(standardized2(f(1,i),:), standardized2(i,:));
+    [~,g(i,1)] = kstest2(chi2rnd(5, 1, 10000), chi2rnd(5, 1, 150));
+    
+end
+figure
+histogram(g,100)
+
+
+%put the genes into buckets and look at the standardized distributions for each bucket:
+sel05_2 = mns < 2 & mns > 0.5;
+dat05_2a = standardized(sel05_2,:);
+[aa,ab] = size(dat05_2a);
+aB05_2 = reshape(dat05_2a, [1, aa*ab]);
+edges = -6:0.25:6;
+%xes = -3.75:0.5:3.75
+xes = -5.875:0.25:5.875
+
+figure
+ac = histcounts(aB05_2,edges);
+ac = ac / size(aB05_2,2);
+plot(xes,ac)
+hold on
+
+sel5_10 = mns < 10 & mns > 5;
+dat5_10a = standardized(sel5_10,:);
+[aa,ab] = size(dat5_10a);
+aB5_10 = reshape(dat5_10a, [1, aa*ab]);
+ac = histcounts(aB5_10,edges);
+ac = ac / size(aB5_10,2);
+plot(xes,ac)
+hold on
+
+sel20_100 = mns < 100 & mns > 20;
+dat20_100a = standardized(sel20_100,:);
+[aa,ab] = size(dat20_100a);
+aB20_100 = reshape(dat20_100a, [1, aa*ab]);
+ac = histcounts(aB20_100,edges);
+ac = ac / size(aB20_100,2);
+plot(xes,ac)
+hold on
+
+selL100 = mns > 100;
+datL100a = standardized(selL100,:);
+[aa,ab] = size(datL100a);
+aBL100 = reshape(datL100a, [1, aa*ab]);
+ac = histcounts(aBL100,edges);
+ac = ac / size(aBL100,2);
+plot(xes,ac)
+
+
+
+figure
+histfit(vvv(4,:).');
+hold on
+plot([totalVar(4,1), totalVar(4,1)], [0,20]);
+
+figure
+histfit(standardized2(4,:).');
+hold on
+plot([obsStandardized(4,1), obsStandardized(4,1)], [0,20])
+
+figure
+histfit(vvv(5,:).');
+hold on
+plot([totalVar(5,1), totalVar(5,1)], [0,20]);
+
+figure
+histfit(standardized2(5,:).');
+hold on
+plot([obsStandardized(5,1), obsStandardized(5,1)], [0,20])
+
+figure
+histfit(vvv(6,:).');
+hold on
+plot([totalVar(6,1), totalVar(6,1)], [0,20]);
+
+figure
+histfit(standardized2(6,:).');
+hold on
+plot([obsStandardized(6,1), obsStandardized(6,1)], [0,20])
 
 %Now try to match a Xsq (Chi Square) curve, by first making sure min of
 %each gene is 0 (i.e. translate), then scale by dividing with the mean:

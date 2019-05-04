@@ -69,11 +69,8 @@ dss = { SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.paperClass == Celltype.Macrop
 ...%        SCDep.scd_pbmcb10000, ...
         scd_GSE112845_cd8 ...
       };
-legends = { 'single bulk sample','mean of 4 bulk samples','ovarian cancer - macr.','liver cancer - T cells', 'blood - T cells', 'lung cancer - tumor T cells', 'lung cancer - healthy tissue T cells', 'blood cd8+ T cells'};
-%lineStyles = {'--','-.','-.','-.','-.'};
+legends = { 'single bulk sample','mean of 4 bulk samples','OC - macrophages','LIVC - T cells', 'PBMC68k - T cells', 'LC - tumor T cells', 'LC - healthy tissue T cells', 'TCD8 - T cells'};
 lineStyles = {'b--','k--','b-','k-','r-','m-','g-','c-'};
-%lineStyles = {'b--', 'b--', 'b--', 'b--'};
-%lStyles = {'k','k--','k:','m','m--','m:','b','b--','b:','g','g--','g:','c','c--','c:','g-o','g--o','g:o','b-o','b--o','b:o','b-x','b--x','b:x','m-o','m--o','m:o','m-x','m--x','m:x'};
 
 for i = 1:size(dss,2)
    vals = EvaluateClusterSize(dss{i}, n, ub, lb);
@@ -89,9 +86,6 @@ for i = 1:size(X,2)
     h = plot(X(:,i), Y(:,i), lineStyles{1,i});
     hold on
 end
-%h = plot(X, Y, 'linestyle',{'--','--','--','--'});
-%hbc = get(h, 'Children');
-%set(hbc{1}, 'FaceColor', 'r');
 legend(legends);
 xlabel('Pool size (number of cells)')
 ylabel('Variation (R_m_e_a_n)')
@@ -164,14 +158,8 @@ dss = { SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.paperClass == Celltype.Macrop
         SCDep.scd_pbmc68000.cellSubset(SCDep.scd_pbmc68000.paperClass == Celltype.TCellCD4Pos | SCDep.scd_pbmc68000.paperClass == Celltype.TCellCD8Pos | SCDep.scd_pbmc68000.paperClass == Celltype.TCellReg), ...
         dsc.cellSubset(dsc.paperClass == Celltype.TCellCD4Pos | dsc.paperClass == Celltype.TCellCD8Pos | dsc.paperClass == Celltype.TCellReg), ...
         dsh.cellSubset(dsh.paperClass == Celltype.TCellCD4Pos | dsh.paperClass == Celltype.TCellCD8Pos | dsh.paperClass == Celltype.TCellReg), ...
-...%        SCDep.scd_pbmcb10000, ...
         scd_GSE112845_cd8 ...
       };
-%legends = { 'bulk 1:1','bulk 4:4','oc ascites - macrophages/monocytes','liver cancer - T cells', 'pbmc68000 - T cells', 'lung cancer - tumor T cells', 'lung cancer - healthy tissue T cells', 'GSE112845 - PBMC cd8+ T cells'};
-%lineStyles = {'--','-.','-.','-.','-.'};
-%lineStyles = {'b--','k--','b-','k-','r-','m-','g-','c-'};
-%lineStyles = {'b--', 'b--', 'b--', 'b--'};
-%lStyles = {'k','k--','k:','m','m--','m:','b','b--','b:','g','g--','g:','c','c--','c:','g-o','g--o','g:o','b-o','b--o','b:o','b-x','b--x','b:x','m-o','m--o','m:o','m-x','m--x','m:x'};
 
 for i = 1:size(dss,2)
    vals = EvaluateClusterSize(dss{i}, n, ub, lb);
@@ -187,9 +175,6 @@ for i = 1:size(X2,2)
     h = plot(X2(:,i), Y2(:,i), lineStyles{1,i});
     hold on
 end
-%h = plot(X, Y, 'linestyle',{'--','--','--','--'});
-%hbc = get(h, 'Children');
-%set(hbc{1}, 'FaceColor', 'r');
 legend(legends);
 xlabel('Pool size (number of cells)')
 ylabel('Variation (R_m_e_a_n)')
@@ -260,14 +245,8 @@ dss = { SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.paperClass == Celltype.Macrop
         SCDep.scd_pbmc68000.cellSubset(SCDep.scd_pbmc68000.paperClass == Celltype.TCellCD4Pos | SCDep.scd_pbmc68000.paperClass == Celltype.TCellCD8Pos | SCDep.scd_pbmc68000.paperClass == Celltype.TCellReg), ...
         dsc.cellSubset(dsc.paperClass == Celltype.TCellCD4Pos | dsc.paperClass == Celltype.TCellCD8Pos | dsc.paperClass == Celltype.TCellReg), ...
         dsh.cellSubset(dsh.paperClass == Celltype.TCellCD4Pos | dsh.paperClass == Celltype.TCellCD8Pos | dsh.paperClass == Celltype.TCellReg), ...
-...%        SCDep.scd_pbmcb10000, ...
         scd_GSE112845_cd8 ...
       };
-%legends = { 'bulk 1:1','bulk 4:4','oc ascites - macrophages/monocytes','liver cancer - T cells', 'pbmc68000 - T cells', 'lung cancer - tumor T cells', 'lung cancer - healthy tissue T cells', 'GSE112845 - PBMC cd8+ T cells'};
-%lineStyles = {'--','-.','-.','-.','-.'};
-%lineStyles = {'b--','k--','b-','k-','r-','m-','g-','c-'};
-%lineStyles = {'b--', 'b--', 'b--', 'b--'};
-%lStyles = {'k','k--','k:','m','m--','m:','b','b--','b:','g','g--','g:','c','c--','c:','g-o','g--o','g:o','b-o','b--o','b:o','b-x','b--x','b:x','m-o','m--o','m:o','m-x','m--x','m:x'};
 
 for i = 1:size(dss,2)
    vals = EvaluateClusterSize(dss{i}, n, ub, lb);
@@ -283,9 +262,6 @@ for i = 1:size(X3,2)
     h = plot(X3(:,i), Y3(:,i), lineStyles{1,i});
     hold on
 end
-%h = plot(X, Y, 'linestyle',{'--','--','--','--'});
-%hbc = get(h, 'Children');
-%set(hbc{1}, 'FaceColor', 'r');
 legend(legends);
 xlabel('Pool size (number of cells)')
 ylabel('Variation (R_m_e_a_n)')
@@ -343,12 +319,10 @@ dss = { SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.paperClass == Celltype.Macrop
         SCDep.scd_pbmc68000.cellSubset(SCDep.scd_pbmc68000.paperClass == Celltype.TCellCD4Pos | SCDep.scd_pbmc68000.paperClass == Celltype.TCellCD8Pos | SCDep.scd_pbmc68000.paperClass == Celltype.TCellReg), ...
         dsc.cellSubset(dsc.paperClass == Celltype.TCellCD4Pos | dsc.paperClass == Celltype.TCellCD8Pos | dsc.paperClass == Celltype.TCellReg), ...
         dsh.cellSubset(dsh.paperClass == Celltype.TCellCD4Pos | dsh.paperClass == Celltype.TCellCD8Pos | dsh.paperClass == Celltype.TCellReg), ...
-...%        SCDep.scd_pbmcb10000, ...
         scd_GSE112845_cd8 ...
       };
 
-legs = { 'oc macr.','livc T cells', 'blood T cells', 'lc tumor T cells', 'lc healthy tiss. T cells', 'blood cd8+ T cells'};
-
+legs = { 'OC macr.','LIVC T cells', 'PBMC68k T cells', 'LC tumor T cells', 'LC healthy tiss. T cells', 'TCD8 T cells'};
   
 figure
 for i = 1:size(dss, 2);

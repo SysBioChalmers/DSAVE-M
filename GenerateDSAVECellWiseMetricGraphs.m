@@ -1,5 +1,5 @@
-
-%% Fig B and C
+    
+%% Fig A and B
 %breast cancer
 bc2 = SCDep.scd_bc2;
 bc2t = bc2.cellSubset(bc2.paperClass == Celltype.TCellCD4Pos | bc2.paperClass == Celltype.TCellCD8Pos | bc2.paperClass == Celltype.TCellReg);
@@ -85,7 +85,7 @@ llshcaSNO = DSAVEGetSingleCellDivergence(hcaSNO, 200);
 [hcatsnox,hcatsnoi] = sort(llshcaSNO);
 
 
-%test with B10k
+%B10k
 b10k = SCDep.scd_pbmcb10000;
 b10kSub = b10k.randSample(2500);
 llsb10k = DSAVEGetSingleCellDivergence(b10kSub, 200);
@@ -104,7 +104,7 @@ b10k500Less = b10kSub.cellSubset(b10ki(1,501:2500));
 b10kDSAVEScore500Less = CalcDSAVE(b10k500Less, templInfo);
 
 
-%Now plot fig B:
+%Now plot fig A:
 xs = 1:2500;
 figure
 plot(xs, -bcx, '-', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
@@ -124,11 +124,12 @@ hold on
 xlabel('Cell index')
 ylabel('-Log likelihood')
 title('Cell Divergence');
-legend({'BC LN T cells, single pat', 'BC LN T cells, single pat - SNO', 'B10k B cells, single pat', 'B10k B cells, single pat - SNO', 'HCA CB T cells, pat mix', 'HCA CB T cells, pat mix - SNO'});
+legend({'BC LN T cells, single pat', 'BC LN T cells, single pat - SNO', 'B10k B cells, single pat', 'B10k B cells, single pat - SNO', 'HCA CB T cells, single pat', 'HCA CB T cells, single pat - SNO'});
 %axis([0 2500 500 2500]);
 set(gca,'FontSize',11);
 
-%Data for Fig C:
+%Data for Fig B:
+disp('Fig 5B data, copy to excel:');
 a = [bcDSAVEScore.DSAVEScore bcDSAVEScore500Less.DSAVEScore b10kDSAVEScore.DSAVEScore b10kDSAVEScore500Less.DSAVEScore hcatDSAVEScore.DSAVEScore hcat500LessDSAVEScore.DSAVEScore]
 
 %% Investigate why some datasets get a higher BTM variation after removing the most divergent cells
@@ -357,7 +358,7 @@ xlabel('Percent monocytes in mix');
 ylabel('DSAVE variation score');
 %}
 
-%% Fig D - Num UMIs vs log likelihood
+%% Fig C - Num UMIs vs log likelihood
 numUMIshcatSub2 = sum(hcatSub2.data,1);
 
 linevalYs = 1500:500:10500;
@@ -384,7 +385,7 @@ legend({'Individual cell', 'Mean log-likelihood'});
 set(gca,'FontSize',11);
 axis([-4500 -1400 0 14000]);
 
-%% Fig E. MT-genes
+%% Fig D. MT-genes
 
 matches = regexp(bc2tSub.genes, '^(MT-.*)$', 'match');
 a = cellfun(@isempty, matches);
@@ -432,7 +433,7 @@ title('Fraction MT Counts vs Cell Divergence');
 legend({'Individual cell', 'Mean log-likelihood'});
 set(gca,'FontSize',11);
 
-%% Fig F - Number of detected genes
+%% Fig 4B in supplementary - Number of detected genes
 detGenes = sum(hcatSub2.data > 0,1);
 
 linevalYs = 500:50:2400;
@@ -531,7 +532,7 @@ set(gca,'FontSize',11);
 
 
 
-%% Fig A. Technical verification - run1 vs run 2.
+%% Fig 4A in supplementary. Technical verification - run1 vs run 2.
 %run divergence 2 times and plot
 
 hcat2500 = hcat.randSample(2500);

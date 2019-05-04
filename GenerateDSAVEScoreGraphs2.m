@@ -77,7 +77,7 @@ tdss = {ovm, bc2t, bc2t_bc4tumor, bc2t_blood, b10000, t68000, lct};
 
 
 
-%% Fig B - comparison between datasets
+%% Fig A - comparison between datasets
 
 %bc2, mixed pat blood t cells
 %ovasc macrophages/monocytes, mixed pat
@@ -160,24 +160,12 @@ for i = 1:numds
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
 
+disp('Comparison between datasets: Copy into excel sheet');
 scores %just copy these values into the excel sheet
 
 
 
-%% Fig C - patient to patient variation
-
-%ovasc = SCDep.scd_ovasc;
-%b10000 = SCDep.scd_pbmcb10000;
-%pbmc68000 = SCDep.scd_pbmc68000;
-%hcacb = SCDep.scd_hca_cb;
-
-%add to test SynchronizeGenes
-%a = {ovasc, bc2, lc, hcacb, pbmc68000, b10000};
-
-
-%add to test SynchronizeGenes - sum should be 0
-%b = SynchronizeGenes(a,[], true);
-%sum(~strcmp(b{1,1}.genes, ovasc.genes))
+%% Fig B - patient to patient variation
 
 %from breast cancer
 bc2 = SCDep.scd_bc2;
@@ -209,33 +197,12 @@ lcht_3pat = lcht_3pat.innerJoin(lcht_5.randSample(num));
 %from human cell atlas cord blood
 hcacb = SCDep.scd_hca_cb;
 hcat = hcacb.cellSubset(hcacb.custClass == Celltype.TCell | hcacb.custClass == Celltype.TCellCD4Pos | hcacb.custClass == Celltype.TCellCD8Pos);
-%hcatCD8 = hcacb.cellSubset(hcacb.custClass == Celltype.TCellCD8Pos);
-%hcab = hcacb.cellSubset(hcacb.custClass == Celltype.BCell);
 hcat_cb1 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB1'));
 hcat_cb2 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB2'));
 hcat_cb3 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB3'));
 num = size(hcat_cb1.data,2);
 hcat_3pat = hcat_cb1.innerJoin(hcat_cb2.randSample(num));%33% from each patient
 hcat_3pat = hcat_3pat.innerJoin(hcat_cb3.randSample(num));
-
-%{
-old setting
-dss = { bc2t_2tumors, ...
-        bc2t_bc4tumor, ...
-        bc2t_2blood, ...
-        bc2t_bc4blood, ...
-        lct_3tumors, ...
-        lct_t3, ...
-        lct_t4, ...
-        lct_t5, ...
-        lcht_3pat, ...
-        lcht_5, ...
-        hcat_3pat, ...
-        hcat_cb1, ...
-        hcat_cb2, ...
-        hcat_cb3 ...
-      };
-%}
 
 dss = { bc2t_bc1tumor, ...
         bc2t_bc4tumor, ...
@@ -249,10 +216,6 @@ dss = { bc2t_bc1tumor, ...
         hcat_cb3, ...
         hcat_3pat ...
       };
-
-
-%names = { 'bc tumor mix 2 pat','bc tumor single pat','bc blood mix 2 pat','bc blood single pat','lc tumor mix 3 pat', 'lc tumor single pat', 'lc ht mix 3 pat', 'lc ht single pat', 'hca cb 3 pat', 'hca cb pat 1', };
-
 
 numds = size(dss,2);
 resdata = cell(1,numds);
@@ -270,17 +233,12 @@ b10000 = SCDep.scd_pbmcb10000;
 datasets = {ovm,bc2t_bc4tumor, b10000, scd_GSE112845_cd8};
 templInfoSpec = DSAVEGenerateTemplateInfo(bc2t_bc4tumor, datasets, 1941, 570, 0.025, 0.025);
 
-
-
 for i = 1:numds
     resdata{1,i} = CalcDSAVE(dss{1,i}, templInfoSpec);
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
 
-%plot
-%figure
-%bar(scores)
-%set(gca,'xticklabel',names);
+disp('Patient to patient: Copy into excel sheet');
 scores %just copy these values into the excel sheet
 
 %% Fig C - effect of mixing cell types
@@ -331,7 +289,7 @@ lcpat5 = lc.cellSubset(strcmp(lc.sampleIds,'5'));
 lcp5t = lcpat5.cellSubset(lcpat5.paperClass == Celltype.TCellCD4Pos | lcpat5.paperClass == Celltype.TCellCD8Pos | lcpat5.paperClass == Celltype.TCellReg |  lcpat5.paperClass == Celltype.TCell);
 lcp5b = lcpat5.cellSubset(lcpat5.paperClass == Celltype.BCell);
 numb = size(lcp5b.data,2);
-lc50_50 = lcp5b.innerJoin(lcp5t.randSample(numb1));%50/50 b and t
+lc50_50 = lcp5b.innerJoin(lcp5t.randSample(numb));%50/50 b and t
 
 
 %figure
@@ -361,10 +319,11 @@ for i = 1:numds
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
 
+disp('Mixing cell types: Copy into excel sheet');
 scores %just copy these values into the excel sheet
 
 
-%% Fig D - technical validation using generated cell populations with added noise
+%% Supplementary 3A - technical validation using generated cell populations with added noise
 
 ovasc = SCDep.scd_ovasc;
 b10000 = SCDep.scd_pbmcb10000;
@@ -423,9 +382,10 @@ for i = 1:numds
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
 
+disp('Technical validation: Copy into excel sheet');
 scores %just copy these values into the excel sheet
 
-%% Fig E - Mix of monocytes and T cells
+%% Fig 3B Supplementary - Mix of monocytes and T cells
 hcacb = SCDep.scd_hca_cb;
 hca_cb1 = hcacb.cellSubset(strcmp(hcacb.sampleIds,'CB1'));
 hcat = hca_cb1.cellSubset(hca_cb1.custClass == Celltype.TCell | hca_cb1.custClass == Celltype.TCellCD4Pos | hca_cb1.custClass == Celltype.TCellCD8Pos);

@@ -43,7 +43,7 @@ dss = { bc2t.randSample(2500), ...
         ovm, ...
         scd_GSE112845_cd8.randSample(2500) ...
       };
-legendsA = { 'BC tumor T cells','BC tumor T cells - SNO','OC macr.','OC macr. - SNO','CD8+ T cells, blood', 'CD8+ T cells, blood - SNO'};
+legendsA = { 'BC T cells - mixed pat and tissue','BC T cells - mixed pat and tissue - SNO','OC macrophages','OC macrophages. - SNO','CD8T T cells, blood', 'CD8T T cells, blood - SNO'};
 lineStylesA = {'m-','m--','k-','k--','r-','r--'};
 
 numds = size(dss,2);
@@ -58,49 +58,29 @@ for i = 1:size(dss,2)
     resdataA{1,i} = CalcDSAVE(dss{1,i}, templInfoAllOutliers, true);
 end
 
-%legNames = {};
 figure
 for i = 1:numds
     res = resdataA{1,i};
-    plot (res.tpms, res.alignedCVs, lineStyles{1,i*2-1});
+    plot (res.tpms, res.alignedCVs, lineStylesA{1,i*2-1});
     hold on;
-    plot (res.tpms, res.samplingCVs, lineStyles{1,i*2});
+    plot (res.tpms, res.samplingCVs, lineStylesA{1,i*2});
     hold on;
-%    legNames = [legNames names{1,i*3-2} names{1,i*3-1}];
 end
 
-legend(legends)
+legend(legendsA)
 xlabel('Gene expression (CPM)')
 ylabel('Log_2(CV+1)')
 title('Variation per Gene Expression, Unaligned Cell Pop.');
 axis([0 1000 0 4]);
 set(gca,'FontSize',11);
 
-%{
-figure
-%for some reason it doesn't work with the linestyles using a vector,
-%so we'll have to loop
-for i = 1:size(X2,2)
-    h = plot(X2(:,i), Y2(:,i), lineStyles{1,i});
-    hold on
-end
-%h = plot(X, Y, 'linestyle',{'--','--','--','--'});
-%hbc = get(h, 'Children');
-%set(hbc{1}, 'FaceColor', 'r');
-legend(legends);
-xlabel('Pool size (number of cells)')
-ylabel('Log_2(CV+1)')
-title('Variation per Cell Pool Size, Non-aligned Cell Pop.');
-axis([0 6000 0 1.2]);
-set(gca,'FontSize',11);
-%}
 
 %% Fig B, C and D
 
 origdatasets = {ovm, bc2t, bc2t_bc4tumor, bc2t_blood, b10000, scd_GSE112845_cd8};
-names = {'OC macr.','OC macr. - SNO','OC macr.','BC tumor T cells, mixed pat','BC tumor T cells, mixed pat - SNO','BC tumor T cells, mixed pat','BC tumor T cells, single pat','BC tumor T cells, single pat - SNO','BC tumor T cells, single pat','BC blood T cells, mixed pat','BC blood T cells, mixed pat - SNO','BC blood T cells, mixed pat','B cells, blood','B cells, blood - SNO','B cells, blood', 'CD8+ T cells, blood', 'CD8+ T cells, blood - SNO', 'CD8+ T cells, blood'};
+names = {'OC macr.','OC macr. - SNO','BC T cells - mixed pat and tissue','BC T cells - mixed pat and tissue - SNO','BC tumor T cells, single pat','BC tumor T cells, single pat - SNO','BC blood T cells, single pat','BC blood T cells, single pat - SNO','B10k B cells, blood','B10k B cells, blood - SNO', 'CD8T T cells, blood', 'CD8T T cells, blood - SNO'};
 
-lStyles = {'k','k--','k:','m','m--','m:','b','b--','b:','g','g--','g:','c','c--','c:','r-','r--','r:'};
+lStyles = {'k','k--','m','m--','b','b--','g','g--','c','c--','r-','r--'};
 
 numds = size(origdatasets,2);
 resdata = cell(1,numds);
@@ -123,11 +103,11 @@ for i = 1:numds
     %skip sample 3 and 4 for this graph
     if i ~= 3 & i ~= 4
         res = resdata{1,i};
-        plot (res.tpms, res.alignedCVs, lStyles{1,i*3-2});
+        plot (res.tpms, res.alignedCVs, lStyles{1,i*2-1});
         hold on;
-        plot (res.tpms, res.samplingCVs, lStyles{1,i*3-1});
+        plot (res.tpms, res.samplingCVs, lStyles{1,i*2});
         hold on;
-        legNames = [legNames names{1,i*3-2} names{1,i*3-1}];
+        legNames = [legNames names{1,i*2-1} names{1,i*2}];
     end
 end
 
@@ -145,11 +125,11 @@ for i = 1:numds
     %skip sample 3 and 4 for this graph
     if i ~= 3 & i ~= 4
         res = resdata{1,i};
-        plot (res.tpms, res.alignedCVs, lStyles{1,i*3-2});
+        plot (res.tpms, res.alignedCVs, lStyles{1,i*2-1});
         hold on;
-        plot (res.tpms, res.samplingCVs, lStyles{1,i*3-1});
+        plot (res.tpms, res.samplingCVs, lStyles{1,i*2});
         hold on;
-        legNames = [legNames names{1,i*3-2} names{1,i*3-1}];
+        legNames = [legNames names{1,i*2-1} names{1,i*2}];
     end
 end
 
@@ -165,9 +145,9 @@ legNames = {};
 figure
 for i = 1:numds
     res = resdata{1,i};
-    plot (res.tpms, res.differenceCVs, lStyles{1,i*3-2});%use solid styles
+    plot (res.tpms, res.differenceCVs, lStyles{1,i*2-1});%use solid styles
     hold on;
-    legNames = [legNames names{1,i*3}];
+    legNames = [legNames names{1,i*2-1}];
 end
 
 legend(legNames)
