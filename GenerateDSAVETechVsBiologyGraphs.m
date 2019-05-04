@@ -384,7 +384,7 @@ scores = zeros(numSets,1);
 
 for i = 1:numSets
     disp(strcat('running set: ', num2str(i)));
-    DSAVERes = CalcDSAVE({1,i}, templSpec)
+    DSAVERes = CalcDSAVE(datasets{1,i}, templSpec)
     scores(i,1) = DSAVERes.DSAVEScore;
 end
 
