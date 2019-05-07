@@ -20,83 +20,83 @@ histogram(categorical(scd_lc_healthy.sampleIds))
 title('Whole LC healthy tissue patients');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lc.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lc.cellType)))
 title('Whole LC tumor cell types');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat1.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lcpat1.cellType)))
 title('LC pat 1 tumor cell types');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat2.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lcpat2.cellType)))
 title('LC pat 2 tumor cell types');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat3.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lcpat3.cellType)))
 title('LC pat 3 tumor cell types');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat4.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lcpat4.cellType)))
 title('LC pat 4 tumor cell types');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat5.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lcpat5.cellType)))
 title('LC pat 5 tumor cell types');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lchpat3.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lchpat3.cellType)))
 title('LC healthy pat 3 tumor cell types');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lchpat4.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lchpat4.cellType)))
 title('LC healthy pat 4 tumor cell types');
 
 figure
-histogram(categorical(CelltypeId2CelltypeName(lchpat5.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(lchpat5.cellType)))
 title('LC healthy pat 5 tumor cell types');
 
 umispat5 = sum(lcpat5.data,1);
 mean(umispat5)
 
-lcpat5mal = lcpat5.cellSubset(lcpat5.paperClass == Celltype.Malignant);
+lcpat5mal = lcpat5.cellSubset(lcpat5.cellType == Celltype.Malignant);
 mn = TPM(mean(lcpat5mal.data,2));
 sum(mn >= 1)
 sel5 = mn >= 5;
 sum(sel5)
 mean(sum(lcpat5mal.data,1))
-lcpat5end = lcpat5.cellSubset(lcpat5.paperClass == Celltype.Endothelial);
+lcpat5end = lcpat5.cellSubset(lcpat5.cellType == Celltype.Endothelial);
 mnEnd = TPM(mean(lcpat5end.data,2));
 mnEndInCanc = mnEnd(sel5,:);
 sum(mnEndInCanc > 5)
 mean(sum(lcpat5end.data,1))
 
-lcpat5b = lcpat5.cellSubset(lcpat5.paperClass == Celltype.BCell);
+lcpat5b = lcpat5.cellSubset(lcpat5.cellType == Celltype.BCell);
 mean(sum(lcpat5b.data,1))
 
-healthyEndo = scd_lc_healthy.cellSubset(scd_lc_healthy.paperClass == Celltype.Endothelial);
+healthyEndo = scd_lc_healthy.cellSubset(scd_lc_healthy.cellType == Celltype.Endothelial);
 mean(sum(healthyEndo.data,1))
 %}
 
 %create all LC subpopulations
-lchp5t = lchpat5.cellSubset(lchpat5.paperClass == Celltype.TCellCD4Pos | lchpat5.paperClass == Celltype.TCellCD8Pos | lchpat5.paperClass == Celltype.TCellReg |  lchpat5.paperClass == Celltype.TCell );
+lchp5t = lchpat5.cellSubset(lchpat5.cellType == Celltype.TCellCD4Pos | lchpat5.cellType == Celltype.TCellCD8Pos | lchpat5.cellType == Celltype.TCellReg |  lchpat5.cellType == Celltype.TCell );
 lchp5t.name = 'lchp5t';
-lchp5m = lchpat5.cellSubset(lchpat5.paperClass == Celltype.Macrophage);
+lchp5m = lchpat5.cellSubset(lchpat5.cellType == Celltype.Macrophage);
 lchp5m.name = 'lchp5mac';
-lchp4t = lchpat4.cellSubset(lchpat4.paperClass == Celltype.TCellCD4Pos | lchpat4.paperClass == Celltype.TCellCD8Pos | lchpat4.paperClass == Celltype.TCellReg |  lchpat4.paperClass == Celltype.TCell );
+lchp4t = lchpat4.cellSubset(lchpat4.cellType == Celltype.TCellCD4Pos | lchpat4.cellType == Celltype.TCellCD8Pos | lchpat4.cellType == Celltype.TCellReg |  lchpat4.cellType == Celltype.TCell );
 lchp4t.name = 'lchp4t';
-lchp3t = lchpat3.cellSubset(lchpat3.paperClass == Celltype.TCellCD4Pos | lchpat3.paperClass == Celltype.TCellCD8Pos | lchpat3.paperClass == Celltype.TCellReg |  lchpat3.paperClass == Celltype.TCell );
+lchp3t = lchpat3.cellSubset(lchpat3.cellType == Celltype.TCellCD4Pos | lchpat3.cellType == Celltype.TCellCD8Pos | lchpat3.cellType == Celltype.TCellReg |  lchpat3.cellType == Celltype.TCell );
 lchp3t.name = 'lchp3t';
-lcp5t = lcpat5.cellSubset(lcpat5.paperClass == Celltype.TCellCD4Pos | lcpat5.paperClass == Celltype.TCellCD8Pos | lcpat5.paperClass == Celltype.TCellReg |  lcpat5.paperClass == Celltype.TCell);
+lcp5t = lcpat5.cellSubset(lcpat5.cellType == Celltype.TCellCD4Pos | lcpat5.cellType == Celltype.TCellCD8Pos | lcpat5.cellType == Celltype.TCellReg |  lcpat5.cellType == Celltype.TCell);
 lcp5t.name = 'lcp5t';
-lcp5mal = lcpat5.cellSubset(lcpat5.paperClass == Celltype.Malignant);
+lcp5mal = lcpat5.cellSubset(lcpat5.cellType == Celltype.Malignant);
 lcp5mal.name = 'lcp5mal';
-lcp5b = lcpat5.cellSubset(lcpat5.paperClass == Celltype.BCell);
+lcp5b = lcpat5.cellSubset(lcpat5.cellType == Celltype.BCell);
 lcp5b.name = 'lcp5b';
-lcp3t = lcpat3.cellSubset(lcpat3.paperClass == Celltype.TCellCD4Pos | lcpat3.paperClass == Celltype.TCellCD8Pos | lcpat3.paperClass == Celltype.TCellReg |  lcpat3.paperClass == Celltype.TCell);
+lcp3t = lcpat3.cellSubset(lcpat3.cellType == Celltype.TCellCD4Pos | lcpat3.cellType == Celltype.TCellCD8Pos | lcpat3.cellType == Celltype.TCellReg |  lcpat3.cellType == Celltype.TCell);
 lcp3t.name = 'lcp3t';
-lcp3mal = lcpat3.cellSubset(lcpat3.paperClass == Celltype.Malignant);
+lcp3mal = lcpat3.cellSubset(lcpat3.cellType == Celltype.Malignant);
 lcp3mal.name = 'lcp3mal';
-lcp3m = lcpat3.cellSubset(lcpat3.paperClass == Celltype.Macrophage);
+lcp3m = lcpat3.cellSubset(lcpat3.cellType == Celltype.Macrophage);
 lcp3m.name = 'lcp3mac';
 
 %%BC
@@ -117,67 +117,67 @@ bc8t = bc.cellSubset(strcmp(bc.sampleIds,'BC8_TUMOR'));
 figure
 histogram(categorical(bc.sampleIds))
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc1b.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc1b.cellType)))
 title('BC pat 1 blood cell types');
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc1n.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc1n.cellType)))
 title('BC pat 1 normal cell types');
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc1t.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc1t.cellType)))
 title('BC pat 1 tumor cell types');
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc2ln.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc2ln.cellType)))
 title('BC pat 2 ln cell types');
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc2n.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc2n.cellType)))
 title('BC pat 2 normal cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc2t.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc2t.cellType)))
 title('BC pat 2 tumor cell types');
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc4b.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc4b.cellType)))
 title('BC pat 4 blood cell types');
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc4t.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc4t.cellType)))
 title('BC pat 4 tumor cell types');
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc5t.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc5t.cellType)))
 title('BC pat 5 tumor cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc6t.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc6t.cellType)))
 title('BC pat 6 tumor cell types');
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc7t.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc7t.cellType)))
 title('BC pat 7 tumor cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(bc8t.paperClass)))
+histogram(categorical(CelltypeId2CelltypeName(bc8t.cellType)))
 title('BC pat 8 tumor cell types');%there are no populations with enough cells here
 %}
-bc1b_t = bc1b.cellSubset(bc1b.paperClass == Celltype.TCellCD4Pos | bc1b.paperClass == Celltype.TCellCD8Pos | bc1b.paperClass == Celltype.TCellReg |  bc1b.paperClass == Celltype.TCell);
+bc1b_t = bc1b.cellSubset(bc1b.cellType == Celltype.TCellCD4Pos | bc1b.cellType == Celltype.TCellCD8Pos | bc1b.cellType == Celltype.TCellReg |  bc1b.cellType == Celltype.TCell);
 bc1b_t.name = 'bc1b_t';
-bc1n_t = bc1n.cellSubset(bc1n.paperClass == Celltype.TCellCD4Pos | bc1n.paperClass == Celltype.TCellCD8Pos | bc1n.paperClass == Celltype.TCellReg |  bc1n.paperClass == Celltype.TCell);
+bc1n_t = bc1n.cellSubset(bc1n.cellType == Celltype.TCellCD4Pos | bc1n.cellType == Celltype.TCellCD8Pos | bc1n.cellType == Celltype.TCellReg |  bc1n.cellType == Celltype.TCell);
 bc1n_t.name = 'bc1n_t';
-bc1t_t = bc1t.cellSubset(bc1t.paperClass == Celltype.TCellCD4Pos | bc1t.paperClass == Celltype.TCellCD8Pos | bc1t.paperClass == Celltype.TCellReg |  bc1t.paperClass == Celltype.TCell);
+bc1t_t = bc1t.cellSubset(bc1t.cellType == Celltype.TCellCD4Pos | bc1t.cellType == Celltype.TCellCD8Pos | bc1t.cellType == Celltype.TCellReg |  bc1t.cellType == Celltype.TCell);
 bc1t_t.name = 'bc1t_t';
-bc2ln_t = bc2ln.cellSubset(bc2ln.paperClass == Celltype.TCellCD4Pos | bc2ln.paperClass == Celltype.TCellCD8Pos | bc2ln.paperClass == Celltype.TCellReg |  bc2ln.paperClass == Celltype.TCell);
+bc2ln_t = bc2ln.cellSubset(bc2ln.cellType == Celltype.TCellCD4Pos | bc2ln.cellType == Celltype.TCellCD8Pos | bc2ln.cellType == Celltype.TCellReg |  bc2ln.cellType == Celltype.TCell);
 bc2ln_t.name = 'bc2ln_t';
-bc2ln_b = bc2ln.cellSubset(bc2ln.paperClass == Celltype.BCell);
+bc2ln_b = bc2ln.cellSubset(bc2ln.cellType == Celltype.BCell);
 bc2ln_b.name = 'bc2ln_b';
-bc2t_t = bc2t.cellSubset(bc2t.paperClass == Celltype.TCellCD4Pos | bc2t.paperClass == Celltype.TCellCD8Pos | bc2t.paperClass == Celltype.TCellReg |  bc2t.paperClass == Celltype.TCell);
+bc2t_t = bc2t.cellSubset(bc2t.cellType == Celltype.TCellCD4Pos | bc2t.cellType == Celltype.TCellCD8Pos | bc2t.cellType == Celltype.TCellReg |  bc2t.cellType == Celltype.TCell);
 bc2t_t.name = 'bc2t_t';
-bc4b_t = bc4b.cellSubset(bc4b.paperClass == Celltype.TCellCD4Pos | bc4b.paperClass == Celltype.TCellCD8Pos | bc4b.paperClass == Celltype.TCellReg |  bc4b.paperClass == Celltype.TCell);
+bc4b_t = bc4b.cellSubset(bc4b.cellType == Celltype.TCellCD4Pos | bc4b.cellType == Celltype.TCellCD8Pos | bc4b.cellType == Celltype.TCellReg |  bc4b.cellType == Celltype.TCell);
 bc4b_t.name = 'bc4b_t';
-bc4b_b = bc4b.cellSubset(bc4b.paperClass == Celltype.BCell);
+bc4b_b = bc4b.cellSubset(bc4b.cellType == Celltype.BCell);
 bc4b_b.name = 'bc4b_b';
-bc4b_nk = bc4b.cellSubset(bc4b.paperClass == Celltype.NKCell);
+bc4b_nk = bc4b.cellSubset(bc4b.cellType == Celltype.NKCell);
 bc4b_nk.name = 'bc4b_nk';
-bc4t_t = bc4t.cellSubset(bc4t.paperClass == Celltype.TCellCD4Pos | bc4t.paperClass == Celltype.TCellCD8Pos | bc4t.paperClass == Celltype.TCellReg |  bc4t.paperClass == Celltype.TCell);
+bc4t_t = bc4t.cellSubset(bc4t.cellType == Celltype.TCellCD4Pos | bc4t.cellType == Celltype.TCellCD8Pos | bc4t.cellType == Celltype.TCellReg |  bc4t.cellType == Celltype.TCell);
 bc4t_t.name = 'bc4t_t';
-bc6t_t = bc6t.cellSubset(bc6t.paperClass == Celltype.TCellCD4Pos | bc6t.paperClass == Celltype.TCellCD8Pos | bc6t.paperClass == Celltype.TCellReg |  bc6t.paperClass == Celltype.TCell);
+bc6t_t = bc6t.cellSubset(bc6t.cellType == Celltype.TCellCD4Pos | bc6t.cellType == Celltype.TCellCD8Pos | bc6t.cellType == Celltype.TCellReg |  bc6t.cellType == Celltype.TCell);
 bc6t_t.name = 'bc6t_t';
-bc6t_m = bc6t.cellSubset(bc6t.paperClass == Celltype.Macrophage);
+bc6t_m = bc6t.cellSubset(bc6t.cellType == Celltype.Macrophage);
 bc6t_m.name = 'bc6t_m';
-bc8t_t = bc8t.cellSubset(bc8t.paperClass == Celltype.TCellCD4Pos | bc8t.paperClass == Celltype.TCellCD8Pos | bc8t.paperClass == Celltype.TCellReg |  bc8t.paperClass == Celltype.TCell);
+bc8t_t = bc8t.cellSubset(bc8t.cellType == Celltype.TCellCD4Pos | bc8t.cellType == Celltype.TCellCD8Pos | bc8t.cellType == Celltype.TCellReg |  bc8t.cellType == Celltype.TCell);
 bc8t_t.name = 'bc8t_t';
 
 %% HCA
@@ -195,103 +195,103 @@ hca8 = hca.cellSubset(strcmp(hca.sampleIds,'CB8'));
 figure
 histogram(categorical(hca.sampleIds))
 figure
-histogram(categorical(CelltypeId2CelltypeName(hca1.custClass)))
+histogram(categorical(CelltypeId2CelltypeName(hca1.cellType)))
 title('HCA pat 1 cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(hca2.custClass)))
+histogram(categorical(CelltypeId2CelltypeName(hca2.cellType)))
 title('HCA pat 2 cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(hca3.custClass)))
+histogram(categorical(CelltypeId2CelltypeName(hca3.cellType)))
 title('HCA pat 3 cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(hca4.custClass)))
+histogram(categorical(CelltypeId2CelltypeName(hca4.cellType)))
 title('HCA pat 4 cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(hca5.custClass)))
+histogram(categorical(CelltypeId2CelltypeName(hca5.cellType)))
 title('HCA pat 5 cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(hca6.custClass)))
+histogram(categorical(CelltypeId2CelltypeName(hca6.cellType)))
 title('HCA pat 6 cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(hca7.custClass)))
+histogram(categorical(CelltypeId2CelltypeName(hca7.cellType)))
 title('HCA pat 7 cell types');%there are no populations with enough cells here
 figure
-histogram(categorical(CelltypeId2CelltypeName(hca8.custClass)))
+histogram(categorical(CelltypeId2CelltypeName(hca8.cellType)))
 title('HCA pat 8 cell types');%there are no populations with enough cells here
 %}
-hca1_t = hca1.cellSubset(hca1.custClass == Celltype.TCellCD4Pos | hca1.custClass == Celltype.TCellCD8Pos | hca1.custClass == Celltype.TCellReg |  hca1.custClass == Celltype.TCell);
+hca1_t = hca1.cellSubset(hca1.cellType == Celltype.TCellCD4Pos | hca1.cellType == Celltype.TCellCD8Pos | hca1.cellType == Celltype.TCellReg |  hca1.cellType == Celltype.TCell);
 hca1_t.name = 'hca1_t';
-hca1_b = hca1.cellSubset(hca1.custClass == Celltype.BCell);
+hca1_b = hca1.cellSubset(hca1.cellType == Celltype.BCell);
 hca1_b.name = 'hca1_b';
-hca1_mon = hca1.cellSubset(hca1.custClass == Celltype.Monocyte);
+hca1_mon = hca1.cellSubset(hca1.cellType == Celltype.Monocyte);
 hca1_mon.name = 'hca1_mon';
-hca1_nk = hca1.cellSubset(hca1.custClass == Celltype.NKCell);
+hca1_nk = hca1.cellSubset(hca1.cellType == Celltype.NKCell);
 hca1_nk.name = 'hca1_nk';
-hca2_t = hca2.cellSubset(hca2.custClass == Celltype.TCellCD4Pos | hca2.custClass == Celltype.TCellCD8Pos | hca2.custClass == Celltype.TCellReg |  hca2.custClass == Celltype.TCell);
+hca2_t = hca2.cellSubset(hca2.cellType == Celltype.TCellCD4Pos | hca2.cellType == Celltype.TCellCD8Pos | hca2.cellType == Celltype.TCellReg |  hca2.cellType == Celltype.TCell);
 hca2_t.name = 'hca2_t';
-hca2_b = hca2.cellSubset(hca2.custClass == Celltype.BCell);
+hca2_b = hca2.cellSubset(hca2.cellType == Celltype.BCell);
 hca2_b.name = 'hca2_b';
-hca2_mon = hca2.cellSubset(hca2.custClass == Celltype.Monocyte);
+hca2_mon = hca2.cellSubset(hca2.cellType == Celltype.Monocyte);
 hca2_mon.name = 'hca2_mon';
-hca2_nk = hca2.cellSubset(hca2.custClass == Celltype.NKCell);
+hca2_nk = hca2.cellSubset(hca2.cellType == Celltype.NKCell);
 hca2_nk.name = 'hca2_nk';
-hca3_t = hca3.cellSubset(hca3.custClass == Celltype.TCellCD4Pos | hca3.custClass == Celltype.TCellCD8Pos | hca3.custClass == Celltype.TCellReg |  hca3.custClass == Celltype.TCell);
+hca3_t = hca3.cellSubset(hca3.cellType == Celltype.TCellCD4Pos | hca3.cellType == Celltype.TCellCD8Pos | hca3.cellType == Celltype.TCellReg |  hca3.cellType == Celltype.TCell);
 hca3_t.name = 'hca3_t';
-hca3_b = hca3.cellSubset(hca3.custClass == Celltype.BCell);
+hca3_b = hca3.cellSubset(hca3.cellType == Celltype.BCell);
 hca3_b.name = 'hca3_b';
-hca4_t = hca4.cellSubset(hca4.custClass == Celltype.TCellCD4Pos | hca4.custClass == Celltype.TCellCD8Pos | hca4.custClass == Celltype.TCellReg |  hca4.custClass == Celltype.TCell);
+hca4_t = hca4.cellSubset(hca4.cellType == Celltype.TCellCD4Pos | hca4.cellType == Celltype.TCellCD8Pos | hca4.cellType == Celltype.TCellReg |  hca4.cellType == Celltype.TCell);
 hca4_t.name = 'hca4_t';
-hca4_b = hca4.cellSubset(hca4.custClass == Celltype.BCell);
+hca4_b = hca4.cellSubset(hca4.cellType == Celltype.BCell);
 hca4_b.name = 'hca4_b';
-hca4_mon = hca4.cellSubset(hca4.custClass == Celltype.Monocyte);
+hca4_mon = hca4.cellSubset(hca4.cellType == Celltype.Monocyte);
 hca4_mon.name = 'hca4_mon';
-hca4_nk = hca4.cellSubset(hca4.custClass == Celltype.NKCell);
+hca4_nk = hca4.cellSubset(hca4.cellType == Celltype.NKCell);
 hca4_nk.name = 'hca4_nk';
-hca5_t = hca5.cellSubset(hca5.custClass == Celltype.TCellCD4Pos | hca5.custClass == Celltype.TCellCD8Pos | hca5.custClass == Celltype.TCellReg |  hca5.custClass == Celltype.TCell);
+hca5_t = hca5.cellSubset(hca5.cellType == Celltype.TCellCD4Pos | hca5.cellType == Celltype.TCellCD8Pos | hca5.cellType == Celltype.TCellReg |  hca5.cellType == Celltype.TCell);
 hca5_t.name = 'hca5_t';
-hca5_b = hca5.cellSubset(hca5.custClass == Celltype.BCell);
+hca5_b = hca5.cellSubset(hca5.cellType == Celltype.BCell);
 hca5_b.name = 'hca5_b';
-hca5_mon = hca5.cellSubset(hca5.custClass == Celltype.Monocyte);
+hca5_mon = hca5.cellSubset(hca5.cellType == Celltype.Monocyte);
 hca5_mon.name = 'hca5_mon';
-hca5_nk = hca5.cellSubset(hca5.custClass == Celltype.NKCell);
+hca5_nk = hca5.cellSubset(hca5.cellType == Celltype.NKCell);
 hca5_nk.name = 'hca5_nk';
-hca6_t = hca6.cellSubset(hca6.custClass == Celltype.TCellCD4Pos | hca6.custClass == Celltype.TCellCD8Pos | hca6.custClass == Celltype.TCellReg |  hca6.custClass == Celltype.TCell);
+hca6_t = hca6.cellSubset(hca6.cellType == Celltype.TCellCD4Pos | hca6.cellType == Celltype.TCellCD8Pos | hca6.cellType == Celltype.TCellReg |  hca6.cellType == Celltype.TCell);
 hca6_t.name = 'hca6_t';
-hca6_b = hca6.cellSubset(hca6.custClass == Celltype.BCell);
+hca6_b = hca6.cellSubset(hca6.cellType == Celltype.BCell);
 hca6_b.name = 'hca6_b';
-hca6_mon = hca6.cellSubset(hca6.custClass == Celltype.Monocyte);
+hca6_mon = hca6.cellSubset(hca6.cellType == Celltype.Monocyte);
 hca6_mon.name = 'hca6_mon';
-hca7_t = hca7.cellSubset(hca7.custClass == Celltype.TCellCD4Pos | hca7.custClass == Celltype.TCellCD8Pos | hca7.custClass == Celltype.TCellReg |  hca7.custClass == Celltype.TCell);
+hca7_t = hca7.cellSubset(hca7.cellType == Celltype.TCellCD4Pos | hca7.cellType == Celltype.TCellCD8Pos | hca7.cellType == Celltype.TCellReg |  hca7.cellType == Celltype.TCell);
 hca7_t.name = 'hca7_t';
-hca7_b = hca7.cellSubset(hca7.custClass == Celltype.BCell);
+hca7_b = hca7.cellSubset(hca7.cellType == Celltype.BCell);
 hca7_b.name = 'hca7_b';
-hca7_mon = hca7.cellSubset(hca7.custClass == Celltype.Monocyte);
+hca7_mon = hca7.cellSubset(hca7.cellType == Celltype.Monocyte);
 hca7_mon.name = 'hca7_mon';
-hca8_t = hca8.cellSubset(hca8.custClass == Celltype.TCellCD4Pos | hca8.custClass == Celltype.TCellCD8Pos | hca8.custClass == Celltype.TCellReg |  hca8.custClass == Celltype.TCell);
+hca8_t = hca8.cellSubset(hca8.cellType == Celltype.TCellCD4Pos | hca8.cellType == Celltype.TCellCD8Pos | hca8.cellType == Celltype.TCellReg |  hca8.cellType == Celltype.TCell);
 hca8_t.name = 'hca8_t';
-hca8_b = hca8.cellSubset(hca8.custClass == Celltype.BCell);
+hca8_b = hca8.cellSubset(hca8.cellType == Celltype.BCell);
 hca8_b.name = 'hca8_b';
-hca8_mon = hca8.cellSubset(hca8.custClass == Celltype.Monocyte);
+hca8_mon = hca8.cellSubset(hca8.cellType == Celltype.Monocyte);
 hca8_mon.name = 'hca8_mon';
 
 %% ovasc
 ovasc = SCDep.scd_ovasc;
-ovm = ovasc.cellSubset(ovasc.paperClass == Celltype.MacrophageOrMonocyte);
+ovm = ovasc.cellSubset(ovasc.cellType == Celltype.MacrophageOrMonocyte);
 
 %% PBMC68k
 pbmc68000 = SCDep.scd_pbmc68000;
 %{
 figure
-histogram(categorical(CelltypeId2CelltypeName(pbmc68000.paperClass)));
+histogram(categorical(CelltypeId2CelltypeName(pbmc68000.cellType)));
 title('PBMC68k cell types');
 %}
-t68000 = pbmc68000.cellSubset(pbmc68000.paperClass == Celltype.TCellCD4Pos | pbmc68000.paperClass == Celltype.TCellCD8Pos | pbmc68000.paperClass == Celltype.TCellReg);
+t68000 = pbmc68000.cellSubset(pbmc68000.cellType == Celltype.TCellCD4Pos | pbmc68000.cellType == Celltype.TCellCD8Pos | pbmc68000.cellType == Celltype.TCellReg);
 t68000.name = 't68000';
-b68000 = pbmc68000.cellSubset(pbmc68000.paperClass == Celltype.BCell);
+b68000 = pbmc68000.cellSubset(pbmc68000.cellType == Celltype.BCell);
 b68000.name = 'b68000';
-mon68000 = pbmc68000.cellSubset(pbmc68000.paperClass == Celltype.Monocyte);
+mon68000 = pbmc68000.cellSubset(pbmc68000.cellType == Celltype.Monocyte);
 mon68000.name = 'mon68000';
-nk68000 = pbmc68000.cellSubset(pbmc68000.paperClass == Celltype.NKCell);
+nk68000 = pbmc68000.cellSubset(pbmc68000.cellType == Celltype.NKCell);
 nk68000.name = 'nk68000';
 
 
@@ -361,7 +361,7 @@ numSets = size(datasets,2);
 
 %create a special template with only 1000 cells to allow for more
 %populations
-bc2t_ = SCDep.scd_bc2.cellSubset(SCDep.scd_bc2.paperClass == Celltype.TCellCD4Pos | SCDep.scd_bc2.paperClass == Celltype.TCellCD8Pos | SCDep.scd_bc2.paperClass == Celltype.TCellReg);
+bc2t_ = SCDep.scd_bc2.cellSubset(SCDep.scd_bc2.cellType == Celltype.TCellCD4Pos | SCDep.scd_bc2.cellType == Celltype.TCellCD8Pos | SCDep.scd_bc2.cellType == Celltype.TCellReg);
 bc2t_bc4tumor = bc2t_.cellSubset(strcmp(bc2t_.sampleIds, 'BC4_TUMOR'));
 b10000 = SCDep.scd_pbmcb10000;
 [scd_GSE112845_pat_a,scd_GSE112845_pat_b,scd_GSE112845_cd8] = SCDep.scd_GSE112845;

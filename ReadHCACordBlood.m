@@ -59,11 +59,11 @@ c = table2cell(f);
 ct = cellfun(@String2CellTypeId, c(:,2));
 
 [~, ia, ib] = intersect(ds.cellIds, c(:, 1));
-ds.custClass(1,ia) = ct(ib,1).';
+ds.cellType(1,ia) = ct(ib,1).';
 
 %remove the cells with cell type 'unknown' - these are low quality cells
 %that did not have a classification in the file
-ds = ds.cellSubset(ds.custClass ~= Celltype.Unknown);
+ds = ds.cellSubset(ds.cellType ~= Celltype.Unknown);
 
 
 function ret = String2CellTypeId(str)
@@ -109,11 +109,11 @@ c = table2cell(f);
 ct = cellfun(@String2CellTypeId, c(:,2));
 
 [~, ia, ib] = intersect(ds.cellIds, c(:, 1));
-ds.custClass(1,ia) = ct(ib,1).';
+ds.cellType(1,ia) = ct(ib,1).';
 
 %remove the cells with cell type 'unknown' - these are low quality cells
 %that did not have a classification in the file
-ds = ds.cellSubset(ds.custClass ~= Celltype.Unknown);
+ds = ds.cellSubset(ds.cellType ~= Celltype.Unknown);
 
 
 function ret = String2CellTypeId(str)

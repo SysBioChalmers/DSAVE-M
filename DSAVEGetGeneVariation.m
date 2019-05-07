@@ -45,19 +45,19 @@ genes = ds.genes;
 %Calculate p value with a non-parametric method: Scale all genes to the
 %same variance and translate so the mean is zero. Then use all genes for
 %the non-parametric test, which in total gives a lot of data points.
-
+%{
 %scale and translate:
 stddevvars = std(vvv, [], 2);
 meanvars = mean(vvv, 2);
 standardized = vvv - meanvars;
 standardized = standardized ./ stddevvars;
-
+%}
 
 
 %Now calculate p values using a one sample z-test.
 %This is an approximation, normality is rejected for 18% or so of the genes
 %calculate the distribution from the SNO datasets
-%{
+
 mn = mean(SNOLogCVS,2);
 stddev = std(SNOLogCVS,0,2);
 
@@ -65,7 +65,7 @@ pVals = zeros(numGenes,1);
 for g = 1:numGenes
     [~,pVals(g,1)] = ztest(logCVDS(g,1),mn(g,:),stddev(g,1),'Tail','right');
 end
-%}
+
 ProgressBar('Done');
 
 

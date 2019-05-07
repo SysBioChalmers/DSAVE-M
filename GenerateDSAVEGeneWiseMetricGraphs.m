@@ -2,7 +2,7 @@
 %% Fig A
 %breast cancer
 bc2 = SCDep.scd_bc2;
-bc2t = bc2.cellSubset(bc2.paperClass == Celltype.TCellCD4Pos | bc2.paperClass == Celltype.TCellCD8Pos | bc2.paperClass == Celltype.TCellReg);
+bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
 bc2tSub = bc2t.randSample(10000);
 tic
 [logCVDifferencebc,genesbc,bcSNOVariances, pvalsbc] = DSAVEGetGeneVariation(bc2tSub,1,150,10000);
@@ -13,7 +13,7 @@ t = toc
 
 %lung cancer
 [lc,~] = SCDep.scd_lc;
-lct = lc.cellSubset(lc.paperClass == Celltype.TCellCD4Pos | lc.paperClass == Celltype.TCellCD8Pos | lc.paperClass == Celltype.TCellReg);
+lct = lc.cellSubset(lc.cellType == Celltype.TCellCD4Pos | lc.cellType == Celltype.TCellCD8Pos | lc.cellType == Celltype.TCellReg);
 lctSub = lct.randSample(10000);
 tic
 [logCVDifferencelc,geneslc,lcSNOVariances, pvalslc] = DSAVEGetGeneVariation(lctSub,1,150,10000);
@@ -22,7 +22,7 @@ t = toc
 %hca
 hcacb = SCDep.scd_hca_cb;
 hca_cb1 = hcacb.cellSubset(strcmp(hcacb.sampleIds,'CB1'));
-hcat = hca_cb1.cellSubset(hca_cb1.custClass == Celltype.TCell | hca_cb1.custClass == Celltype.TCellCD4Pos | hca_cb1.custClass == Celltype.TCellCD8Pos);
+hcat = hca_cb1.cellSubset(hca_cb1.cellType == Celltype.TCell | hca_cb1.cellType == Celltype.TCellCD4Pos | hca_cb1.cellType == Celltype.TCellCD8Pos);
 hcatSub = hcat.randSample(10000);
 tic
 [logCVDifferencehca,geneshca,hcaSNOVariances, pvalshca] = DSAVEGetGeneVariation(hcatSub,1,150,10000);
@@ -259,9 +259,9 @@ histogram(dataGNLY(sel))
 
 %}
 
-%[bc,lc,hca,bclc,bchca,lchca,all] = CreateVennDiagramSets(worstGenesBc,worstGenesLc,worstGenesHca);
-[bc,lc,hca,bclc,bchca,lchca,all] = CreateVennDiagramSets(worstGenesBc2,worstGenesLc2,worstGenesHca2);
-%[bc,lc,hca,bclc,bchca,lchca,all] = CreateVennDiagramSets(commonGenesAbove10_50WorstBc,commonGenesAbove10_50WorstLc,commonGenesAbove10_50WorstHca);
+%[bc,lc,hca,bclc,bchca,lchca,all_] = CreateVennDiagramSets(worstGenesBc,worstGenesLc,worstGenesHca);
+[bc,lc,hca,bclc,bchca,lchca,all_] = CreateVennDiagramSets(worstGenesBc2,worstGenesLc2,worstGenesHca2);
+%[bc,lc,hca,bclc,bchca,lchca,all_] = CreateVennDiagramSets(commonGenesAbove10_50WorstBc,commonGenesAbove10_50WorstLc,commonGenesAbove10_50WorstHca);
 %{
 bc_lc = intersect(worstGenesBc,worstGenesLc);
 bc_hca = intersect(worstGenesBc,worstGenesHca);
@@ -276,7 +276,7 @@ a(1,3) = size(hca,1);
 a(1,4) = size(bclc,1);
 a(1,5) = size(bchca,1);
 a(1,6) = size(lchca,1);
-a(1,7) = size(all,1);
+a(1,7) = size(all_,1);
 a
 
 bc
@@ -285,7 +285,7 @@ hca
 bclc
 bchca
 lchca
-all
+all_
 
 %% Fig B Variation value at p = 0.05 (uncorrected) per gene expression
 
@@ -353,35 +353,13 @@ axis([0 100 0 0.04]);
 h(1).FaceColor = [0.75 0.75 1]
 set(gca,'FontSize',11);
 
+%% some tests
+
 bcsubs = bc2tSub.geneSubset(genesbc);%this works since geneSubset is deterministic; however very shaky, the order of the genes could differ
 mns = mean(TPM(bcsubs.data),2);
 counts = sum(bcsubs.data,2);
 vvv = log2(sqrt(bcSNOVariances)./(mns+0.05) + 1);%this is the same logCV as calculated for the observed
-www = log2(sqrt(bcSNOVariances)./(mns+0.05));%this is the same logCV as calculated for the observed
-%get mean of bc
-
-
-figure
-histfit(vvv(94,:));
-figure
-histfit(vvv(92,:));
-figure
-histfit(vvv(90,:));
-figure
-histfit(vvv(89,:));
-figure
-histfit(vvv(87,:));
-figure
-histfit(vvv(86,:));
-figure
-histfit(vvv(85,:));
-figure
-histfit(vvv(84,:));
-figure
-histfit(vvv(83,:));
-figure
-histfit(vvv(82,:));
-
+www = log(sqrt(bcSNOVariances)./(mns+0.00000005));%this is the same logCV as calculated for the observed
 
 
 %try to overlay them, scaled by variance
@@ -389,12 +367,62 @@ stddevvars = std(vvv, [], 2);
 meanvars = mean(vvv, 2);
 standardized = vvv - meanvars;
 standardized = standardized ./ stddevvars;
+stddevvars2 = std(www, [], 2);
+meanvars2 = mean(www, 2);
+standardized2 = www - meanvars2;
+standardized2 = standardized2 ./ stddevvars2;
 figure
 histfit(standardized(82,:));
 %edges = [-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4];
 edges = -6:0.5:6;
 %xes = -3.75:0.5:3.75
 xes = -5.75:0.5:5.75
+
+
+X = [ones(length(counts),1) log(counts)];
+
+cc = www+.5*log(counts);
+aa = cc-mean(cc,2);
+
+X = [ones(length(counts),1) log(counts)];
+b = X\(aa.^2)
+
+stddev = std(aa,[],2);
+figure
+for i = 1:150
+    scatter(log(counts), aa(:,i)./stddev);
+end
+
+stddev = std(aa,[],2);
+figure
+scatter(-0.5*log(counts), log(stddev))
+
+
+X = [ones(length(counts),1) log(counts)];
+b = X\(aa.^2)
+
+
+%%%%%%%% HERE
+aa = www+0.5*log(counts);
+% correct mean for log(count) effect
+% BUT fudge factor plays a role (TPM) same for all genes so subtract
+% overall mean
+aa = aa-mean(mean(aa));
+figure
+for i = 1:150 
+ scatter(log(counts),aa(:,i))
+ hold on
+end
+%%% std(log(CV)) is directly proportional to -.5*log(counts)
+stddev = std(aa,[],2);
+figure
+for i = 1:150 
+ scatter(log(counts),aa(:,i)./stddev)
+ hold on
+end
+
+
+
 
 figure
 for i = 1:size(standardized,1)
@@ -419,8 +447,8 @@ histfit(obsStandardized.');
 
 %Now calc p values
 %First pool all values for all genes into one vector
-[a,b] = size(standardized2)
-B = reshape(standardized2, [1, a*b]);
+[a,b] = size(standardized)
+B = reshape(standardized, [1, a*b]);
 newPVals = zeros(b,1);
 for i = 1:b
     numLower = sum(B < obsStandardized(i,1));
@@ -429,11 +457,12 @@ for i = 1:b
 end
 [newPVals(1:100,1) pvalsbc(1:100,1)]
 
-c = zeros(a,1);
-for i = 1:a
-    [~,c(i,1)] = kstest2(B, standardized2(i,:));
-end
-
+%takes a really long time
+%c = zeros(a,1);
+%for i = 1:a
+%    [~,c(i,1)] = kstest2(B, standardized2(i,:));
+%end
+%{
 d = c(1:351,1);
 sum(d < 0.05) / size(d,1)
 figure
@@ -445,8 +474,8 @@ C = B(:,randsample(size(B,2),15000));
 size(unique(C))
 figure
 histogram(C,150)
-
-
+%}
+%{
 for i = 1:a
     i
     [~,h(i,1)] = kstest2(C, standardized2(i,:));
@@ -454,13 +483,13 @@ end
 
 figure
 histogram(h,50)
-
+%}
 
 e = zeros(1000,1);
 f = randperm(1000);
 for i = 1:1000
     disp(i);
-    e(i,1) = ranksum(standardized2(i+1,:), standardized2(i,:));
+    e(i,1) = ranksum(standardized(i+1,:), standardized(i,:));
 
     %[~,e(i,1)] = kstest2(standardized2(i+1,:), standardized2(i,:));
     %[~,e(i,1)] = kstest2(chi2rnd(5, 1, 150), chi2rnd(5, 1, 150));
@@ -469,27 +498,6 @@ end
 
 figure
 histogram(e)
-
-figure
-histogram(standardized2(150,:),1000);
-
-[f,x] = ecdf(standardized2(114,:));
-[f2,x2] = ecdf(B);
-
-figure
-plot(x2,f2);
-hold on
-plot(x,f);
-
-[~,j] = kstest2(standardized2(114,:), B)
-
-[f,x] = ecdf(chi2rnd(25, 1, 150));
-[f2,x2] = ecdf(chi2rnd(25, 1, 15000));
-
-figure
-plot(x2,f2);
-hold on
-plot(x,f);
 
 %plot CVs against total gene count
 figure
@@ -504,14 +512,16 @@ for i = 1:20
     hold on
 end
 
+b = size()
+
 figure
 for i = 1:20
     scatter(log2(counts), vvv(:,i));
     hold on
 end
 
-figure
-scatter(log2(sqrt(counts)), vvv(:,1));
+
+
 
 figure
 scatter(log2(sqrt(counts)), sqrt(vvv(:,i)));
@@ -539,8 +549,9 @@ histogram(g,100)
 
 
 %put the genes into buckets and look at the standardized distributions for each bucket:
+stnddata = standardized2;
 sel05_2 = mns < 2 & mns > 0.5;
-dat05_2a = standardized(sel05_2,:);
+dat05_2a = stnddata(sel05_2,:);
 [aa,ab] = size(dat05_2a);
 aB05_2 = reshape(dat05_2a, [1, aa*ab]);
 edges = -6:0.25:6;
@@ -554,7 +565,7 @@ plot(xes,ac)
 hold on
 
 sel5_10 = mns < 10 & mns > 5;
-dat5_10a = standardized(sel5_10,:);
+dat5_10a = stnddata(sel5_10,:);
 [aa,ab] = size(dat5_10a);
 aB5_10 = reshape(dat5_10a, [1, aa*ab]);
 ac = histcounts(aB5_10,edges);
@@ -563,7 +574,7 @@ plot(xes,ac)
 hold on
 
 sel20_100 = mns < 100 & mns > 20;
-dat20_100a = standardized(sel20_100,:);
+dat20_100a = stnddata(sel20_100,:);
 [aa,ab] = size(dat20_100a);
 aB20_100 = reshape(dat20_100a, [1, aa*ab]);
 ac = histcounts(aB20_100,edges);
@@ -572,14 +583,18 @@ plot(xes,ac)
 hold on
 
 selL100 = mns > 100;
-datL100a = standardized(selL100,:);
+datL100a = stnddata(selL100,:);
 [aa,ab] = size(datL100a);
 aBL100 = reshape(datL100a, [1, aa*ab]);
 ac = histcounts(aBL100,edges);
 ac = ac / size(aBL100,2);
 plot(xes,ac)
+legend({'0.5-2 TPM','5-10 TPM','20-100 TPM','>100 TPM'});
 
-
+hold on
+sort05_2 = sort(aB05_2);
+ind = round(size(aB05_2,2)*0.05);
+plot([aB05_2(1,aB05_2),aB05_2(1,aB05_2)], [0,0.1]);
 
 figure
 histfit(vvv(4,:).');

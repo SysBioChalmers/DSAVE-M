@@ -63,15 +63,8 @@ classdef Samples
        
        %if any of the non-critical member vectors are empty, they
        %will be filled with appropriate data.
-       % cellIds - generated from name and a number series
-       % sampleIds - all set to 'unknown'
-       % paperClass - all set to Celltype.Unknown
-       % custClust - all set to Celltype.Unknown;
+       % sampleIds - generated from name and a number series
        function s = fillEmpties(this)
-           %must copy and return a new val unless we make this a handle
-           %class, which we do not want. In that case objects are 
-           %normally not deep copied when copied, which will cause
-           %a lot of confusion
            s = this;
            [r,c] = size(s.data);
            if isempty(s.sampleIds)

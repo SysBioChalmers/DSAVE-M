@@ -13,7 +13,7 @@ c = table2cell(f);
 ct = cellfun(@String2CellTypeId, c(:,4));
 
 [~, ia, ib] = intersect(ds.cellIds.', c(:, 3));
-ds.paperClass(1,ia) = ct(ib,1).';
+ds.cellType(1,ia) = ct(ib,1).';
 
 
     function ret = String2CellTypeId(str)

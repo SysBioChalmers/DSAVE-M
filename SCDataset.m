@@ -5,12 +5,9 @@ classdef SCDataset
       genes % one column with all gene names. Use name convention "GAPDH" etc and not "ENS..." or "NM..."
       cellIds % one row of all cell ids
       sampleIds % one row of all tumors/patients/some other group. Rename this?
-      paperClass % one row describing cell type, the source is what was published. Shall match the Celltype enum
-      custClust % one row describing our own clustering. The clusters have ids only, they are not classified to cell type.
-      custClass % one row describing cell type, our own classification.
-      subClass % one row which can be used for dividing the cells within a celltype into more categories, for example by k-means clustering
+      cellType % one row describing cell type, the source is what was published. Shall match the Celltype enum
+      subCellType % one row which can be used for dividing the cells within a celltype into more categories
       extraCellInfo % one row (cell array of char arrays) that can be used to describe the cell in more detail
-      readsPerCell % corresponds to the average number of reads per cell given in the paper, before filtration on UMI if applicable. 0 if not available.
    end
    methods
        
@@ -28,17 +25,11 @@ classdef SCDataset
            ds.genes = this.genes;
            ds.cellIds = this.cellIds(1, l);
            ds.sampleIds = this.sampleIds(1, l);
-           if (~isempty(this.paperClass))
-            ds.paperClass = this.paperClass(1, l);
+           if (~isempty(this.cellType))
+            ds.cellType = this.cellType(1, l);
            end
-           if (~isempty(this.custClust))
-            ds.custClust = this.custClust(1, l);
-           end
-           if (~isempty(this.custClass))
-            ds.custClass = this.custClass(1, l);
-           end
-           if (~isempty(this.subClass))
-               ds.subClass = this.subClass(1, l);
+           if (~isempty(this.subCellType))
+               ds.subCellType = this.subCellType(1, l);
            end
            if (~isempty(this.extraCellInfo))
                ds.extraCellInfo = this.extraCellInfo(1, l);
@@ -63,16 +54,16 @@ classdef SCDataset
            end
        end
        
-       function ds = setCustClass(this, cellIds, values)
+       function ds = setCellType(this, cellIds, values)
            ds = this;
            [~,ia,ib] = intersect(ds.cellIds, cellIds);
-           ds.custClass(ia) = values(ib);
+           ds.cellType(ia) = values(ib);
        end
        
-       function ds = setSubClass(this, cellIds, values)
+       function ds = setSubCellType(this, cellIds, values)
            ds = this;
            [~,ia,ib] = intersect(ds.cellIds, cellIds);
-           ds.subClass(ia) = values(ib);
+           ds.subCellType(ia) = values(ib);
        end
 
        
@@ -84,17 +75,9 @@ classdef SCDataset
            dsRes.data = [this.data(ia,:) ds.data(ib,:)];
            dsRes.cellIds = [this.cellIds ds.cellIds];
            dsRes.sampleIds = [this.sampleIds ds.sampleIds];
-           dsRes.paperClass = [this.paperClass ds.paperClass];
-           dsRes.custClust = [this.custClust ds.custClust];
-           dsRes.custClass = [this.custClass ds.custClass];
-           dsRes.subClass = [this.subClass ds.subClass];
+           dsRes.cellType = [this.cellType ds.cellType];
+           dsRes.subCellType = [this.subCellType ds.subCellType];
            dsRes.extraCellInfo = [this.extraCellInfo ds.extraCellInfo];
-           %dsRes = TPM(dsRes);
-           if this.readsPerCell == ds.readsPerCell
-               dsRes.readsPerCell = ds.readsPerCell;
-           else
-               dsRes.readsPerCell = 0;%one could imagine that this could be a weighted average from number of cells also...
-           end
        end
        
        %keeps all genes that exist in any dataset and sets them to zero for
@@ -117,16 +100,9 @@ classdef SCDataset
            
            dsRes.cellIds = [this.cellIds ds.cellIds];
            dsRes.sampleIds = [this.sampleIds ds.sampleIds];
-           dsRes.paperClass = [this.paperClass ds.paperClass];
-           dsRes.custClust = [this.custClust ds.custClust];
-           dsRes.custClass = [this.custClass ds.custClass];
-           dsRes.subClass = [this.subClass ds.subClass];
+           dsRes.cellType = [this.cellType ds.cellType];
+           dsRes.subCellType = [this.subCellType ds.subCellType];
            dsRes.extraCellInfo = [this.extraCellInfo ds.extraCellInfo];
-           if this.readsPerCell == ds.readsPerCell
-               dsRes.readsPerCell = ds.readsPerCell;
-           else
-               dsRes.readsPerCell = 0;%one could imagine that this could be a weighted average from number of cells also...
-           end
        end
        
        %We could also implement left join, which would keep the genes of
@@ -146,8 +122,9 @@ classdef SCDataset
        %will be filled with appropriate data.
        % cellIds - generated from name and a number series
        % sampleIds - all set to 'unknown'
-       % paperClass - all set to Celltype.Unknown
-       % custClust - all set to Celltype.Unknown;
+       % cellType - all set to Celltype.Unknown
+	   % subCellType - all set to 0
+	   % extraCellInfo - all set to ''
        function ds = fillEmpties(this)
            %must copy and return a new val unless we make this a handle
            %class, which we do not want. In that case objects are 
@@ -162,25 +139,16 @@ classdef SCDataset
            if isempty(ds.sampleIds)
                [ds.sampleIds{1:c}] = deal('Unknown');
            end
-           if isempty(ds.paperClass)
-               ds.paperClass = ones(1,c);%one happens to be Celltype.Unknown.
+           if isempty(ds.cellType)
+               ds.cellType = ones(1,c);%one happens to be Celltype.Unknown.
            end
-           if isempty(ds.custClust)
-               ds.custClust = zeros(1,c);
-           end
-           if isempty(ds.custClass)
-               ds.custClass = ones(1,c);%one happens to be Celltype.Unknown.
-           end
-           if isempty(ds.subClass)
-               ds.subClass = zeros(1,c);
+           if isempty(ds.subCellType)
+               ds.subCellType = zeros(1,c);
            end
            if isempty(ds.extraCellInfo)
                [ds.extraCellInfo{1:c}] = deal('');
            end
            
-           if isempty(ds.readsPerCell)
-               ds.readsPerCell = 0;
-           end
        end
        
        function samples = splitIntoRandomGroupSamples(this, groupSize) %logical vector
@@ -202,8 +170,7 @@ classdef SCDataset
                subds = this.cellSubset(ind);
                samples.sampleIds{1,i} = strcat(this.name,'_',num2str(i));
                samples.data(:,i) = mean(subds.data,2);
-           end
-           
+           end 
        end
    end
 end

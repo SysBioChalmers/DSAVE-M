@@ -85,7 +85,7 @@ for i = 1:numCells
     end
 end
 %now assign the cell types to the right rows, needs to be mapped by cell id!
-s.paperClass(1,ia.') = temp(ib).';
+s.cellType(1,ia.') = temp(ib).';
 
 s = s.fillEmpties();%will create vectors of right size
 
@@ -93,7 +93,7 @@ s = s.fillEmpties();%will create vectors of right size
 temp = regexp(cluster, '.*_([0-9]+)', 'tokens');
 strs = cellfun(@(c) c{1}{1},temp, 'UniformOutput', false);
 nums = str2double(strs);
-s.subClass(1,ia.') = nums(ib).';
+s.subCellType(1,ia.') = nums(ib).';
 
 %set patient ids as sample ids - we lose some info about localization of
 %sample within the tumor; can be set if desired

@@ -18,16 +18,16 @@ hcacb = SCDep.scd_hca_cb;
 %sum(~strcmp(b{1,1}.genes, ovasc.genes))
 
 
-ovm = ovasc.cellSubset(ovasc.paperClass == Celltype.MacrophageOrMonocyte);
-bc2t = bc2.cellSubset(bc2.paperClass == Celltype.TCellCD4Pos | bc2.paperClass == Celltype.TCellCD8Pos | bc2.paperClass == Celltype.TCellReg);
+ovm = ovasc.cellSubset(ovasc.cellType == Celltype.MacrophageOrMonocyte);
+bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
 bc2t_bc4tumor = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC4_TUMOR'));
 bc2t_blood = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC4_BLOOD'));
-lct = lc.cellSubset(lc.paperClass == Celltype.TCellCD4Pos | lc.paperClass == Celltype.TCellCD8Pos | lc.paperClass == Celltype.TCellReg);
-lcb = lc.cellSubset(lc.paperClass == Celltype.BCell);
-lcm = lc.cellSubset(lc.paperClass == Celltype.Malignant);
-t68000 = pbmc68000.cellSubset(pbmc68000.paperClass == Celltype.TCellCD4Pos | pbmc68000.paperClass == Celltype.TCellCD8Pos | pbmc68000.paperClass == Celltype.TCellReg);
-hcat = hcacb.cellSubset(hcacb.custClass == Celltype.TCell);
-hcab = hcacb.cellSubset(hcacb.custClass == Celltype.BCell);
+lct = lc.cellSubset(lc.cellType == Celltype.TCellCD4Pos | lc.cellType == Celltype.TCellCD8Pos | lc.cellType == Celltype.TCellReg);
+lcb = lc.cellSubset(lc.cellType == Celltype.BCell);
+lcm = lc.cellSubset(lc.cellType == Celltype.Malignant);
+t68000 = pbmc68000.cellSubset(pbmc68000.cellType == Celltype.TCellCD4Pos | pbmc68000.cellType == Celltype.TCellCD8Pos | pbmc68000.cellType == Celltype.TCellReg);
+hcat = hcacb.cellSubset(hcacb.cellType == Celltype.TCell);
+hcab = hcacb.cellSubset(hcacb.cellType == Celltype.BCell);
 [scd_GSE112845_pat_a,scd_GSE112845_pat_b,scd_GSE112845_cd8] = SCDep.scd_GSE112845;
 
 

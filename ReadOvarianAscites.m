@@ -16,7 +16,7 @@ ds.genes = table2cell(tg(:, 1));
 a = load(pathClassification);
 
 cts = a.predicted_celltype(a.id_ascites);
-ds.paperClass = arrayfun(@ImpId2CellTypeId, cts);% a tsne plot confirms that they come in the right order
+ds.cellType = arrayfun(@ImpId2CellTypeId, cts);% a tsne plot confirms that they come in the right order
 
 ds = ds.fillEmpties();
 

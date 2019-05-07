@@ -4,7 +4,7 @@
 function ds = ReadPBMCTCD4Mem10000(directoryPath)
 
 ds = Read10xMatrix(directoryPath);
-ds.paperClass(1,:) = Celltype.TCellCD4Memory;
+ds.cellType(1,:) = Celltype.TCellCD4Memory;
 ds.name = 'pbmc T CD4Mem 10000';
 
 end

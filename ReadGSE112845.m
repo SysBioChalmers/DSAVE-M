@@ -8,22 +8,22 @@ ds = Read10xMatrix(path);
 ds.name = 'GSE112845';
 
 if ~isempty(classificationPath)
-    %read ds.paperClass file from the authors
+    %read ds.cellType file from the authors
     f = readtable(classificationPath, 'ReadRowNames', false, 'Delimiter', '\t');
     c = table2cell(f);
     %transform from string type to SCLib cell type enum
     ct = cellfun(@String2CellTypeId, c(:,2));
 
     [~, ia, ib] = intersect(ds.cellIds, c(:, 1));
-    ds.custClass(1,ia) = ct(ib,1).';
+    ds.cellType(1,ia) = ct(ib,1).';
 
     %remove the cells with cell type 'unknown' - these are low quality cells
     %that did not have a classification in the file
-    ds = ds.cellSubset(ds.custClass ~= Celltype.Unknown);
+    ds = ds.cellSubset(ds.cellType ~= Celltype.Unknown);
 else
     %assume it is the CD8+ dataset
-    ds.paperClass(1,:) = Celltype.TCellCD8Pos;
-    ds.custClass = ds.paperClass;
+    ds.cellType(1,:) = Celltype.TCellCD8Pos;
+    ds.cellType = ds.cellType;
 end
 
 

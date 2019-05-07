@@ -2,7 +2,7 @@
 %% Fig A and B
 %breast cancer
 bc2 = SCDep.scd_bc2;
-bc2t = bc2.cellSubset(bc2.paperClass == Celltype.TCellCD4Pos | bc2.paperClass == Celltype.TCellCD8Pos | bc2.paperClass == Celltype.TCellReg);
+bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
 bc2t_bc2ln = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC2_LYMPHNODE'));
 bc2tSub = bc2t_bc2ln.randSample(2500);
 llsbc2 = DSAVEGetSingleCellDivergence(bc2tSub, 200);
@@ -39,7 +39,7 @@ llsbcSNO = DSAVEGetSingleCellDivergence(bcSNO, 200);
 
 %lc
 [lc,~] = SCDep.scd_lc;
-lct = lc.cellSubset(lc.paperClass == Celltype.TCellCD4Pos | lc.paperClass == Celltype.TCellCD8Pos | lc.paperClass == Celltype.TCellReg);
+lct = lc.cellSubset(lc.cellType == Celltype.TCellCD4Pos | lc.cellType == Celltype.TCellCD8Pos | lc.cellType == Celltype.TCellReg);
 lctSub2 = lct.randSample(2500);
 llslc2 = DSAVEGetSingleCellDivergence(lctSub2, 200);
 [lcx,lci] = sort(llslc2);
@@ -61,9 +61,9 @@ lctDSAVEScore500Less = CalcDSAVE(lct500Less, templInfo);
 %hca
 hcacb = SCDep.scd_hca_cb;
 hca_cb1 = hcacb.cellSubset(strcmp(hcacb.sampleIds,'CB1'));
-hcat = hca_cb1.cellSubset(hca_cb1.custClass == Celltype.TCell | hca_cb1.custClass == Celltype.TCellCD4Pos | hca_cb1.custClass == Celltype.TCellCD8Pos);
-hcab = hca_cb1.cellSubset(hca_cb1.custClass == Celltype.BCell);
-hcam = hca_cb1.cellSubset(hca_cb1.custClass == Celltype.Monocyte);
+hcat = hca_cb1.cellSubset(hca_cb1.cellType == Celltype.TCell | hca_cb1.cellType == Celltype.TCellCD4Pos | hca_cb1.cellType == Celltype.TCellCD8Pos);
+hcab = hca_cb1.cellSubset(hca_cb1.cellType == Celltype.BCell);
+hcam = hca_cb1.cellSubset(hca_cb1.cellType == Celltype.Monocyte);
 hcatSub2 = hcat.randSample(2500);
 
 

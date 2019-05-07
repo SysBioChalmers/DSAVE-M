@@ -8,8 +8,8 @@ if isempty(v)
     filename = '../../TempData/DSAVE_std_template.mat';
     if(~exist(filename,'file'))    
         disp('no .mat file found, regenerating template');
-        ovm = SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.custClass == Celltype.MacrophageOrMonocyte);
-        bc2t = SCDep.scd_bc2.cellSubset(SCDep.scd_bc2.paperClass == Celltype.TCellCD4Pos | SCDep.scd_bc2.paperClass == Celltype.TCellCD8Pos | SCDep.scd_bc2.paperClass == Celltype.TCellReg);
+        ovm = SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.MacrophageOrMonocyte);
+        bc2t = SCDep.scd_bc2.cellSubset(SCDep.scd_bc2.cellType == Celltype.TCellCD4Pos | SCDep.scd_bc2.cellType == Celltype.TCellCD8Pos | SCDep.scd_bc2.cellType == Celltype.TCellReg);
         bc2t_bc4tumor = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC4_TUMOR'));
         b10000 = SCDep.scd_pbmcb10000;
         [scd_GSE112845_pat_a,scd_GSE112845_pat_b,scd_GSE112845_cd8] = SCDep.scd_GSE112845;

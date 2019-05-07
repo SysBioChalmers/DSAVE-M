@@ -1,14 +1,17 @@
-function results = CalcDSAVE(origDs, templInfo, skipAlignment)
+%differenceCVs can be used for evaluating the number of iterations
+function [results,differenceCVs] = CalcDSAVE(origDs, templInfo, skipAlignment, iterations)
 
 if nargin < 3
     skipAlignment = false;
 end
 
+if nargin < 4
+    iterations = 15;
+end
+
 if skipAlignment
    disp('Warning: skipping alignment!'); 
 end
-
-iterations = 15;
 
 lbnonlog = 10;
 ubnonlog = 1000;
