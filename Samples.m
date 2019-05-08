@@ -7,24 +7,35 @@ classdef Samples
    methods
        %usage:
        %l is a logical vector or a vector of indices
-       function s = cellSubset(this, l) %logical vector
+       function s = sampleSubset(this, l) %logical vector
            s = Samples;
            s.data = this.data(:, l);
            s.genes = this.genes;
            s.sampleIds = this.sampleIds(1, l);
        end
 
-       function [s,ia] = geneSubset(this, genesToKeep, sortGenes) %genesToKeep should be a vertical cell array
+       %genesToKeep should be a vertical cell array, logical array or array of indices
+       %sortGenes is only used if a vertical cell array is sent in.
+       function [s,ia] = geneSubset(this, genesToKeep, sortGenes) 
            if nargin < 3
                sortGenes = 0;
            end
            s = this;
-           if sortGenes
-             [s.genes,ia,~] = intersect(this.genes, genesToKeep, 'sorted');
+           if isnumeric(genesToKeep) | islogical(genesToKeep)
+               s.genes = this.genes(genesToKeep);
+               s.data = s.data(genesToKeep,:);
+               if sortGenes
+                   error('Sort genes are not supported for input of logical array or indices');
+               end
            else
-             [s.genes,ia,~] = intersect(this.genes, genesToKeep, 'stable');
+               if sortGenes
+                   [s.genes,ia,~] = intersect(this.genes, genesToKeep, 'sorted');
+               else
+                   [s.genes,ia,~] = intersect(this.genes, genesToKeep, 'stable');
+               end
+               s.data = s.data(ia,:);
            end
-           s.data = s.data(ia,:);
+
        end
        
        %removes any genes that do not exist in both datasets
