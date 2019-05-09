@@ -1,7 +1,5 @@
-%Reads lung cancer data from file. Only reads one file, i.e. one type of
-%cells at the time, so call this several times for the different cell types
-%Note that you need to run the r script ExportLung50000files.r first to
-%generate the files!
+%Reads lung cancer data from file.Note that the file has been divided into
+%chunks for matlab to be able to read it.
 function [tumor,healthy] = ReadLung50000(pathchunk1, pathchunk2, pathchunk3, metaDataPath)
 %path = 'C:/Work/MatlabCode/components/SCLib/ImportableData/LungCancer50000/TestData.txt';
 %metaDataPath = 'C:/Work/MatlabCode/components/SCLib/ImportableData/LungCancer50000/MetaData.txt';
