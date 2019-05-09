@@ -21,13 +21,6 @@ ds.data = ds.data(:, ia);
 %a bit annoying, we have to extract two tokens and only keep the last
 temp = regexp(ds.cellIds, '\w+-(\w+-)?(\w+)', 'tokens');
 ds.sampleIds = cellfun(@(c) c{1}{2},temp, 'UniformOutput', false);
-
-
-% Transform to TPM. The data is in counts, so we need to divide by gene
-% length and then convert to TPM. Any genes not present will be left as
-% they are
-% Don't do this, the data is more useful in counts!
-%ds = geneInfo.NormalizeByTranscriptLength(ds);
-%ds = TPM(ds);
+ds.cellType = repmat(Celltype.TCell,size(ds.genes,1),size(ds.cellIds,2));
 
 ds = ds.fillEmpties();
