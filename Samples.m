@@ -41,7 +41,6 @@ classdef Samples
        %removes any genes that do not exist in both datasets
        function dsRes = innerJoin(this, ds)
            dsRes = Samples;
-           %dsRes.name = strcat('inner join (', this.name,', ',ds.name, ')');
            [dsRes.genes, ia, ib] = intersect(this.genes, ds.genes);
            dsRes.data = [this.data(ia,:) ds.data(ib,:)];
            dsRes.sampleIds = [this.sampleIds ds.sampleIds];
@@ -79,7 +78,7 @@ classdef Samples
            s = this;
            [r,c] = size(s.data);
            if isempty(s.sampleIds)
-               formatString = strcat(s.name, '_%d');
+               formatString = strcat('%d');
                s.sampleIds = sprintfc(formatString,(1:size(s.data,2)));
            end
        end
