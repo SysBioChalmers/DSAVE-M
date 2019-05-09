@@ -1,8 +1,8 @@
-function meanRes = EvaluateClusterSize(ds, maxSizeSet, upperBoundTPM, lowerBoundTPM)
+function meanRes = DSAVEGetTotalVariationVsPoolSize(ds, maxSizeSet, upperBoundTPM, lowerBoundTPM)
 
 ds_red = TPM(ds);
 
-ProgressBar(strcat('Evaluate cluster size:',ds.name),true);
+ProgressBar(strcat('DSAVEGetTotalVariationVsPoolSize:',ds.name),true);
 
 totset = ds_red.data;
 
@@ -13,7 +13,7 @@ totset(rem,:) = [];
 totNumCells = size(totset,2);
 
 steps = 100;
-maxSize = min(maxSizeSet, totNumCells/2-1);
+maxSize = min(maxSizeSet, floor(totNumCells/2));
 repetitions = 30;
 res = zeros(2, steps*repetitions);
 meanRes = zeros(2, steps);

@@ -11,44 +11,16 @@ n = 6000;
 %read TMM normalization
 samp = ImportTabSepSamples('../ImportableData/tcellCD4ProfilesTMMNormalized.txt');
 
-bulkSamples = samp.cellSubset(32:39);
-%remove all lowly expressed cells
-means = mean(bulkSamples.data,2);
-badGenes = means < lb | means > ub;
-bulkSamples = bulkSamples.geneSubset(bulkSamples.genes(~badGenes)); 
-numSamp = size(bulkSamples.sampleIds,2);
-numGenes = size(bulkSamples.genes,1);
-diffs = zeros(numGenes,numSamp*(numSamp-1)/2);
-index = 1;
+bulkSamples = samp.sampleSubset(32:39);
 
-for i = 1:numSamp-1
-   for j = i+1:numSamp
-       diffs(:,index) = log2((bulkSamples.data(:,i)+0.05)./(bulkSamples.data(:,j)+0.05));
-       index = index + 1;
-   end
-end
+%Rescale the bulk samples so that they on average have 10^6 counts per
+%sample, even though the TMM normalization leads to that they will have a
+%different number of counts
+normFact = 10^6 / mean(sum(bulkSamples.data,1),2);
+bulkSamples.data = bulkSamples.data .* normFact;
 
-bulkMean1Vs1 = mean(mean(abs(diffs),2),1);
-
-%a second bulk example, where the average of 4 samples is compared to the
-%average of another 4.
-%get all permutations of four
-ind = 1:numSamp;
-k = round(numSamp/2);
-combs = nchoosek(ind,k);
-numCombs = size(combs,1);
-diffs = zeros(numGenes,numCombs);
-for i = 1:numCombs
-    a = bulkSamples.data(:,combs(i));
-    notind = 1:numSamp;
-    notind(combs(i,:)) = [];
-    b = bulkSamples.data(:,notind);
-    ma = mean(a,2);
-    mb = mean(b,2);
-    diffs(:,i) = log2((ma+0.05)./(mb+0.05));
-end
-
-bulkMean4Vs4 = mean(mean(abs(diffs),2),1);
+bulkMean1Vs1 = DSAVEGetTotalVariationFromBulk(bulkSamples, false, ub, lb);
+bulkMean4Vs4 = DSAVEGetTotalVariationFromBulk(bulkSamples, true, ub, lb);
 
 %create bulk data matrix
 X = [0;repelem(n,99).'];
@@ -72,7 +44,7 @@ legends = { 'single bulk sample','mean of 4 bulk samples','OC - macrophages','LI
 lineStyles = {'b--','k--','b-','k-','r-','m-','g-','c-'};
 
 for i = 1:size(dss,2)
-   vals = EvaluateClusterSize(dss{i}, n, ub, lb);
+   vals = DSAVEGetTotalVariationVsPoolSize(dss{i}, n, ub, lb);
    X = [X vals(1,:).'];
    Y = [Y vals(2,:).'];
 end
@@ -101,45 +73,8 @@ ub = 2;
 lb = 0.5;
 n = 6000;
 
-bulkSamples = samp.cellSubset(32:39);
-%remove all lowly expressed cells
-means = mean(bulkSamples.data,2);
-badGenes = means < lb | means > ub;
-bulkSamples = bulkSamples.geneSubset(bulkSamples.genes(~badGenes)); 
-numSamp = size(bulkSamples.sampleIds,2);
-numGenes = size(bulkSamples.genes,1);
-diffs = zeros(numGenes,numSamp*(numSamp-1)/2);
-index = 1;
-
-for i = 1:numSamp-1
-   for j = i+1:numSamp
-       diffs(:,index) = log2((bulkSamples.data(:,i)+0.05)./(bulkSamples.data(:,j)+0.05));
-       index = index + 1;
-   end
-end
-
-bulkMean1Vs1 = mean(mean(abs(diffs),2),1);
-
-%a second bulk example, where the average of 4 samples is compared to the
-%average of another 4.
-%get all permutations of four
-ind = 1:numSamp;
-k = round(numSamp/2);
-combs = nchoosek(ind,k);
-numCombs = size(combs,1);
-diffs = zeros(numGenes,numCombs);
-for i = 1:numCombs
-    a = bulkSamples.data(:,combs(i));
-    notind = 1:numSamp;
-    notind(combs(i,:)) = [];
-    b = bulkSamples.data(:,notind);
-    ma = mean(a,2);
-    mb = mean(b,2);
-    diffs(:,i) = log2((ma+0.05)./(mb+0.05));
-end
-
-bulkMean4Vs4 = mean(mean(abs(diffs),2),1);
-
+bulkMean1Vs1 = DSAVEGetTotalVariationFromBulk(bulkSamples, false, ub, lb);
+bulkMean4Vs4 = DSAVEGetTotalVariationFromBulk(bulkSamples, true, ub, lb);
 
 %create bulk data matrix
 X2 = [0;repelem(n,99).'];
@@ -161,7 +96,7 @@ dss = { SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.Macropha
       };
 
 for i = 1:size(dss,2)
-   vals = EvaluateClusterSize(dss{i}, n, ub, lb);
+   vals = DSAVEGetTotalVariationVsPoolSize(dss{i}, n, ub, lb);
    X2 = [X2 vals(1,:).'];
    Y2 = [Y2 vals(2,:).'];
 end
@@ -188,45 +123,8 @@ ub = 100000;
 lb = 100;
 n = 2000;
 
-bulkSamples = samp.cellSubset(32:39);
-%remove all lowly expressed cells
-means = mean(bulkSamples.data,2);
-badGenes = means < lb | means > ub;
-bulkSamples = bulkSamples.geneSubset(bulkSamples.genes(~badGenes)); 
-numSamp = size(bulkSamples.sampleIds,2);
-numGenes = size(bulkSamples.genes,1);
-diffs = zeros(numGenes,numSamp*(numSamp-1)/2);
-index = 1;
-
-for i = 1:numSamp-1
-   for j = i+1:numSamp
-       diffs(:,index) = log2((bulkSamples.data(:,i)+0.05)./(bulkSamples.data(:,j)+0.05));
-       index = index + 1;
-   end
-end
-
-bulkMean1Vs1 = mean(mean(abs(diffs),2),1);
-
-%a second bulk example, where the average of 4 samples is compared to the
-%average of another 4.
-%get all permutations of four
-ind = 1:numSamp;
-k = round(numSamp/2);
-combs = nchoosek(ind,k);
-numCombs = size(combs,1);
-diffs = zeros(numGenes,numCombs);
-for i = 1:numCombs
-    a = bulkSamples.data(:,combs(i));
-    notind = 1:numSamp;
-    notind(combs(i,:)) = [];
-    b = bulkSamples.data(:,notind);
-    ma = mean(a,2);
-    mb = mean(b,2);
-    diffs(:,i) = log2((ma+0.05)./(mb+0.05));
-end
-
-bulkMean4Vs4 = mean(mean(abs(diffs),2),1);
-
+bulkMean1Vs1 = DSAVEGetTotalVariationFromBulk(bulkSamples, false, ub, lb);
+bulkMean4Vs4 = DSAVEGetTotalVariationFromBulk(bulkSamples, true, ub, lb);
 
 %create bulk data matrix
 X3 = [0;repelem(n,99).'];
@@ -248,7 +146,7 @@ dss = { SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.Macropha
       };
 
 for i = 1:size(dss,2)
-   vals = EvaluateClusterSize(dss{i}, n, ub, lb);
+   vals = DSAVEGetTotalVariationVsPoolSize(dss{i}, n, ub, lb);
    X3 = [X3 vals(1,:).'];
    Y3 = [Y3 vals(2,:).'];
 end
