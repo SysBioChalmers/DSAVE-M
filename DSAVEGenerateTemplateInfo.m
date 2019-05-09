@@ -81,9 +81,6 @@ end
 templInfo.UMIDistr = sort(templInfo.UMIDistr);
 
 %% Some other params
-templInfo.cellPoolSize = 2000;%2000 means bootstrapping since we also have 2000 cells
-templInfo.cellPoolIterations = 400;
-templInfo.dsIterations = 10;
 templInfo.fractionUpperOutliers = fractionUpperOutliers;
 templInfo.fractionLowerOutliers = fractionLowerOutliers;
 
