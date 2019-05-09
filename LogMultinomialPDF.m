@@ -27,7 +27,7 @@ s2 = log2(factorial(obs));%don't sum yet
 s3 = nansum(log2(prob).*obs);
 
 % Some of the s2s may have become inf due to that matlab cannot calculate
-% n! for large n (> 170). Replace those values by values calculated by the
+% n! for large n (> 170, we used 150 to stay on the safe side). Replace those values by values calculated by the
 % n method
 sel = obs > specCalcLimit; 
 ind = (1:size(obs,1)).';
