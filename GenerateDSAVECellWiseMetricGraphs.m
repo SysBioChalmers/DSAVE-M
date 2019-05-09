@@ -557,6 +557,30 @@ set(gca,'FontSize',11);
 
 corrcoef(c1,c2)
 
+%% Cell divergence vs pca
+%The code below can be used for showing that a pca does not say the same
+%thing as the divergence.
+%{
+[coeff,score,~,~,explained] = pca(full(bc2tSub.data).');
+
+a = -llsbc2;
+
+maxv = max(a);
+minv = min(a);
+coloring = a - minv;
+coloring = coloring ./ maxv;
+coloring = coloring .* 80;
+coloring = coloring + 1;
+
+figure
+scatter(score(:,1),score(:,2), coloring);
+
+figure
+scatter(score(:,3),score(:,2), coloring);
+figure
+scatter(score(:,1), coloring);
+%}
+
 %% Experiments on why some cells in real datasets have a higher likelihood than the SNO cells
 %{
 meanAll = mean(hcatSub2.data,2);
