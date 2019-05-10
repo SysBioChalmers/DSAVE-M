@@ -1,12 +1,14 @@
 
 %% Fig A
+
+progbar = ProgrBar('Gene-wise: Fig A');
+
+
 %breast cancer
 bc2 = SCDep.scd_bc2;
 bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
 bc2tSub = bc2t.randSample(10000);
-tic
-[logCVDifferencebc,genesbc,bcSNOVariances, pvalsbc] = DSAVEGetGeneVariation(bc2tSub,1,150,10000);
-t = toc
+[logCVDifferencebc,genesbc,bcSNOVariances, pvalsbc] = DSAVEGetGeneVariation(bc2tSub,1,150,10000, progbar.GetSubContext(0.33));
 
 %figure
 %histfit(bcSNOVariances(17,:));
@@ -15,39 +17,16 @@ t = toc
 [lc,~] = SCDep.scd_lc;
 lct = lc.cellSubset(lc.cellType == Celltype.TCellCD4Pos | lc.cellType == Celltype.TCellCD8Pos | lc.cellType == Celltype.TCellReg);
 lctSub = lct.randSample(10000);
-tic
-[logCVDifferencelc,geneslc,lcSNOVariances, pvalslc] = DSAVEGetGeneVariation(lctSub,1,150,10000);
-t = toc
+[logCVDifferencelc,geneslc,lcSNOVariances, pvalslc] = DSAVEGetGeneVariation(lctSub,1,150,10000, progbar.GetSubContext(0.33));
 
 %hca
 hcacb = SCDep.scd_hca_cb;
 hca_cb1 = hcacb.cellSubset(strcmp(hcacb.sampleIds,'CB1'));
 hcat = hca_cb1.cellSubset(hca_cb1.cellType == Celltype.TCell | hca_cb1.cellType == Celltype.TCellCD4Pos | hca_cb1.cellType == Celltype.TCellCD8Pos);
 hcatSub = hcat.randSample(10000);
-tic
-[logCVDifferencehca,geneshca,hcaSNOVariances, pvalshca] = DSAVEGetGeneVariation(hcatSub,1,150,10000);
-t = toc
+[logCVDifferencehca,geneshca,hcaSNOVariances, pvalshca] = DSAVEGetGeneVariation(hcatSub,1,150,10000, progbar.GetSubContext(0.33));
 
-%this code list genes that appear more than once
-%[gg, ggg] = unique(hcacb.genes);
-%aaa = hcacb.genes;
-%aaa(ggg,:) = [];
-
-%Save the data in case we want to recreate the graphs; it takes a whole day
-%to run the lines above down to here...
-prevDir = SCDep.setPathToSource();
-save('../../TempData/logCVDifferencebc.mat','logCVDifferencebc');
-save('../../TempData/genesbc.mat','genesbc');
-save('../../TempData/pvalsbc.mat','pvalsbc');
-
-save('../../TempData/logCVDifferencelc.mat','logCVDifferencelc');
-save('../../TempData/geneslc.mat','geneslc');
-save('../../TempData/pvalslc.mat','pvalslc');
-
-save('../../TempData/logCVDifferencehca.mat','logCVDifferencehca');
-save('../../TempData/geneshca.mat','geneshca');
-save('../../TempData/pvalshca.mat','pvalshca');
-SCDep.restoreDir(prevDir);
+progbar.Done();%finish progress bar here, some printouts below
 
 pValsbcAdj = AdjustPval(pvalsbc,'benjamini',1);
 sum(pValsbcAdj< 0.05)
@@ -61,7 +40,6 @@ xlabel('Gene index')
 ylabel('BTM variation')
 title('Variation per Gene');
 hold on
-
 
 [sortedValsLc, ilc] = sort(logCVDifferencelc.', 'descend');
 xValsLc = 1:size(logCVDifferencelc,1);
@@ -85,8 +63,6 @@ sum(pValsbcAdj < 0.05)
 sum(pValslcAdj < 0.05)
 sum(pValshcaAdj < 0.05)
 
-%
-
 %% Corr Fig, not used
 %{
 %make correlation graph; doesn't look as good though
@@ -99,64 +75,66 @@ title('Gene-wise BTM variation correlation between datasets.');
 %}
 
 %% Fig D
-
 %check what happens if we replace the 50/250 worst genes with SNO counterparts
+
 templInfo = DSAVEGetStandardTemplate();
+
+progbar = ProgrBar('Gene-wise: Fig D');
+
 bc2tSub2 = bc2tSub.randSample(2000);%make sure we compare the same datasets to avoid stochaisticity
 lctSub2 = lctSub.randSample(2000);%make sure we compare the same datasets to avoid stochaisticity
 hcatSub2 = hcatSub.randSample(2000);%make sure we compare the same datasets to avoid stochaisticity
-bcDSAVEScore = CalcDSAVE(bc2tSub2, templInfo);
-lcDSAVEScore = CalcDSAVE(lctSub2, templInfo);
-hcaDSAVEScore = CalcDSAVE(hcatSub2, templInfo);
 
 %generate a template for each dataset
-bcSNO = GenerateSamplingSSDataset(bc2tSub2);
-lcSNO = GenerateSamplingSSDataset(lctSub2);
-hcaSNO = GenerateSamplingSSDataset(hcatSub2);
+bcSNO = DSAVEGenerateSNODataset(bc2tSub2, progbar.GetSubContext(0.015));
+lcSNO = DSAVEGenerateSNODataset(lctSub2, progbar.GetSubContext(0.015));
+hcaSNO = DSAVEGenerateSNODataset(hcatSub2, progbar.GetSubContext(0.015));
 
 templInfo2 = templInfo;
 templInfo2.fractionUpperOutliers = 0;
 templInfo2.fractionLowerOutliers = 0;
-bcNoRemDSAVEScore = CalcDSAVE(bc2tSub2, templInfo2);
-lcNoRemDSAVEScore = CalcDSAVE(lctSub2, templInfo2);
-hcaNoRemDSAVEScore = CalcDSAVE(hcatSub2, templInfo2);
+bcNoRemDSAVEScore = DSAVECalcBTMScore(bc2tSub2, templInfo2, progbar.GetSubContext(0.105));
+lcNoRemDSAVEScore = DSAVECalcBTMScore(lctSub2, templInfo2, progbar.GetSubContext(0.105));
+hcaNoRemDSAVEScore = DSAVECalcBTMScore(hcatSub2, templInfo2, progbar.GetSubContext(0.105));
 
 bc2tSub2red = bc2tSub2;
 worstGenesBc = genesbc(ibc(1:50));
 [~,ia,~] = intersect(bc2tSub2red.genes,worstGenesBc);
 bc2tSub2red.data(ia,:) = bcSNO.data(ia,:);
-bcNoW50DSAVEScore = CalcDSAVE(bc2tSub2red, templInfo2);
+bcNoW50DSAVEScore = DSAVECalcBTMScore(bc2tSub2red, templInfo2, progbar.GetSubContext(0.105));
 
 lctSub2red = lctSub2;
 worstGenesLc = geneslc(ilc(1:50));
 [~,ia,~] = intersect(lctSub2red.genes,worstGenesLc);
 lctSub2red.data(ia,:) = lcSNO.data(ia,:);
-lcNoW50DSAVEScore = CalcDSAVE(lctSub2red, templInfo2);
+lcNoW50DSAVEScore = DSAVECalcBTMScore(lctSub2red, templInfo2, progbar.GetSubContext(0.105));
 
 hcatSub2red = hcatSub2;
 worstGenesHca = geneshca(ihca(1:50));
 [~,ia,~] = intersect(hcatSub2red.genes,worstGenesHca);
 hcatSub2red.data(ia,:) = hcaSNO.data(ia,:);
-hcaNoW50DSAVEScore = CalcDSAVE(hcatSub2red, templInfo2);
+hcaNoW50DSAVEScore = DSAVECalcBTMScore(hcatSub2red, templInfo2, progbar.GetSubContext(0.105));
 
 bc2tSub2red2 = bc2tSub2;
 worstGenesBc2 = genesbc(ibc(1:250));
 [~,ia,~] = intersect(bc2tSub2red2.genes,worstGenesBc2);
 bc2tSub2red2.data(ia,:) = bcSNO.data(ia,:);
-bcNoW250DSAVEScore = CalcDSAVE(bc2tSub2red2, templInfo2);
+bcNoW250DSAVEScore = DSAVECalcBTMScore(bc2tSub2red2, templInfo2, progbar.GetSubContext(0.105));
 
 lctSub2red2 = lctSub2;
 worstGenesLc2 = geneslc(ilc(1:250));
 [~,ia,~] = intersect(lctSub2red2.genes,worstGenesLc2);
 lctSub2red2.data(ia,:) = lcSNO.data(ia,:);
-lcNoW250DSAVEScore = CalcDSAVE(lctSub2red2, templInfo2);
+lcNoW250DSAVEScore = DSAVECalcBTMScore(lctSub2red2, templInfo2, progbar.GetSubContext(0.105));
 
 hcatSub2red2 = hcatSub2;
 worstGenesHca2 = geneshca(ihca(1:250));
 [~,ia,~] = intersect(hcatSub2red2.genes,worstGenesHca2);
 hcatSub2red2.data(ia,:) = hcaSNO.data(ia,:);
-hcaNoW250DSAVEScore = CalcDSAVE(hcatSub2red2, templInfo2);
+hcaNoW250DSAVEScore = DSAVECalcBTMScore(hcatSub2red2, templInfo2, progbar.GetSubContext(0.105));
 
+progbar.Done();
+disp('Copy the values below into the excel sheet, figure D.')
 values = [bcNoRemDSAVEScore.DSAVEScore bcNoW50DSAVEScore.DSAVEScore bcNoW250DSAVEScore.DSAVEScore lcNoRemDSAVEScore.DSAVEScore lcNoW50DSAVEScore.DSAVEScore lcNoW250DSAVEScore.DSAVEScore hcaNoRemDSAVEScore.DSAVEScore hcaNoW50DSAVEScore.DSAVEScore hcaNoW250DSAVEScore.DSAVEScore]
 
 %% Test if the most variable genes are mainly lowly expressed:
@@ -177,98 +155,8 @@ format short % default
 
 %% Fig C - Wenn diagram over intersection of 50 most variable genes
 
-%get the worst genes above 10 CPM
-%worstGenesBc = genesbc(ibc(1:50));
-%sortedGenesBc = genesbc(ibc);
-%{
-%first synchronize the genes between the dataset and the results from the
-%variation calculation:
-meanExprBc = mean(TPM(bc2tSub.data),2);
-[commonGenesBc,ia,ib] = intersect(bc2tSub.genes,genesbc);
-commonMeanExprBc = meanExprBc(ia,:);
-commonLogCVDifferenceBc = logCVDifferencebc(ib,:);
-%Then filter out all genes below 10 CPM:
-above10 = commonMeanExprBc >= 10;
-commonGenesAbove10Bc = commonGenesBc(above10,:);
-commonMeanExprAbove10Bc = commonMeanExprBc(above10,:);
-commonLogCVDifferenceAbove10Bc = commonLogCVDifferenceBc(above10,:);
-%now sort according to variation
-[sortedValsAbove10Bc,iAbove10Bc] = sort(commonLogCVDifferenceAbove10Bc.', 'descend');
-commonGenesAbove10Bc = commonGenesAbove10Bc(iAbove10Bc);
-commonGenesAbove10_50WorstBc = commonGenesAbove10Bc(1:250,:);
-
-meanExprLc = mean(TPM(lctSub.data),2);
-[commonGenesLc,ia,ib] = intersect(lctSub.genes,geneslc);
-commonMeanExprLc = meanExprLc(ia,:);
-commonLogCVDifferenceLc = logCVDifferencelc(ib,:);
-%Then filter out all genes below 10 CPM:
-above10 = commonMeanExprLc >= 10;
-commonGenesAbove10Lc = commonGenesLc(above10,:);
-commonMeanExprAbove10Lc = commonMeanExprLc(above10,:);
-commonLogCVDifferenceAbove10Lc = commonLogCVDifferenceLc(above10,:);
-%now sort according to variation
-[sortedValsAbove10Lc,iAbove10Lc] = sort(commonLogCVDifferenceAbove10Lc.', 'descend');
-commonGenesAbove10Lc = commonGenesAbove10Lc(iAbove10Lc);
-commonGenesAbove10_50WorstLc = commonGenesAbove10Lc(1:250,:);
-
-meanExprHca = mean(TPM(hcatSub.data),2);
-[commonGenesHca,ia,ib] = intersect(hcatSub.genes,geneshca);
-commonMeanExprHca = meanExprHca(ia,:);
-commonLogCVDifferenceHca = logCVDifferencehca(ib,:);
-%Then filter out all genes below 10 CPM:
-above10 = commonMeanExprHca >= 10;
-commonGenesAbove10Hca = commonGenesHca(above10,:);
-commonMeanExprAbove10Hca = commonMeanExprHca(above10,:);
-commonLogCVDifferenceAbove10Hca = commonLogCVDifferenceHca(above10,:);
-%now sort according to variation
-[sortedValsAbove10Hca,iAbove10Hca] = sort(commonLogCVDifferenceAbove10Hca.', 'descend');
-commonGenesAbove10Hca = commonGenesAbove10Hca(iAbove10Hca);
-commonGenesAbove10_50WorstHca = commonGenesAbove10Hca(1:250,:);
-
-
-
-%logCVDifferencebc(strcmp(genesbc,'MALAT1'))
-%meanExprBc(strcmp(bc2tSub.genes,'MALAT1'))
-logCVDifferencebc(strcmp(genesbc,'HBB'))
-meanExprBc(strcmp(bc2tSub.genes,'HBB'))
-dataHBB = bc2tSub.data(strcmp(bc2tSub.genes,'HBB'),:);
-sel = dataHBB > 0;
-dataHBB(sel)
-
-dataHBB = lctSub.data(strcmp(lctSub.genes,'HBB'),:);
-sel = dataHBB > 0;
-dataHBB(sel)
-figure
-histogram(dataHBB(sel))
-
-dataHBB = hcatSub.data(strcmp(hcatSub.genes,'HBB'),:);
-sel = dataHBB > 0;
-dataHBB(sel)
-figure
-histogram(dataHBB(sel))
-
-dataGNLY = lctSub.data(strcmp(lctSub.genes,'GNLY'),:);
-sel = dataGNLY > 0;
-dataGNLY(sel)
-figure
-histogram(dataGNLY(sel))
-
-
-%numSorted = size(sortedGenesBc,1);
-%sortIndex = 1:numSorted;
-
-%}
-
-%[bc,lc,hca,bclc,bchca,lchca,all_] = CreateVennDiagramSets(worstGenesBc,worstGenesLc,worstGenesHca);
 [bc,lc,hca,bclc,bchca,lchca,all_] = CreateVennDiagramSets(worstGenesBc2,worstGenesLc2,worstGenesHca2);
-%[bc,lc,hca,bclc,bchca,lchca,all_] = CreateVennDiagramSets(commonGenesAbove10_50WorstBc,commonGenesAbove10_50WorstLc,commonGenesAbove10_50WorstHca);
-%{
-bc_lc = intersect(worstGenesBc,worstGenesLc);
-bc_hca = intersect(worstGenesBc,worstGenesHca);
-lc_hca = intersect(worstGenesLc,worstGenesHca);
 
-bc_lc_hca = intersect(bc_lc,worstGenesHca);
-%}
 a = zeros(1,7);
 a(1,1) = size(bc,1);
 a(1,2) = size(lc,1);
@@ -329,9 +217,9 @@ diffs = logconfcvs - logmeancvs;
 sel = meanExpr >= 1 & meanExpr <= 5000;
 
 dfs = diffs(sel);
-exp = meanExpr(sel);
+exp_ = meanExpr(sel);
 %now sort the values
-[es,ie] = sort(exp);
+[es,ie] = sort(exp_);
 rs = dfs(ie);
 
 %create a plot using sliding window of 300 genes (makes it somewhat smooth)
@@ -359,7 +247,7 @@ bcsubs = bc2tSub.geneSubset(genesbc);%this works since geneSubset is determinist
 mns = mean(TPM(bcsubs.data),2);
 counts = sum(bcsubs.data,2);
 vvv = log2(sqrt(bcSNOVariances)./(mns+0.05) + 1);%this is the same logCV as calculated for the observed
-www = log(sqrt(bcSNOVariances)./(mns+0.00000005));%this is the same logCV as calculated for the observed
+www = log(sqrt(bcSNOVariances)./(mns+0.00000005));
 
 
 %try to overlay them, scaled by variance
@@ -373,29 +261,66 @@ standardized2 = www - meanvars2;
 standardized2 = standardized2 ./ stddevvars2;
 figure
 histfit(standardized(82,:));
-%edges = [-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4];
+
 edges = -6:0.5:6;
-%xes = -3.75:0.5:3.75
 xes = -5.75:0.5:5.75
 
 
 X = [ones(length(counts),1) log(counts)];
 
-cc = www+.5*log(counts);
-aa = cc-mean(cc,2);
+%hockeyklubban:
+
+%startläge:
+figure
+scatter(log(counts),www(:,1))
+
+cc = www+.5*log(counts);%.5 samma som sqrt på counts - detta transformerar CV så att lutningen mot counts nästan försvinner
+figure
+scatter(log(counts),cc(:,1))
+
+aa = cc-mean(cc,2);%centrera, gör att cv-värdena ligger runt x-axeln (och fixar till den lilla uträtning som inte skedde i förra steget)
+bb = www - mean(www,2);%bb is identical to aa, showing that the first step can be skipped if the second step is performed
+
+figure
+scatter(log(counts),aa(:,1))
+
+figure
+scatter(log(counts),bb(:,1))
+
 
 X = [ones(length(counts),1) log(counts)];
 b = X\(aa.^2)
 
 stddev = std(aa,[],2);
 figure
-for i = 1:150
-    scatter(log(counts), aa(:,i)./stddev);
-end
+scatter(log(counts), aa(:,1)./stddev);%div med stddev gör att spridning blir någorlunda jämn
 
+figure
+scatter(log(counts), log(stddev))
+
+figure
+scatter(log(mns), log(stddev))
+
+rnge2 = 1:0.1:6;
+rnge = 10.^rnge2;
+prob = rnge ./ 10^6;
+numUMI = 1500;
+%mean = n*p, var = n*p(1-p)
+cvggg = sqrt(1-prob) ./ sqrt(numUMI.*prob);
+figure
+scatter(log(rnge), log(cvggg))
+
+
+%for i = 1:150
+%    scatter(log(counts), aa(:,i)./stddev);%div med stddev gör att spridning blir jämn, men introducerar en lutning igen
+%end
+
+%detta är själva grafen där man ser att höguttryckta gener avviker från
+%linjen
 stddev = std(aa,[],2);
 figure
 scatter(-0.5*log(counts), log(stddev))
+
 
 
 X = [ones(length(counts),1) log(counts)];
@@ -420,6 +345,238 @@ for i = 1:150
  scatter(log(counts),aa(:,i)./stddev)
  hold on
 end
+
+
+%generate a dataset with the same number of UMIs in each cell
+hcasame = SCDep.scd_hca_cb.cellSubset(1:30000);
+UMI1 = sum(SCDep.scd_hca_cb.data,1);
+hcasame = SCDep.scd_hca_cb.cellSubset(UMI1 > 3000);
+templInfoSpec = DSAVEGetStandardTemplate();
+templInfoSpec.UMIDistr = repmat(2000,1,2000);
+hcasame = DSAVEAlignDataset(hcasame, templInfoSpec);
+templInfoSpec2 = templInfoSpec;
+templInfoSpec2.UMIDistr = repmat(1000,1,2000);
+hcasame2 = DSAVEAlignDataset(hcasame, templInfoSpec2);
+
+
+%SNO = DSAVEGenerateSNODataset(hcasame);
+
+[logCVDifferenceSame,genesSame,sameSNOVariances, pvalssame] = DSAVEGetGeneVariation(hcasame,1,150,10000);
+[logCVDifferenceSame2,genesSame2,sameSNOVariances2, pvalssame2] = DSAVEGetGeneVariation(hcasame2,1,150,10000);
+
+SNOsub = hcasame.geneSubset(genesSame);%this works since geneSubset is deterministic; however very shaky, the order of the genes could differ
+mnssame = mean(TPM(SNOsub.data),2);
+countssame = sum(SNOsub.data,2);
+vvvsame = log2(sqrt(sameSNOVariances)./(mnssame+0.05) + 1);%this is the same logCV as calculated for the observed
+wwwsame = log(sqrt(sameSNOVariances)./(mnssame+0.00000005));
+
+SNOsub2 = hcasame2.geneSubset(genesSame2);%this works since geneSubset is deterministic; however very shaky, the order of the genes could differ
+mnssame2 = mean(TPM(SNOsub2.data),2);
+countssame2 = sum(SNOsub2.data,2);
+vvvsame2 = log2(sqrt(sameSNOVariances2)./(mnssame2+0.05) + 1);%this is the same logCV as calculated for the observed
+wwwsame2 = log(sqrt(sameSNOVariances2)./(mnssame2+0.00000005));
+
+%test that gene synch worked
+all(strcmp(SNOsub.genes, genesSame)) %yes it did!
+
+
+ccsame = wwwsame+.5*log(countssame);%.5 samma som sqrt på counts - detta transformerar CV så att lutningen mot counts nästan försvinner
+aasame = ccsame-mean(ccsame,2);%centrera, gör att cv-värdena ligger runt x-axeln (och fixar till den lilla uträtning som inte skedde i förra steget)
+
+figure
+scatter(log(countssame),ccsame(:,3))
+
+
+figure
+scatter(log(countssame),aasame(:,3))
+
+figure
+scatter(log(counts),bb(:,1))
+
+
+X = [ones(length(counts),1) log(counts)];
+b = X\(aa.^2)
+
+stddevsame = std(aasame,[],2);
+figure
+scatter(log(countssame), aasame(:,1)./stddevsame);%div med stddev gör att spridning blir någorlunda jämn
+
+figure
+scatter(log(countssame), log(stddevsame))
+
+figure
+scatter(log(counts), log(stddev))
+
+rnge2 = 1:0.1:6;
+rnge = 10.^rnge2;
+prob = rnge ./ 10^6;
+numUMI = 1500;
+%mean = n*p, var = n*p(1-p)
+cvggg = sqrt(1-prob) ./ sqrt(numUMI.*prob);
+figure
+scatter(log(rnge), log(cvggg))
+
+%detta är själva grafen där man ser att höguttryckta gener avviker från
+%linjen
+stddev = std(aa,[],2);
+figure
+scatter(-0.5*log(counts), log(stddev))
+
+
+
+
+
+
+%kör med buckets
+stddevvarssame = std(wwwsame, [], 2);
+meanvarssame = mean(wwwsame, 2);
+standardizedsame = wwwsame - meanvarssame;
+standardizedsame = standardizedsame ./ stddevvarssame;
+
+stddevvarssame2 = std(wwwsame2, [], 2);
+meanvarssame2 = mean(wwwsame2, 2);
+standardizedsame2 = wwwsame2 - meanvarssame2;
+standardizedsame2 = standardizedsame2 ./ stddevvarssame2;
+
+%loop through a whole bunch of buckets
+stnddata = standardizedsame;
+lowerBounds = 1:20;
+upperBounds = 2:21;
+lowerBounds = 100:500:1100;
+upperBounds = [600 1100 10000000];
+
+lowerBounds = 50:10:100;
+upperBounds = lowerBounds + 10;
+
+lowerBounds = 10:20;
+upperBounds = lowerBounds + 1;
+
+%plot histogram:
+figure
+for i = 1:size(lowerBounds,2)
+%for i = 1:3
+    sel = mnssame <= upperBounds(1,i) & mnssame >= lowerBounds(1,i);
+    dat = stnddata(sel,:);
+    [aa,ab] = size(dat);
+    aB = reshape(dat, [1, aa*ab]);
+    edges = -12:0.25:12;
+    %xes = -3.75:0.5:3.75
+    xes = -11.875:0.25:11.875
+
+    ac = histcounts(aB,edges);
+    ac = ac / size(aB,2);
+    plot(xes,ac)
+    hold on
+   
+end
+
+%plot integrated histogram:
+figure
+%for i = 1:size(lowerBounds,2)
+for i = 1:size(lowerBounds,2)
+    sel = mnssame <= upperBounds(1,i) & mnssame >= lowerBounds(1,i);
+    dat = stnddata(sel,:);
+    [aa,ab] = size(dat);
+    aB = reshape(dat, [1, aa*ab]);
+    edges = -12:0.25:12;
+    %xes = -3.75:0.5:3.75
+    xes = -11.875:0.25:11.875;
+
+    ac = histcounts(aB,edges);
+    ac = ac / size(aB,2);
+    accum = cumsum(ac);
+    plot(xes,accum)
+    hold on
+   
+end
+legend(arrayfun(@num2str,lowerBounds,'UniformOutput',false));
+
+%plot integrated histogram for 1000 UMI set:
+figure
+%for i = 1:size(lowerBounds,2)
+for i = 1:size(lowerBounds,2)
+    sel = mnssame2 <= upperBounds(1,i) & mnssame2 >= lowerBounds(1,i);
+    dat = stnddata(sel,:);
+    [aa,ab] = size(dat);
+    aB = reshape(dat, [1, aa*ab]);
+    edges = -12:0.25:12;
+    %xes = -3.75:0.5:3.75
+    xes = -11.875:0.25:11.875;
+
+    ac = histcounts(aB,edges);
+    ac = ac / size(aB,2);
+    accum = cumsum(ac);
+    plot(xes,accum)
+    hold on
+   
+end
+legend(arrayfun(@num2str,lowerBounds,'UniformOutput',false));
+
+
+
+%put the genes into buckets and look at the standardized distributions for each bucket:
+stnddata = standardizedsame;
+sel05_2 = mnssame < 2 & mnssame > 0.5;
+dat05_2a = stnddata(sel05_2,:);
+[aa,ab] = size(dat05_2a);
+aB05_2 = reshape(dat05_2a, [1, aa*ab]);
+edges = -6:0.25:6;
+%xes = -3.75:0.5:3.75
+xes = -5.875:0.25:5.875
+
+figure
+ac = histcounts(aB05_2,edges);
+ac = ac / size(aB05_2,2);
+plot(xes,ac)
+hold on
+
+sel5_10 = mnssame < 10 & mnssame > 5;
+dat5_10a = stnddata(sel5_10,:);
+[aa,ab] = size(dat5_10a);
+aB5_10 = reshape(dat5_10a, [1, aa*ab]);
+ac = histcounts(aB5_10,edges);
+ac = ac / size(aB5_10,2);
+plot(xes,ac)
+hold on
+
+sel20_100 = mnssame < 100 & mnssame > 20;
+dat20_100a = stnddata(sel20_100,:);
+[aa,ab] = size(dat20_100a);
+aB20_100 = reshape(dat20_100a, [1, aa*ab]);
+ac = histcounts(aB20_100,edges);
+ac = ac / size(aB20_100,2);
+plot(xes,ac)
+hold on
+
+selL100 = mnssame > 100;
+datL100a = stnddata(selL100,:);
+[aa,ab] = size(datL100a);
+aBL100 = reshape(datL100a, [1, aa*ab]);
+ac = histcounts(aBL100,edges);
+ac = ac / size(aBL100,2);
+plot(xes,ac)
+legend({'0.5-2 TPM','5-10 TPM','20-100 TPM','>100 TPM'});
+
+
+
+
+
+
+
+
+
+
+hold on
+
+sort05_2 = sort(aB05_2);
+ind = round(size(aB05_2,2)*0.05);
+plot([aB05_2(1,aB05_2),aB05_2(1,aB05_2)], [0,0.1]);
+
+
+
+
+
+
 
 
 
@@ -512,7 +669,6 @@ for i = 1:20
     hold on
 end
 
-b = size()
 
 figure
 for i = 1:20

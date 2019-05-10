@@ -1,19 +1,20 @@
-function lls = DSAVEGetSingleCellDivergence(ds, minUMIsPerCell,TPMLowerBound,iterations)
+function lls = DSAVEGetSingleCellDivergence(ds, minUMIsPerCell, progrBarCtxt, TPMLowerBound, iterations)
 if nargin < 2
     minUMIsPerCell = 200;
 end
 if nargin < 3
-    TPMLowerBound = 0;
+    progrBarCtxt = [];
 end
 if nargin < 4
+    TPMLowerBound = 0;
+end
+if nargin < 5
     iterations = 15;
 end
 
 %remove all lowly expressed genes
 me = TPM(mean(ds.data,2));
 ds = ds.geneSubset(me >= TPMLowerBound);
-
-
 
 numGenes = size(ds.data,1);
 numCells = size(ds.data,2);
@@ -34,11 +35,10 @@ prob = full(prob);
 
 allLls = zeros(iterations,numCells);
 
-ProgressBar(['GetSingleCellDivergence ''' ds.name ''''],true);
+progbar = ProgrBar(['GetSingleCellDivergence ''' ds.name ''''], progrBarCtxt);
 
 %run several times since there is randomness in downsampling
 for it = 1:iterations
-    ProgressBar(floor(100*it/iterations));
     %downsample to the right number of UMIs per cell
     dsd = ds;
     toRemUMIs = UMIsPerCell - targetUMIsPerCell;
@@ -77,11 +77,12 @@ for it = 1:iterations
             allLls(it,i) = LogMultinomialPDF(dsd.data(:,i), prob);
         end
     end
+    progbar.Progress(it/iterations);
 end
 
 %take the median of all runs
 lls = median(allLls,1);
 
-ProgressBar('Done');
+progbar.Done();
 
 end

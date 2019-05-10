@@ -9,7 +9,7 @@ n = 6000;
 
 %calculate mean deviance between bulk samples (CD4+ T cells) from Blueprint
 %read TMM normalization
-samp = ImportTabSepSamples('../ImportableData/tcellCD4ProfilesTMMNormalized.txt');
+samp = ImportTabSepSamples('../../ImportableData/tcellCD4ProfilesTMMNormalized.txt');
 
 bulkSamples = samp.sampleSubset(32:39);
 

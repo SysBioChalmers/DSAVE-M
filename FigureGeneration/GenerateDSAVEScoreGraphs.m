@@ -9,14 +9,6 @@ bc2 = SCDep.scd_bc2;
 pbmc68000 = SCDep.scd_pbmc68000;
 hcacb = SCDep.scd_hca_cb;
 
-%add to test SynchronizeGenes
-%a = {ovasc, bc2, lc, hcacb, pbmc68000, b10000};
-
-
-%add to test SynchronizeGenes - sum should be 0
-%b = SynchronizeGenes(a,[], true);
-%sum(~strcmp(b{1,1}.genes, ovasc.genes))
-
 
 ovm = ovasc.cellSubset(ovasc.cellType == Celltype.MacrophageOrMonocyte);
 bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
@@ -35,6 +27,15 @@ lcmix = lct.randSample(3000).innerJoin(lcm.randSample(3000));
 
 %% Fig A
 
+templInfo = DSAVEGetStandardTemplate();
+templInfoAllOutliers = templInfo;
+templInfoAllOutliers.fractionUpperOutliers = 0;
+templInfoAllOutliers.fractionLowerOutliers = 0;
+
+
+progbar = ProgrBar('DSAVE Score 1: Fig A');
+
+
 ub = 100000;
 lb = 0.5;
 n = 6000;
@@ -49,13 +50,8 @@ lineStylesA = {'m-','m--','k-','k--','r-','r--'};
 numds = size(dss,2);
 resdataA = cell(1,numds);
 
-templInfo = DSAVEGetStandardTemplate();
-templInfoAllOutliers = templInfo;
-templInfoAllOutliers.fractionUpperOutliers = 0;
-templInfoAllOutliers.fractionLowerOutliers = 0;
-
 for i = 1:size(dss,2)
-    resdataA{1,i} = CalcDSAVE(dss{1,i}, templInfoAllOutliers, true);
+    resdataA{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfoAllOutliers, progbar.GetSubContext(0.33), true);
 end
 
 figure
@@ -74,8 +70,11 @@ title('Variation per Gene Expression, Unaligned Cell Pop.');
 axis([0 1000 0 4]);
 set(gca,'FontSize',11);
 
+progbar.Done();
 
 %% Fig B, C and D
+
+progbar = ProgrBar('DSAVE Score 1: Fig B-D');
 
 origdatasets = {ovm, bc2t, bc2t_bc4tumor, bc2t_blood, b10000, scd_GSE112845_cd8};
 names = {'OC macr.','OC macr. - SNO','BC T cells - mixed pat and tissue','BC T cells - mixed pat and tissue - SNO','BC tumor T cells, single pat','BC tumor T cells, single pat - SNO','BC blood T cells, single pat','BC blood T cells, single pat - SNO','B10k B cells, blood','B10k B cells, blood - SNO', 'CD8T T cells, blood', 'CD8T T cells, blood - SNO'};
@@ -90,11 +89,11 @@ scores = zeros(1,numds);
 % Create data
 
 for i = 1:numds
-    resdata{1,i} = CalcDSAVE(origdatasets{1,i}, templInfoAllOutliers);
+    resdata{1,i} = DSAVECalcBTMScore(origdatasets{1,i}, templInfoAllOutliers, progbar.GetSubContext(1/numds));
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
 
-
+progbar.Done();
 
 %fig B
 legNames = {};

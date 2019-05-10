@@ -1,11 +1,16 @@
     
 %% Fig A and B
+
+templInfo = DSAVEGetStandardTemplate();
+
+progbar = ProgrBar('Cell-wise: Fig A and B');
+
 %breast cancer
 bc2 = SCDep.scd_bc2;
 bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
 bc2t_bc2ln = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC2_LYMPHNODE'));
 bc2tSub = bc2t_bc2ln.randSample(2500);
-llsbc2 = DSAVEGetSingleCellDivergence(bc2tSub, 200);
+llsbc2 = DSAVEGetSingleCellDivergence(bc2tSub, 200, progbar.GetSubContext(0.10));
 
 %plot against number of umis
 %numUMIs = sum(bc2tSub.data,1);
@@ -14,49 +19,18 @@ llsbc2 = DSAVEGetSingleCellDivergence(bc2tSub, 200);
 %figure
 %scatter(bcx,bcy);
 
-templInfo = DSAVEGetStandardTemplate();
-
 %get DSAVE score for the original dataset and for the one where the 500
 %most divergent have been removed
-bcDSAVEScore = CalcDSAVE(bc2tSub, templInfo);
+bcDSAVEScore = DSAVECalcBTMScore(bc2tSub, templInfo, progbar.GetSubContext(0.06));
 
 %now remove the 500 worst cells
 bc2tSub500Less = bc2tSub.cellSubset(bci(1,501:2500));
-bcDSAVEScore500Less = CalcDSAVE(bc2tSub500Less, templInfo);
-%{
-lls500Less = DSAVEGetSingleCellDivergence(bc2tSub500Less, 200);
-numUMIs500Less = sum(bc2tSub500Less.data,1);
-[bcx2,bci2] = sort(lls500Less);
-bcy2 = numUMIs500Less(1,bci2);
-figure
-scatter(bcx2,bcy2);
-%}
+bcDSAVEScore500Less = DSAVECalcBTMScore(bc2tSub500Less, templInfo, progbar.GetSubContext(0.06));
+
 %now for the SNO
-bcSNO = GenerateSamplingSSDataset(bc2tSub);
-llsbcSNO = DSAVEGetSingleCellDivergence(bcSNO, 200);
+bcSNO = DSAVEGenerateSNODataset(bc2tSub, progbar.GetSubContext(0.01));
+llsbcSNO = DSAVEGetSingleCellDivergence(bcSNO, 200, progbar.GetSubContext(0.10));
 [bcsnox,bcsnoi] = sort(llsbcSNO);
-
-
-%lc
-[lc,~] = SCDep.scd_lc;
-lct = lc.cellSubset(lc.cellType == Celltype.TCellCD4Pos | lc.cellType == Celltype.TCellCD8Pos | lc.cellType == Celltype.TCellReg);
-lctSub2 = lct.randSample(2500);
-llslc2 = DSAVEGetSingleCellDivergence(lctSub2, 200);
-[lcx,lci] = sort(llslc2);
-%sno
-lcSNO = GenerateSamplingSSDataset(lctSub2);
-llslcSNO = DSAVEGetSingleCellDivergence(lcSNO, 200);
-[lcsnox,lcsnoi] = sort(llslcSNO);
-
-%get DSAVE score for the original dataset and for the one where the 500
-%most divergent have been removed
-lctDSAVEScore = CalcDSAVE(lctSub2, templInfo);
-
-%now remove the 500 worst cells
-lct500Less = lctSub2.cellSubset(lci(1,501:2500));
-lctDSAVEScore500Less = CalcDSAVE(lct500Less, templInfo);
-
-
 
 %hca
 hcacb = SCDep.scd_hca_cb;
@@ -67,41 +41,34 @@ hcam = hca_cb1.cellSubset(hca_cb1.cellType == Celltype.Monocyte);
 hcatSub2 = hcat.randSample(2500);
 
 
-llshcat = DSAVEGetSingleCellDivergence(hcatSub2, 200);
-hcatDSAVEScore = CalcDSAVE(hcatSub2, templInfo);
+llshcat = DSAVEGetSingleCellDivergence(hcatSub2, 200, progbar.GetSubContext(0.10));
+hcatDSAVEScore = DSAVECalcBTMScore(hcatSub2, templInfo, progbar.GetSubContext(0.06));
 [hcatx,hcati] = sort(llshcat);
 hcat500Less = hcatSub2.cellSubset(hcati(1,501:2500));
-llshcat500Less = DSAVEGetSingleCellDivergence(hcat500Less, 200);
-%{
-numUMIshcat500Less = sum(hcat500Less.data,1);
-figure
-%scatter(hcamixx,hcamixy,3,colorIndices);
-scatter(llshcat500Less,numUMIshcat500Less,3);
-%}
-hcat500LessDSAVEScore = CalcDSAVE(hcat500Less, templInfo);
+hcat500LessDSAVEScore = DSAVECalcBTMScore(hcat500Less, templInfo, progbar.GetSubContext(0.06));
 
-hcaSNO = GenerateSamplingSSDataset(hcatSub2);
-llshcaSNO = DSAVEGetSingleCellDivergence(hcaSNO, 200);
+hcaSNO = DSAVEGenerateSNODataset(hcatSub2, progbar.GetSubContext(0.01));
+llshcaSNO = DSAVEGetSingleCellDivergence(hcaSNO, 200, progbar.GetSubContext(0.10));
 [hcatsnox,hcatsnoi] = sort(llshcaSNO);
 
 
 %B10k
 b10k = SCDep.scd_pbmcb10000;
 b10kSub = b10k.randSample(2500);
-llsb10k = DSAVEGetSingleCellDivergence(b10kSub, 200);
+llsb10k = DSAVEGetSingleCellDivergence(b10kSub, 200, progbar.GetSubContext(0.10));
 [b10kx,b10ki] = sort(llsb10k);
 %sno
-b10kSNO = GenerateSamplingSSDataset(b10kSub);
-llsb10kSNO = DSAVEGetSingleCellDivergence(b10kSNO, 200);
+b10kSNO = DSAVEGenerateSNODataset(b10kSub, progbar.GetSubContext(0.01));
+llsb10kSNO = DSAVEGetSingleCellDivergence(b10kSNO, 200, progbar.GetSubContext(0.10));
 [b10ksnox,b10ksnoi] = sort(llsb10kSNO);
 
 %get DSAVE score for the original dataset and for the one where the 500
 %most divergent have been removed
-b10kDSAVEScore = CalcDSAVE(b10kSub, templInfo);
+b10kDSAVEScore = DSAVECalcBTMScore(b10kSub, templInfo, progbar.GetSubContext(0.06));
 
 %now remove the 500 worst cells
 b10k500Less = b10kSub.cellSubset(b10ki(1,501:2500));
-b10kDSAVEScore500Less = CalcDSAVE(b10k500Less, templInfo);
+b10kDSAVEScore500Less = DSAVECalcBTMScore(b10k500Less, templInfo, progbar.GetSubContext(0.06));
 
 
 %Now plot fig A:
@@ -111,22 +78,21 @@ plot(xs, -bcx, '-', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
 hold on
 plot(xs, -bcsnox, '--', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
 hold on
-%plot(xs, -lcx, '-', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
 plot(xs, -b10kx, '-', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
 hold on
-%plot(xs, -lcsnox, '--', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
 plot(xs, -b10ksnox, '--', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
 hold on
 plot(xs, -hcatx, '-', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
 hold on
-plot(xs, -hcatsnox, '--', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);%[0.9290, 0.6940, 0.1250]
+plot(xs, -hcatsnox, '--', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
 hold on
 xlabel('Cell index')
 ylabel('-Log likelihood')
 title('Cell Divergence');
 legend({'BC LN T cells, single pat', 'BC LN T cells, single pat - SNO', 'B10k B cells, single pat', 'B10k B cells, single pat - SNO', 'HCA CB T cells, single pat', 'HCA CB T cells, single pat - SNO'});
-%axis([0 2500 500 2500]);
 set(gca,'FontSize',11);
+
+progbar.Done();
 
 %Data for Fig B:
 disp('Fig 5B data, copy to excel:');
@@ -165,16 +131,16 @@ torems = zeros(1,pts+1);
 for i = 0:pts
     toRem = i/pts * maxRem;
     subset = bc2tbc4bSub.cellSubset(bcibc4b(1,(toRem+1):3500));
-    sc = CalcDSAVE(subset, templInfo);
+    sc = DSAVECalcBTMScore(subset, templInfo);
     rvals(1,i+1) = sc.DSAVEScore;
     torems(1,i+1) = toRem;
 end
 figure
 plot(torems,rvals);
 
-val0 = CalcDSAVE(bc2tbc4bSub, templInfo);
+val0 = DSAVECalcBTMScore(bc2tbc4bSub, templInfo);
 bc2tbc4bSub1500less = bc2tbc4bSub.cellSubset(bcibc4b(1,1501:3500));
-val1500 = CalcDSAVE(bc2tbc4bSub1500less, templInfo);
+val1500 = DSAVECalcBTMScore(bc2tbc4bSub1500less, templInfo);
 figure
 plot(val0.tpms,val0.differenceCVs);
 hold on
@@ -209,7 +175,7 @@ torems5 = zeros(1,pts+1);
 for i = 0:pts
     toRem = i/pts * maxRem;
     subset = bc2tbc4bSub5.cellSubset(bcibc4b5(1,(toRem+1):3500));
-    sc = CalcDSAVE(subset, templInfo);
+    sc = DSAVECalcBTMScore(subset, templInfo);
     rvals5(1,i+1) = sc.DSAVEScore;
     torems5(1,i+1) = toRem;
 end
@@ -235,11 +201,11 @@ gscatter(score2(:,1),score2(:,2),colors);
 
 %get DSAVE score for the original dataset and for the one where the 500
 %most divergent have been removed
-bc2tbc4bDSAVEScore = CalcDSAVE(bc2tbc4bSub, templInfo);
+bc2tbc4bDSAVEScore = DSAVECalcBTMScore(bc2tbc4bSub, templInfo);
 
 %now remove the 500 worst cells
 bc2tbc4bSub500Less = bc2tbc4bSub.cellSubset(bcibc4b(1,501:2500));
-bc2tbc4bDSAVEScore500Less = CalcDSAVE(bc2tbc4bSub500Less, templInfo);
+bc2tbc4bDSAVEScore500Less = DSAVECalcBTMScore(bc2tbc4bSub500Less, templInfo);
 [bc2tbc4bDSAVEScore.DSAVEScore bc2tbc4bDSAVEScore500Less.DSAVEScore]
 
 llsbc2bc4b500Less = DSAVEGetSingleCellDivergence(bc2tbc4bSub500Less, 200);
@@ -283,7 +249,7 @@ templInfo = DSAVEGetStandardTemplate();
 
 %now remove the 500 worst cells
 bc2tbc4bSub500Less2 = bc2tbc4bSub.cellSubset(bcibc4b2(1,501:2500));
-bc2tbc4bDSAVEScore500Less2 = CalcDSAVE(bc2tbc4bSub500Less2, templInfo);
+bc2tbc4bDSAVEScore500Less2 = DSAVECalcBTMScore(bc2tbc4bSub500Less2, templInfo);
 [bc2tbc4bDSAVEScore.DSAVEScore bc2tbc4bDSAVEScore500Less2.DSAVEScore]
 
 umicounts = sum(bc2tbc4bSub.data,1);
@@ -313,7 +279,7 @@ histogram(uc)
 llshcat2 = DSAVEGetSingleCellDivergence(hcatSub2, 1000);
 [hcatx2,hcati2] = sort(llshcat2);
 hcat500Less2 = hcatSub2.cellSubset(hcati2(1,501:2500));
-hcat500LessDSAVEScore2 = CalcDSAVE(hcat500Less2, templInfo);
+hcat500LessDSAVEScore2 = DSAVECalcBTMScore(hcat500Less2, templInfo);
 [hcatDSAVEScore.DSAVEScore hcat500LessDSAVEScore.DSAVEScore]
 
 pcaDatahca2 = full(hcatSub2.data(:,hcati2).');%unsparse and sort
@@ -339,17 +305,17 @@ mix35 = hcat2500.randSample(1625).innerJoin(hcam2500.randSample(875));
 mix40 = hcat2500.randSample(1500).innerJoin(hcam2500.randSample(1000));
 mix45 = hcat2500.randSample(1375).innerJoin(hcam2500.randSample(1125));
 mix50 = hcat2500.randSample(1250).innerJoin(hcam2500.randSample(1250));
-score0 = CalcDSAVE(mix0, templInfo);
-score5 = CalcDSAVE(mix5, templInfo);
-score10 = CalcDSAVE(mix10, templInfo);
-score15 = CalcDSAVE(mix15, templInfo);
-score20 = CalcDSAVE(mix20, templInfo);
-score25 = CalcDSAVE(mix25, templInfo);
-score30 = CalcDSAVE(mix30, templInfo);
-score35 = CalcDSAVE(mix35, templInfo);
-score40 = CalcDSAVE(mix40, templInfo);
-score45 = CalcDSAVE(mix45, templInfo);
-score50 = CalcDSAVE(mix50, templInfo);
+score0 = DSAVECalcBTMScore(mix0, templInfo);
+score5 = DSAVECalcBTMScore(mix5, templInfo);
+score10 = DSAVECalcBTMScore(mix10, templInfo);
+score15 = DSAVECalcBTMScore(mix15, templInfo);
+score20 = DSAVECalcBTMScore(mix20, templInfo);
+score25 = DSAVECalcBTMScore(mix25, templInfo);
+score30 = DSAVECalcBTMScore(mix30, templInfo);
+score35 = DSAVECalcBTMScore(mix35, templInfo);
+score40 = DSAVECalcBTMScore(mix40, templInfo);
+score45 = DSAVECalcBTMScore(mix45, templInfo);
+score50 = DSAVECalcBTMScore(mix50, templInfo);
 vals = [score0.DSAVEScore score5.DSAVEScore score10.DSAVEScore score15.DSAVEScore score20.DSAVEScore score25.DSAVEScore score30.DSAVEScore score35.DSAVEScore score40.DSAVEScore score45.DSAVEScore score50.DSAVEScore]
 xes = [0 5 10 15 20 25 30 35 40 45 50];
 figure
@@ -371,8 +337,6 @@ for i = 1:size(linevalYs,2);
    sel = numUMIshcatSub2 >= lb & numUMIshcatSub2 <= ub;
    linevalXes(1,i) = mean(llshcat(sel));
 end
-
-
 
 figure
 scatter(llshcat,numUMIshcatSub2,3);
@@ -396,20 +360,7 @@ bc2tSub.genes(b)
 sumMito = sum(bc2tSub.data(b,:),1);
 sumUMIs = sum(bc2tSub.data,1);
 percMito = sumMito ./ sumUMIs;
-%{
-%Sliding window: this doesn't look as good
-[sortpm, ia] = sort(percMito);
-sortlls = llsbc2(1,ia);
-numsum = 50;
-numpoints = size(llsbc2,2) - numsum + 1;
-linevalXes = zeros(1,numpoints);
-linevalYs = zeros(1,numpoints);
 
-for i = 1:numpoints
-    linevalXes(1,i) = mean(sortlls(1,i:i+numsum-1),2);
-    linevalYs(1,i) = mean(sortpm(1,i:i+numsum-1),2);
-end
-%}
 linevalYs = 0.01:0.01:0.2;
 linevalXes = zeros(1,20);
 %generate line
@@ -534,6 +485,7 @@ set(gca,'FontSize',11);
 
 %% Fig 4A in supplementary. Technical verification - run1 vs run 2.
 %run divergence 2 times and plot
+progbar = ProgrBar('Cell-wise: Fig 4A Suppl.');
 
 hcat2500 = hcat.randSample(2500);
 hcam2500 = hcam.randSample(2500);
@@ -543,8 +495,8 @@ hcamSub = hcam2500.randSample(250);
 hcamix = hcatSub.innerJoin(hcamSub);%the 500 first cells will be b cells
 
 
-llshcamix1 = DSAVEGetSingleCellDivergence(hcamix,200,10,15);
-llshcamix2 = DSAVEGetSingleCellDivergence(hcamix,200,10,15);
+llshcamix1 = DSAVEGetSingleCellDivergence(hcamix,200,progbar.GetSubContext(0.48),10,15);
+llshcamix2 = DSAVEGetSingleCellDivergence(hcamix,200,progbar.GetSubContext(0.48),10,15);
 figure
 scatter(llshcamix1,llshcamix2,3);
 xlabel('Log likelihood run 1')
@@ -555,6 +507,9 @@ c1 = llshcamix1(~pointsToRem);
 c2 = llshcamix2(~pointsToRem);
 set(gca,'FontSize',11);
 
+progbar.Done();
+
+disp('Correlation coefficient:');
 corrcoef(c1,c2)
 
 %% Cell divergence vs pca

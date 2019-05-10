@@ -1,5 +1,6 @@
 
 %%Some initial data exploration
+%{
 figure
 histogram(categorical(SCDep.scd_bc2.sampleIds))
 [lc,scd_lc_healthy] = SCDep.scd_lc;
@@ -74,7 +75,7 @@ t68000 = pbmc68000.cellSubset(pbmc68000.cellType == Celltype.TCellCD4Pos | pbmc6
 
 
 tdss = {ovm, bc2t, bc2t_bc4tumor, bc2t_blood, b10000, t68000, lct};
-
+%}
 
 
 %% Fig A - comparison between datasets
@@ -88,6 +89,9 @@ tdss = {ovm, bc2t, bc2t_bc4tumor, bc2t_blood, b10000, t68000, lct};
 %pbmctcd4mem10000
 %hca cb mixed pat t cells
 %GSE112845 CD8+ t cells
+
+templInfo = DSAVEGetStandardTemplate();
+
 
 %from breast cancer
 bc2 = SCDep.scd_bc2;
@@ -153,12 +157,15 @@ numds = size(dss,2);
 resdata = cell(1,numds);
 scores = zeros(1,numds);
 
-templInfo = DSAVEGetStandardTemplate();
+progbar = ProgrBar('DSAVE Score 2: Fig A');
+
 
 for i = 1:numds
-    resdata{1,i} = CalcDSAVE(dss{1,i}, templInfo);
+    resdata{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfo, progbar.GetSubContext(1/numds));
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
+
+progbar.Done();
 
 disp('Comparison between datasets: Copy into excel sheet');
 scores %just copy these values into the excel sheet
@@ -233,10 +240,14 @@ b10000 = SCDep.scd_pbmcb10000;
 datasets = {ovm,bc2t_bc4tumor, b10000, scd_GSE112845_cd8};
 templInfoSpec = DSAVEGenerateTemplateInfo(bc2t_bc4tumor, datasets, 1941, 570, 0.025, 0.025);
 
+progbar = ProgrBar('DSAVE Score 2: Fig B');
+
 for i = 1:numds
-    resdata{1,i} = CalcDSAVE(dss{1,i}, templInfoSpec);
+    resdata{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfoSpec, progbar.GetSubContext(1/numds));
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
+
+progbar.Done();
 
 disp('Patient to patient: Copy into excel sheet');
 scores %just copy these values into the excel sheet
@@ -258,10 +269,6 @@ scores %just copy these values into the excel sheet
 
 %from breast cancer
 bc2 = SCDep.scd_bc2;
-bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
-%show cell types in bc2_bc4blood
-%figure
-%histogram(categorical(CelltypeId2CelltypeName(bc2.cellSubset(strcmp(bc2t.sampleIds, 'BC4_BLOOD')).cellType)));
 bc2_bc4blood = bc2.cellSubset(strcmp(bc2.sampleIds, 'BC4_BLOOD'));
 bc2_bc4blood_t = bc2_bc4blood.cellSubset(bc2_bc4blood.cellType == Celltype.TCellCD4Pos | bc2_bc4blood.cellType == Celltype.TCellCD8Pos | bc2_bc4blood.cellType == Celltype.TCellReg);
 bc2_bc4blood_b = bc2_bc4blood.cellSubset(bc2_bc4blood.cellType == Celltype.BCell);
@@ -292,10 +299,6 @@ numb = size(lcp5b.data,2);
 lc50_50 = lcp5b.innerJoin(lcp5t.randSample(numb));%50/50 b and t
 
 
-%figure
-%histogram(categorical(hcab.sampleIds));
-
-
 dss = { bc2_bc4blood_t, ...
         bc2_bc4blood_mixbc50_50, ...
         lcp5t, ...
@@ -305,8 +308,6 @@ dss = { bc2_bc4blood_t, ...
         hcab_cb1, ...
         hcat_1bt50_50 ...
       };
-%names = { 'bc tumor mix 2 pat','bc tumor single pat','bc blood mix 2 pat','bc blood single pat','lc tumor mix 3 pat', 'lc tumor single pat', 'lc ht mix 3 pat', 'lc ht single pat', 'hca cb 3 pat', 'hca cb pat 1', };
-
 
 numds = size(dss,2);
 resdata = cell(1,numds);
@@ -314,16 +315,24 @@ scores = zeros(1,numds);
 
 templInfo = DSAVEGetStandardTemplate();
 
+progbar = ProgrBar('DSAVE Score 2: Fig C');
+
 for i = 1:numds
-    resdata{1,i} = CalcDSAVE(dss{1,i}, templInfo);
+    resdata{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfo, progbar.GetSubContext(1/numds));
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
+
+progbar.Done();
 
 disp('Mixing cell types: Copy into excel sheet');
 scores %just copy these values into the excel sheet
 
 
 %% Supplementary 3A - technical validation using generated cell populations with added noise
+
+templInfo = DSAVEGetStandardTemplate();
+
+progbar = ProgrBar('DSAVE Score 2: Fig 3A Suppl.');
 
 ovasc = SCDep.scd_ovasc;
 b10000 = SCDep.scd_pbmcb10000;
@@ -345,16 +354,16 @@ hcatc = hcat.randSample(10000);
 bc2tc = bc2t.randSample(10000);
 t68000c = t68000.randSample(10000);
 
-bc2tGenNoise = GenerateSamplingSSDataset(bc2tc, size(bc2tc.data, 2),0.7);
-hcatGenNoise = GenerateSamplingSSDataset(hcatc, size(hcatc.data, 2),0.9);
-ovmGenNoise = GenerateSamplingSSDataset(ovm, size(ovm.data, 2),1);
-t68000GenNoise = GenerateSamplingSSDataset(t68000c, size(t68000c.data, 2),1.5);
-b10000GenNoise = GenerateSamplingSSDataset(b10000, size(b10000.data, 2),2);
+bc2tGenNoise = DSAVEGenerateSNODataset(bc2tc, progbar.GetSubContext(0.01), size(bc2tc.data, 2),0.7);
+hcatGenNoise = DSAVEGenerateSNODataset(hcatc, progbar.GetSubContext(0.01), size(hcatc.data, 2),0.9);
+ovmGenNoise = DSAVEGenerateSNODataset(ovm, progbar.GetSubContext(0.01), size(ovm.data, 2),1);
+t68000GenNoise = DSAVEGenerateSNODataset(t68000c, progbar.GetSubContext(0.01), size(t68000c.data, 2),1.5);
+b10000GenNoise = DSAVEGenerateSNODataset(b10000, progbar.GetSubContext(0.01), size(b10000.data, 2),2);
 
-bc2tGenNoise1 = GenerateSamplingSSDataset(bc2tc, size(bc2tc.data, 2),1);
-hcatGenNoise1 = GenerateSamplingSSDataset(hcatc, size(hcatc.data, 2),1);
-t68000GenNoise1 = GenerateSamplingSSDataset(t68000c, size(t68000c.data, 2),1);
-b10000GenNoise1 = GenerateSamplingSSDataset(b10000, size(b10000.data, 2),1);
+bc2tGenNoise1 = DSAVEGenerateSNODataset(bc2tc, progbar.GetSubContext(0.01), size(bc2tc.data, 2),1);
+hcatGenNoise1 = DSAVEGenerateSNODataset(hcatc, progbar.GetSubContext(0.01), size(hcatc.data, 2),1);
+t68000GenNoise1 = DSAVEGenerateSNODataset(t68000c, progbar.GetSubContext(0.01), size(t68000c.data, 2),1);
+b10000GenNoise1 = DSAVEGenerateSNODataset(b10000, progbar.GetSubContext(0.01), size(b10000.data, 2),1);
 
 
 
@@ -375,12 +384,12 @@ numds = size(dss,2);
 resdata = cell(1,numds);
 scores = zeros(1,numds);
 
-templInfo = DSAVEGetStandardTemplate();
-
 for i = 1:numds
-    resdata{1,i} = CalcDSAVE(dss{1,i}, templInfo);
+    resdata{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfo, progbar.GetSubContext(1/numds*0.9));
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
+
+progbar.Done();
 
 disp('Technical validation: Copy into excel sheet');
 scores %just copy these values into the excel sheet
@@ -394,6 +403,9 @@ hcat2500 = hcat.randSample(2500);
 hcam2500 = hcam.randSample(2500);
 templInfo = DSAVEGetStandardTemplate();
 
+
+progbar = ProgrBar('DSAVE Score 2: Fig 3B Suppl.');
+
 xes = 0:5:100;
 vals = zeros(1,21);
 
@@ -406,9 +418,11 @@ for i = 1:21
         frac = (i-1)*0.05;
         ds = hcat2500.randSample(round(2500*frac)).innerJoin(hcam2500.randSample(round(2500*(1-frac))));
     end
-    score = CalcDSAVE(ds, templInfo);
+    score = DSAVECalcBTMScore(ds, templInfo, progbar.GetSubContext(1/21));
     vals(1,i) = score.DSAVEScore;
 end
+
+progbar.Done();
 
 figure
 plot(xes,vals);
@@ -431,7 +445,7 @@ differenceCVs = cell(1,runs);
 templInfo = DSAVEGetStandardTemplate();
 
 for r = 1:runs
-    [resdata{1,r}, differenceCVs{1,r}] = CalcDSAVE(ds, templInfo, false, iterations);
+    [resdata{1,r}, differenceCVs{1,r}] = DSAVECalcBTMScore(ds, templInfo, false, iterations);
 end
 
 xvals = 1:iterations;
@@ -474,7 +488,7 @@ resdata2 = cell(1,runs);
 differenceCVs2 = cell(1,runs);
 
 for r = 1:runs
-    [resdata2{1,r}, differenceCVs2{1,r}] = CalcDSAVE(ds, templSpec, false, iterations);
+    [resdata2{1,r}, differenceCVs2{1,r}] = DSAVECalcBTMScore(ds, templSpec, false, iterations);
 end
 
 allScores = zeros(runs, iterations);

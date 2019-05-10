@@ -5,7 +5,7 @@ persistent v;
 if isempty(v) 
     disp('reading DSAVE standard template...');
     prevDir = SCDep.setPathToSource();
-    filename = '../TempData/DSAVE_std_template.mat';
+    filename = '../../TempData/DSAVE_std_template.mat';
     if(~exist(filename,'file'))    
         disp('no .mat file found, regenerating template');
         ovm = SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.MacrophageOrMonocyte);

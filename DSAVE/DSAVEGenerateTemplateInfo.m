@@ -1,5 +1,8 @@
-function templInfo = DSAVEGenerateTemplateInfo(ds, datasetsForGenes, numCells, numUMIs, fractionUpperOutliers, fractionLowerOutliers)
+function templInfo = DSAVEGenerateTemplateInfo(ds, datasetsForGenes, numCells, numUMIs, fractionUpperOutliers, fractionLowerOutliers, progrBarCtxt)
 
+if nargin < 7
+    progrBarCtxt = [];
+end
 %% Binning info
 
 %place the means evenly distributed in log scale
@@ -20,10 +23,10 @@ gmLog = log10(gm);
 templInfo.binningInfo.lbs = zeros(1, numPoints);
 templInfo.binningInfo.ubs = zeros(1, numPoints);
 
-ProgressBar(strcat('Creating binning info from dataset ''', ds.name, ''''),true);
+progbar = ProgrBar('Generating template', progrBarCtxt);
 
 for i = 1:numPoints
-    ProgressBar(i/numPoints*100);
+    progbar.Progress(i/numPoints * 0.9);
     %now increase the bin size until at least 100 genes are included
     step = 0.0005;
     lb = meansLog(1,i) - step;
@@ -46,17 +49,16 @@ for i = 1:numPoints
     templInfo.binningInfo.ubs(1,i) = 10^ub;
 end
 
-ProgressBar('Done');
 
 %% Geneset
-disp('Generating gene set...');
 dss = SynchronizeGenes(datasetsForGenes, [], true);
 templInfo.geneSet = dss{1}.genes;
+
+progbar.Progress(0.95);
 
 
 %% UMIDistr
 %first remove the genes that should not be included
-disp('Generating UMI distribution...');
 subDs = ds.geneSubset(templInfo.geneSet);
 
 %then select a subset of the cells without replacement
@@ -70,7 +72,7 @@ totTargetUMIs = numCells * numUMIs;
 toRem = totUMIs - totTargetUMIs;
 templInfo.UMIDistr = sumUMIs;%resulting UMIs per cell
 if toRem < 0
-    disp('warning: Could not reach target UMIs per cell due to that the UMIs in the template dataset were to few');
+    error('warning: Could not reach target UMIs per cell due to that the UMIs in the template dataset were to few');
 elseif toRem > 0 %no point doing anything if the UMI count is already right
     %randomly select toRem number of UMIs to remove
     indToRem = randsample(totUMIs, toRem);
@@ -83,5 +85,7 @@ templInfo.UMIDistr = sort(templInfo.UMIDistr);
 %% Some other params
 templInfo.fractionUpperOutliers = fractionUpperOutliers;
 templInfo.fractionLowerOutliers = fractionLowerOutliers;
+
+progbar.Done();
 
 end

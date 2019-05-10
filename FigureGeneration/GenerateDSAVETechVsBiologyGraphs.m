@@ -367,7 +367,7 @@ b10000 = SCDep.scd_pbmcb10000;
 [scd_GSE112845_pat_a,scd_GSE112845_pat_b,scd_GSE112845_cd8] = SCDep.scd_GSE112845;
 
 dss = {ovm,bc2t_bc4tumor, b10000, scd_GSE112845_cd8};
-templSpec = DSAVEGenerateTemplateInfo(bc2t_bc4tumor, datasets, 1000, 750, 0.025, 0.025);
+templSpec = DSAVEGenerateTemplateInfo(bc2t_bc4tumor, dss, 1000, 750, 0.025, 0.025);
 
 %check datasets
 %{
@@ -384,7 +384,7 @@ scores = zeros(numSets,1);
 
 for i = 1:numSets
     disp(strcat('running set: ', num2str(i)));
-    DSAVERes = CalcDSAVE(datasets{1,i}, templSpec)
+    DSAVERes = DSAVECalcBTMScore(datasets{1,i}, templSpec)
     scores(i,1) = DSAVERes.DSAVEScore;
 end
 
@@ -578,7 +578,7 @@ rowNames = rowNames.';
 t = array2table([scores dm]);
 t.Properties.RowNames = rowNames;
 t.Properties.VariableNames = headings;
-writetable(t,'../TempData/RegrData.txt','Delimiter','\t','WriteRowNames',true);
+writetable(t,'../../TempData/RegrData.txt','Delimiter','\t','WriteRowNames',true);
 
 
 %intercept lc        bc         oc        68k       mon        mal       b        mac	    nk	      tum	    ht	       ln

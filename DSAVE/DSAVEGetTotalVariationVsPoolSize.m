@@ -1,8 +1,12 @@
-function meanRes = DSAVEGetTotalVariationVsPoolSize(ds, maxSizeSet, upperBoundTPM, lowerBoundTPM)
+function meanRes = DSAVEGetTotalVariationVsPoolSize(ds, maxSizeSet, upperBoundTPM, lowerBoundTPM, progrBarCtxt)
+
+if nargin < 5
+    progrBarCtxt = [];
+end
 
 ds_red = TPM(ds);
 
-ProgressBar(strcat('DSAVEGetTotalVariationVsPoolSize:',ds.name),true);
+progbar = ProgrBar(strcat('DSAVEGetTotalVariationVsPoolSize:',ds.name), progrBarCtxt);
 
 totset = ds_red.data;
 
@@ -43,7 +47,7 @@ else
 end
 
 for sz = 1:steps
-    ProgressBar(sz/steps*100);
+    progbar.Progress(sz/steps);
     numSamp = numSampVector(sz);%make sure the graphs start at 1.
     for repetition = 1:repetitions
         as = randsample(totNumCells, numSamp);
@@ -65,6 +69,6 @@ for sz = 1:steps
     meanRes(2, sz) = mean(res(2, st:en), 2);
 end
 
-ProgressBar('Done');
+progbar.Done();
 
 end

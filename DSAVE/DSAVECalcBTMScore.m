@@ -1,17 +1,20 @@
 %differenceCVs can be used for evaluating the number of iterations
-function [results,differenceCVs] = CalcDSAVE(origDs, templInfo, skipAlignment, iterations)
+function [results,differenceCVs] = DSAVECalcBTMScore(origDs, templInfo, progrBarCtxt, skipAlignment, iterations)
 
 if nargin < 3
-    skipAlignment = false;
+    progrBarCtxt = ProgrBarContext;
 end
 
 if nargin < 4
+    skipAlignment = false;
+end
+
+if nargin < 5
     iterations = 15;
 end
 
-if skipAlignment
-   disp('Warning: skipping alignment!'); 
-end
+progbar = ProgrBar(['Calculating DSAVE score for dataset  ''' origDs.name ''''], progrBarCtxt);
+
 
 lbnonlog = 10;
 ubnonlog = 1000;
@@ -26,16 +29,16 @@ alignedCVs = zeros(iterations,numXVals);
 samplingCVs = zeros(iterations,numXVals);
 differenceCVs = zeros(iterations,numXVals);
 
+
 for it = 1:iterations
-    disp(strcat('running iteration: ', num2str(it)));
     if (skipAlignment)
         aligned = origDs;
     else
-        aligned = DSAVEAlignDataset(origDs, templInfo);%use a different subset of cells in each loop iteration
+        aligned = DSAVEAlignDataset(origDs, templInfo, progbar.GetSubContext(0.66/iterations));%use a different subset of cells in each loop iteration
     end
     alignedGeneCVs = GetGeneCVs(aligned, templInfo);
     
-    SNO = GenerateSamplingSSDataset(aligned, size(aligned.data, 2));
+    SNO = DSAVEGenerateSNODataset(aligned, progbar.GetSubContext(0.33/iterations));
     SNOGeneCVs = GetGeneCVs(SNO, templInfo);
     
     %throw away the most and least variable genes
@@ -81,6 +84,7 @@ for it = 1:iterations
     samplingCVs(it,:) = interp1(saXes,saCVs,xes);
     
     differenceCVs(it,:) = alignedCVs(it,:) - samplingCVs(it,:);%add a neglectable number to avoid any potential division by 0.
+    
 end
 
 %now, take the mean of the iterations from all three curves. 
@@ -91,6 +95,8 @@ results.samplingCVs = mean(samplingCVs,1);
 results.differenceCVs = mean(differenceCVs,1);
 results.DSAVEScore = mean(results.differenceCVs);%mean over all points ranging over different TPM
 results.tpms = xes;
+
+progbar.Done();
 
 end
 

@@ -1,15 +1,18 @@
-function [logCVDifference, genes, SNOVariances, pVals] = DSAVEGetGeneVariation(ds, lb, iterations, maxNumCells)
-if nargin < 3
-    iterations = 150;
+function [logCVDifference, genes, SNOVariances, pVals] = DSAVEGetGeneVariation(ds, lb, iterations, maxNumCells, progrBarCtxt)
+if nargin < 5
+    progrBarCtxt = [];
 end
 if nargin < 4
     maxNumCells = 10000;
+end
+if nargin < 3
+    iterations = 150;
 end
 if nargin < 2
     lb = 10;
 end
 
-ProgressBar(['Calculating gene-wise variation for dataset ''' ds.name ''''],true);
+progbar = ProgrBar(['Calculating gene-wise variation for dataset ''' ds.name ''''], progrBarCtxt);
 
 
 numCells = size(ds.data,2);
@@ -33,7 +36,7 @@ SNOVariances = zeros(numGenes, iterations);
 for it = 1:iterations
     SNO = GenSampDs(ds);
     [SNOLogCVS(:,it),SNOVariances(:,it)] = GetVarAndLogCV(SNO);
-    ProgressBar(floor(100*it/iterations));
+    progbar.Progress(it/iterations);
 end
 
 logCVSNOm = mean(SNOLogCVS,2);
@@ -66,7 +69,7 @@ for g = 1:numGenes
     [~,pVals(g,1)] = ztest(logCVDS(g,1),mn(g,:),stddev(g,1),'Tail','right');
 end
 
-ProgressBar('Done');
+progbar.Done();
 
 
 end

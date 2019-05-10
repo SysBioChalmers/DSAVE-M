@@ -118,6 +118,13 @@ classdef SCDataset
            writetable(t,filename,'Delimiter','\t','WriteRowNames',true);
        end
        
+       function saveInfoTable(this, filename)
+           t = table(this.cellType.', CelltypeId2CelltypeName(this.cellType).', this.sampleIds.','RowNames', this.cellIds.','VariableNames',{'celltype', 'celltype_text', 'sample_id'});
+           %t.Properties.RowNames = this.genes;
+           %t.Properties.VariableNames = this.cellIds;
+           writetable(t,filename,'Delimiter','\t','WriteRowNames',true);
+       end
+       
        %if any of the non-critical member vectors are empty, they
        %will be filled with appropriate data.
        % cellIds - generated from name and a number series

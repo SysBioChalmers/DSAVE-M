@@ -10,8 +10,8 @@ classdef SCDep
 
                 %put all .mat files in a temp folder, make sure it is created
                 prevDir = SCDep.setPathToSource();
-                if(~exist('../TempData','dir'))
-                    mkdir('../TempData');
+                if(~exist('../../TempData','dir'))
+                    mkdir('../../TempData');
                 end
                 SCDep.restoreDir(prevDir);
             end
@@ -40,10 +40,10 @@ classdef SCDep
             if isempty(v)
                 disp('reading GTEx median...');
                 prevDir = SCDep.setPathToSource();
-                filename = '../TempData/GTExMed.mat';
+                filename = '../../TempData/GTExMed.mat';
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadGTExMedian('../ImportableData/GTEx_Analysis_2016-01-15_v7_RNASeQCv1.1.8_gene_median_tpm.gct');
+                    v = ReadGTExMedian('../../ImportableData/GTEx_Analysis_2016-01-15_v7_RNASeQCv1.1.8_gene_median_tpm.gct');
                     save(filename, 'v');
                 else
                     a = load(filename);
@@ -61,10 +61,10 @@ classdef SCDep
             if isempty(v)
                 disp('reading breast cancer 2...');
                 prevDir = SCDep.setPathToSource();
-                filename = '../TempData/bc2.mat';
+                filename = '../../TempData/bc2.mat';
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadBC2('../ImportableData/bc2_raw_corrected.csv', '../ImportableData/bc2_cluster_ids.txt');
+                    v = ReadBC2('../../ImportableData/bc2_raw_corrected.csv', '../ImportableData/bc2_cluster_ids.txt');
                     %convert to sparse matrix before saving not to exceed limit for
                     %saving. Also keep it that way.
                     v.data = sparse(v.data);
@@ -85,10 +85,10 @@ classdef SCDep
             if isempty(v)
                 disp('reading liver cancer T cells...');
                 prevDir = SCDep.setPathToSource();
-                filename = '../TempData/livt.mat';
+                filename = '../../TempData/livt.mat';
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadLiverTCells('../ImportableData/GSE98638_HCC.TCell.S5063.count.txt', '../ImportableData/GSE98638_HCC.TCell.OkCellIds.txt');
+                    v = ReadLiverTCells('../../ImportableData/GSE98638_HCC.TCell.S5063.count.txt', '../../ImportableData/GSE98638_HCC.TCell.OkCellIds.txt');
                     save(filename, 'v');
                 else
                     a = load(filename);
@@ -106,10 +106,10 @@ classdef SCDep
             if isempty(v)
                 disp('reading ovarian ascites data ...');
                 prevDir = SCDep.setPathToSource();
-                filename = '../TempData/ovasc.mat';
+                filename = '../../TempData/ovasc.mat';
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadOvarianAscites('../ImportableData/ovarian_ascites_data.txt', '../ImportableData/ovarian_ascites_patids.txt', '../ImportableData/ovarian_ascites_genes.txt', '../ImportableData/classified_data_donor_abc_12k_merged.mat');
+                    v = ReadOvarianAscites('../../ImportableData/ovarian_ascites_data.txt', '../../ImportableData/ovarian_ascites_patids.txt', '../../ImportableData/ovarian_ascites_genes.txt', '../../ImportableData/classified_data_donor_abc_12k_merged.mat');
                     save(filename, 'v');
                 else
                     a = load(filename);
@@ -128,11 +128,11 @@ classdef SCDep
             if isempty(v)
                 disp('reading lung cancer data ...');
                 prevDir = SCDep.setPathToSource();
-                filename = '../TempData/lc_tumor.mat';
-                filenameh = '../TempData/lc_healthy.mat';
+                filename = '../../TempData/lc_tumor.mat';
+                filenameh = '../../TempData/lc_healthy.mat';
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    [v,w] = ReadLung50000('../ImportableData/LungCancer50000/AllCells_chunk1.txt', '../ImportableData/LungCancer50000/AllCells_chunk2.txt', '../ImportableData/LungCancer50000/AllCells_chunk3.txt', '../ImportableData/LungCancer50000/MetaData.txt');
+                    [v,w] = ReadLung50000('../../ImportableData/LungCancer50000/AllCells_chunk1.txt', '../../ImportableData/LungCancer50000/AllCells_chunk2.txt', '../../ImportableData/LungCancer50000/AllCells_chunk3.txt', '../../ImportableData/LungCancer50000/MetaData.txt');
                     %make them sparse, both to save memory and to make it
                     %possible to save them
                     v.data = sparse(v.data);
@@ -157,11 +157,11 @@ classdef SCDep
             persistent v;
             if isempty(v)
                 disp('reading pbmc68000 data ...');
-                filename = '../TempData/pbmc68000.mat';
+                filename = '../../TempData/pbmc68000.mat';
                 prevDir = SCDep.setPathToSource();
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadPBMC68000('../ImportableData/PBMC68000PatAFresh/filtered_matrices_mex/hg19');
+                    v = ReadPBMC68000('../../ImportableData/PBMC68000PatAFresh/filtered_matrices_mex/hg19');
                     save(filename, 'v');
                 else
                     a = load(filename);
@@ -178,11 +178,11 @@ classdef SCDep
             persistent v;
             if isempty(v)
                 disp('reading pbmcb10000 data ...');
-                filename = '../TempData/pbmcb10000.mat';
+                filename = '../../TempData/pbmcb10000.mat';
                 prevDir = SCDep.setPathToSource();
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadPBMCB10000('../ImportableData/PBMC10000BCells/filtered_matrices_mex/hg19');
+                    v = ReadPBMCB10000('../../ImportableData/PBMC10000BCells/filtered_matrices_mex/hg19');
                     save(filename, 'v');
                 else
                     a = load(filename);
@@ -199,11 +199,11 @@ classdef SCDep
             persistent v;
             if isempty(v)
                 disp('reading pbmccd4mem10000 data ...');
-                filename = '../TempData/pbmctcd4mem10000.mat';
+                filename = '../../TempData/pbmctcd4mem10000.mat';
                 prevDir = SCDep.setPathToSource();
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadPBMCTCD4Mem10000('../ImportableData/PBMCCD4TCellsMemory/filtered_matrices_mex/hg19');
+                    v = ReadPBMCTCD4Mem10000('../../ImportableData/PBMCCD4TCellsMemory/filtered_matrices_mex/hg19');
                     save(filename, 'v');
                 else
                     a = load(filename);
@@ -220,13 +220,13 @@ classdef SCDep
             persistent v;
             if isempty(v)
                 disp('reading hca cord blood...');
-                filename = '../TempData/hca_cb.mat';
-                filename2 = '../TempData/hca_cb_2.mat';
-                filename3 = '../TempData/hca_cb_3.mat';
+                filename = '../../TempData/hca_cb.mat';
+                filename2 = '../../TempData/hca_cb_2.mat';
+                filename3 = '../../TempData/hca_cb_3.mat';
                 prevDir = SCDep.setPathToSource();
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadHCACordBlood('../ImportableData/ica_cord_blood_h5.h5', '../ImportableData/cord_blood_cell_type_processed.txt');
+                    v = ReadHCACordBlood('../../ImportableData/ica_cord_blood_h5.h5', '../../ImportableData/cord_blood_cell_type_processed.txt');
                     %cut up the data in several blocks and save to separate files
                     %since it seems there is a limitation to object size
                     data2 = v.data(:,100001:200000);
@@ -260,15 +260,15 @@ classdef SCDep
             persistent x;
             if isempty(v)
                 disp('reading GSE112845 data ...');
-                filename = '../TempData/gse112845_1.mat';
-                filename2 = '../TempData/gse112845_2.mat';
-                filename3 = '../TempData/gse112845_3.mat';
+                filename = '../../TempData/gse112845_1.mat';
+                filename2 = '../../TempData/gse112845_2.mat';
+                filename3 = '../../TempData/gse112845_3.mat';
                 prevDir = SCDep.setPathToSource();
                 if(~exist(filename,'file'))    
                     disp('No .mat file found, importing data');
-                    v = ReadGSE112845('../ImportableData/GSE112845/DTM-X_PBMC_live', '../ImportableData/GSE112845/DTM-X_PBMC_live_ct.txt');
-                    w = ReadGSE112845('../ImportableData/GSE112845/DTM-Y_PBMC_methanol_3w', '../ImportableData/GSE112845/DTM-Y_PBMC_methanol_3w_ct.txt');
-                    x = ReadGSE112845('../ImportableData/GSE112845/CD8_live', '');
+                    v = ReadGSE112845('../../ImportableData/GSE112845/DTM-X_PBMC_live', '../../ImportableData/GSE112845/DTM-X_PBMC_live_ct.txt');
+                    w = ReadGSE112845('../../ImportableData/GSE112845/DTM-Y_PBMC_methanol_3w', '../../ImportableData/GSE112845/DTM-Y_PBMC_methanol_3w_ct.txt');
+                    x = ReadGSE112845('../../ImportableData/GSE112845/CD8_live', '');
                     v.name = 'GSE112845 DTM-X_PBMC_live';
                     w.name = 'GSE112845 DTM-Y_PBMC_methanol_3w';
                     x.name = 'GSE112845 CD8_live';

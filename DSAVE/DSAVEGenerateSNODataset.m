@@ -1,7 +1,7 @@
 %this function uses a template dataset to compute the probability p that a molecule from a certain gene
 %should be picked each time a new UMI is found. This is calculated from the
 %counts value, i.e. counts/sum of all counts
-%This is however not built on the binomial distribution, but it will rather
+%This is based on a multinomial distribution, and it will
 %select exactly the same number of UMIs that are in the original set
 %using the probabilities for the genes from the mean of the dataset sent
 %in.
@@ -13,17 +13,20 @@
 %templDSForProfile - can be used if you want to generate data from a
 %different cell type - defaults to templDs - the datasets needs to be
 %synchronized
-function ds = GenerateSamplingSSDataset(templDs, numCells, noiseLevel, templDSForProfile)
+function ds = DSAVEGenerateSNODataset(templDs, progrBarCtxt, numCells, noiseLevel, templDSForProfile)
 if nargin < 2
-    numCells = size(templDs.data,2);
+    progrBarCtxt = [];
 end
 if nargin < 3
-    noiseLevel = 0;
+    numCells = size(templDs.data,2);
 end
 if nargin < 4
+    noiseLevel = 0;
+end
+if nargin < 5
    templDSForProfile = templDs; 
 end
-ProgressBar(['Generating sampling dataset from template ''' templDs.name ''' for ' num2str(numCells) ' cells'],true);
+progbar = ProgrBar(['Generating SNO dataset from template ''' templDs.name ''''], progrBarCtxt);
 
 %create empty dataset
 ds = SCDataset;
@@ -82,7 +85,7 @@ end
 if noiseLevel == 0 % no noise, will go faster
     for i = 1:numCells
         if UMIs(1,i) > 0 %handle the fact that cells sometimes can contain 0 UMIs, which doesn't work with the code below. The data is automatically 0 in that case.
-            ProgressBar(floor(100*i/numCells));
+            progbar.Progress(i/numCells);
             %generate n random numbers between 0-1 and sort them
             r = rand([UMIs(1,i) 1]);
             ds.data(:,i) = histcounts(r,edges);
@@ -91,7 +94,7 @@ if noiseLevel == 0 % no noise, will go faster
 else %with noise
     numGenes = size(prob,1);
     for i = 1:numCells
-        ProgressBar(floor(100*i/numCells));
+        progbar.Progress(i/numCells);
         
         X = randn(numGenes, 1) * noiseLevel;
         noise = 2.^X;
@@ -114,7 +117,7 @@ end
 
 ds.data = sparse(ds.data);
 
-ProgressBar('Done');
+progbar.Done();
 
 end
 

@@ -1,8 +1,12 @@
 %will downsample (i.e. match the count distribution) and adapt the number of cells to match the template
 %will also remove any genes not in the template
-function ds = DSAVEAlignDataset(inDs, templInfo)
+function ds = DSAVEAlignDataset(inDs, templInfo, progrBarCtxt)
 
-ProgressBar(['Aligning dataset to template ''' inDs.name ''''],true);
+if nargin < 3
+    progrBarCtxt = ProgrBarContext;
+end
+
+progbar = ProgrBar(['Aligning dataset to template ''' inDs.name ''''], progrBarCtxt);
 
 %create the adapted dataset of the right size and with the right genes
 inDs = inDs.randSample(size(templInfo.UMIDistr, 2));
@@ -75,7 +79,7 @@ end
 
 %Loop through all cells
 for i = 1:numCells
-    ProgressBar(floor(100*i/numCells));
+    progbar.Progress(i/numCells);
     %first, randomly select a number of indexes from the total UMIs to
     %remove
     indexesToRem = randperm(origUMIs(1,i), toRemUMIs(1,i));
@@ -94,7 +98,7 @@ end
 %now sparsify, will be slower to work with a sparse matrix in the loop
 ds.data = sparse(ds.data);
 
-ProgressBar('Done');
+progbar.Done();
 
 end
 
