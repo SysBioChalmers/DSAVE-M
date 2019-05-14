@@ -58,7 +58,7 @@ for sz = 1:steps
         bs = ind(bsInd);
         b = mean(totset(:,bs),2);
         
-        geneScore = abs(log2((a+0.05)./(b+0.05)));
+        geneScore = abs(log((a+0.05)./(b+0.05)));
         index = (sz-1)*repetitions + repetition;
         res(1,index) = sz;
         res(2,index) = mean(geneScore);

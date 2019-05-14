@@ -22,9 +22,9 @@ n = sum(obs,1);
 %generate list of n, n-1, ..1, cannot calculate n! for large n otherwise
 facs = n:-1:1;
 
-s1 = sum(log2(facs),2);
-s2 = log2(factorial(obs));%don't sum yet
-s3 = nansum(log2(prob).*obs);
+s1 = sum(log(facs),2);
+s2 = log(factorial(obs));%don't sum yet
+s3 = nansum(log(prob).*obs);
 
 % Some of the s2s may have become inf due to that matlab cannot calculate
 % n! for large n (> 170, we used 150 to stay on the safe side). Replace those values by values calculated by the
@@ -34,7 +34,7 @@ ind = (1:size(obs,1)).';
 selInd = ind(sel);
 for i = 1:size(selInd)
     facs = obs(selInd(i)):-1:1;
-    s2(selInd(i)) = sum(log2(facs),2);
+    s2(selInd(i)) = sum(log(facs),2);
 end
 
 s2 = -sum(s2,1);

@@ -23,7 +23,7 @@ end
 
 dstpm = TPM(mean(ds.data, 2));
 
-sel = dstpm >= lb; 
+sel = dstpm >= lb & dstpm ~= 0; 
 
 ds = ds.geneSubset(sel);%filter genes to avoid problems with division by zero, etc, and to save compilation time. No point in looking at too lowly expressed ones anyway, they will not become significant.
 numGenes = size(ds.data,1);
@@ -31,11 +31,12 @@ numGenes = size(ds.data,1);
 
 SNOLogCVS = zeros(numGenes, iterations);
 SNOVariances = zeros(numGenes, iterations);
-[logCVDS,varianceDS] = GetVarAndLogCV(ds);
+UMIDistr = sum(ds.data,1);
+[logCVDS,varianceDS] = GetVarAndLogCV(ds, UMIDistr);
 %so we need to store the generated 
 for it = 1:iterations
     SNO = GenSampDs(ds);
-    [SNOLogCVS(:,it),SNOVariances(:,it)] = GetVarAndLogCV(SNO);
+    [SNOLogCVS(:,it),SNOVariances(:,it)] = GetVarAndLogCV(SNO, UMIDistr);
     progbar.Progress(it/iterations);
 end
 
@@ -74,13 +75,15 @@ progbar.Done();
 
 end
 
-function [logCV,variances] = GetVarAndLogCV(ds)
-    ds = TPM(ds);
+function [logCV,variances] = GetVarAndLogCV(ds, UMIsPerCell)
+    %ds = TPM(ds);%recalculate using orig umis instead
+    ds.data = ds.data .* 10^6 ./ UMIsPerCell;
+    
     avgRefExpr = mean(ds.data,2);
     variances = var(ds.data, 0, 2);
     sd = sqrt(variances);
     cv_ = sd ./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
-    logCV = log2(cv_ + 1);%the + 1 says that no variance -> 0 value
+    logCV = log(cv_ + 1);%the + 1 says that no variance -> 0 value
 end
  
 %Generates a SNO dataset where gene expression is preserved instead of

@@ -83,7 +83,7 @@ for it = 1:iterations
     alignedCVs(it,:) = interp1(alXes,alCVs,xes);
     samplingCVs(it,:) = interp1(saXes,saCVs,xes);
     
-    differenceCVs(it,:) = alignedCVs(it,:) - samplingCVs(it,:);%add a neglectable number to avoid any potential division by 0.
+    differenceCVs(it,:) = alignedCVs(it,:) - samplingCVs(it,:);
     
 end
 
@@ -112,7 +112,7 @@ avgRefExpr = mean(totset,2);
 variances = var(totset, 0, 2);
 sd = sqrt(variances);
 cv_ = sd ./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
-logcv = log2(cv_ + 1);%the + 1 says that no variance -> 0 value
+logcv = log(cv_ + 1);%the + 1 says that no variance -> 0 value
 
 end
 
@@ -133,7 +133,7 @@ for i = 1:numBins
     %select the genes within the expression range
     sel = avgRefExpr >= templInfo.binningInfo.lbs(1,i) & avgRefExpr <= templInfo.binningInfo.ubs(1,i);
     cv(1, i) = mean(logcv(sel));%y value in the graph
-    meanGeneExpr(1,i) = 2^mean(log2(avgRefExpr(sel)+0.05)) - 0.05;%geometric-ish mean
+    meanGeneExpr(1,i) = 2^mean(log(avgRefExpr(sel)+0.05)) - 0.05;%geometric-ish mean
 end
 
 

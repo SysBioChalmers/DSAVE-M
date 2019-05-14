@@ -14,7 +14,7 @@ function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBoundTPM, lo
     if ~pool4samples
         for i = 1:numSamp-1
            for j = i+1:numSamp
-               diffs(:,index) = log2((s.data(:,i)+0.05)./(s.data(:,j)+0.05));
+               diffs(:,index) = log((s.data(:,i)+0.05)./(s.data(:,j)+0.05));
                index = index + 1;
            end
         end
@@ -37,7 +37,7 @@ function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBoundTPM, lo
             b = s.data(:,notind);
             ma = mean(a,2);
             mb = mean(b,2);
-            diffs(:,i) = log2((ma+0.05)./(mb+0.05));
+            diffs(:,i) = log((ma+0.05)./(mb+0.05));
         end
     end
     res = mean(mean(abs(diffs),2),1);

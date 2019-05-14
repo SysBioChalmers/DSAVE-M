@@ -201,12 +201,12 @@ for g = 1:numGenes
     means(g,1) = pd.mu;
 end
 
-%recalculate to log2(cv + 1);
+%recalculate to log(cv + 1);
 confcvs = (confvars + 0.05) ./ (meanExpr+0.05);
-logconfcvs = log2(confcvs + 1);
+logconfcvs = log(confcvs + 1);
 
 meancvs = means ./ meanExpr;
-logmeancvs = log2(meancvs + 1);
+logmeancvs = log(meancvs + 1);
 
 diffs = logconfcvs - logmeancvs;
 
@@ -246,7 +246,7 @@ set(gca,'FontSize',11);
 bcsubs = bc2tSub.geneSubset(genesbc);%this works since geneSubset is deterministic; however very shaky, the order of the genes could differ
 mns = mean(TPM(bcsubs.data),2);
 counts = sum(bcsubs.data,2);
-vvv = log2(sqrt(bcSNOVariances)./(mns+0.05) + 1);%this is the same logCV as calculated for the observed
+vvv = log(sqrt(bcSNOVariances)./(mns+0.05) + 1);%this is the same logCV as calculated for the observed
 www = log(sqrt(bcSNOVariances)./(mns+0.00000005));
 
 
@@ -367,13 +367,13 @@ hcasame2 = DSAVEAlignDataset(hcasame, templInfoSpec2);
 SNOsub = hcasame.geneSubset(genesSame);%this works since geneSubset is deterministic; however very shaky, the order of the genes could differ
 mnssame = mean(TPM(SNOsub.data),2);
 countssame = sum(SNOsub.data,2);
-vvvsame = log2(sqrt(sameSNOVariances)./(mnssame+0.05) + 1);%this is the same logCV as calculated for the observed
+vvvsame = log(sqrt(sameSNOVariances)./(mnssame+0.05) + 1);%this is the same logCV as calculated for the observed
 wwwsame = log(sqrt(sameSNOVariances)./(mnssame+0.00000005));
 
 SNOsub2 = hcasame2.geneSubset(genesSame2);%this works since geneSubset is deterministic; however very shaky, the order of the genes could differ
 mnssame2 = mean(TPM(SNOsub2.data),2);
 countssame2 = sum(SNOsub2.data,2);
-vvvsame2 = log2(sqrt(sameSNOVariances2)./(mnssame2+0.05) + 1);%this is the same logCV as calculated for the observed
+vvvsame2 = log(sqrt(sameSNOVariances2)./(mnssame2+0.05) + 1);%this is the same logCV as calculated for the observed
 wwwsame2 = log(sqrt(sameSNOVariances2)./(mnssame2+0.00000005));
 
 %test that gene synch worked
@@ -672,7 +672,7 @@ end
 
 figure
 for i = 1:20
-    scatter(log2(counts), vvv(:,i));
+    scatter(log(counts), vvv(:,i));
     hold on
 end
 
@@ -680,10 +680,10 @@ end
 
 
 figure
-scatter(log2(sqrt(counts)), sqrt(vvv(:,i)));
+scatter(log(sqrt(counts)), sqrt(vvv(:,i)));
 
 figure
-scatter(log2(sqrt(counts)), www(:,1));
+scatter(log(sqrt(counts)), www(:,1));
 
 
 figure
@@ -819,7 +819,7 @@ end
 %% The Anderson-Darling test for normality on the variances
 sel = meanExpr >= 1;
 
-varsel = log2(sqrt(bcSNOVariances(sel,:)));
+varsel = log(sqrt(bcSNOVariances(sel,:)));
 numGenes = size(varsel,1);
 normPVals = zeros(numGenes, 1);
 for i = 1:numGenes
