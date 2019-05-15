@@ -274,12 +274,12 @@ end
 
 %T0016: LogMultinomialPDF
 %tests that this function gives the same
-%results as the built-in matlab function (which can'tbe used for large
+%results as the built-in matlab function (which can't be used for large
 %number of bins due to 64-bit double overflow)
 obs = [1;1;4;2;0;1];
 prob = [0.2;0.2;0.1;0.3;0.1;0.1];
 y = mnpdf(obs,prob);
-a = log2(y);
+a = log(y);
 ll = LogMultinomialPDF(obs, prob, 3);
 if abs(a - ll) > 0.00001 %check that they are the same, with some reasonable round-off error
     error('T0016: LogMultinomialPDF failed');
@@ -508,7 +508,7 @@ s = s.fillEmpties();
 %1 vs 1:
 t1vs1 = DSAVEGetTotalVariationFromBulk(s, false, 250, 0.5);
 %calculate (each value will be compared with 3 samples of the same value and 4 samples with the double value)
-exp1vs1 = log2(2.05/1.05)*4/7;
+exp1vs1 = log(2.05/1.05)*4/7;
 
 %4 vs 4
 t4vs4 = DSAVEGetTotalVariationFromBulk(s, true, 250, 0.5);
@@ -528,7 +528,7 @@ for i = 1:5
 end
 a = numones./sum(numones);%find number to scale each comb type
 
-exp4vs4 = log2(2.05/1.05)*a(1,1)*2 + log2(1.80/1.30)*a(1,2)*2;
+exp4vs4 = log(2.05/1.05)*a(1,1)*2 + log(1.80/1.30)*a(1,2)*2;
 
 if abs(exp1vs1 - t1vs1) > 10^-10 % compensate for round off effects
     error('T0022: DSAVEGetTotalVariationFromBulk: 1 vs 1 not ok');
@@ -548,7 +548,7 @@ ds.genes = {'A';'B';'C'};
 ds = ds.fillEmpties();
 vals = DSAVEGetTotalVariationVsPoolSize(ds, 1, 100, 0.5);
 vals = vals(2,:);%throw away the x:es, we don't need them here
-expVal = log2(2.05/1.05);
+expVal = log(2.05/1.05);
 expVals = repmat(expVal,1,100);
 % compensate for round off effects:
 expVals = round(expVals,10);
@@ -559,4 +559,65 @@ if ~isequal(expVals,vals)
 else
     disp('T0023: DSAVEGetTotalVariationVsPoolSize: ok');
 end
+
+
+%% T0024: DSAVEGetGeneVariation
+%Create a dataset where we can easily calculate the p value
+%and see that it gets somewhat right. 
+%There is a risk that this test will have problems with stability, since
+%there are random numbers involved
+dsTest = SCDataset;
+dsTest.genes = {'A';'B';'C'};
+dsTest.cellIds = {'1', '2', '3', '4', '5'};
+dsTest.data = [0 4 0 0 0; 0 0 0 0 0; 4 0 4 4 4];
+%the number of combinations in total are 5^4 = 625
+%the number of combinations with 4 in the same pile is 5
+%the p value should thus be 5/625 = 0.0080
+[genesTest, logCVTest,pvalsTest] = DSAVEGetGeneVariation(dsTest,0,100000,10000);
+expGenes = {'A';'C'};
+%calculate the expected CV
+CVDS = log(std(dsTest.data(1,:) .* 250000, [], 2) ./ (200000 + 0.05) + 1);
+%calculate the expected SNO CV mean:
+
+%generate all combinations (not all are unique!) using a loop; if all combinations are there once
+%it will be the true mean
+avgSNO = zeros(625,5);
+%the loop variables represents the cell index where each of the four counts should be
+%placed
+for i = 1:5
+    for j = 1:5
+        for k = 1:5
+            for m = 1:5
+                index = (i-1)*125 + (j-1)*25 + (k-1)*5 + m;
+                avgSNO(index,i) = avgSNO(index,i) + 1;
+                avgSNO(index,j) = avgSNO(index,j) + 1;
+                avgSNO(index,k) = avgSNO(index,k) + 1;
+                avgSNO(index,m) = avgSNO(index,m) + 1;
+            end
+        end
+    end
+end
+
+CVSNO = log(std(avgSNO .* 250000, [], 2) ./ (200000 + 0.05) + 1);
+CVDiffExp = CVDS - mean(CVSNO,1);
+%now test with different number of UMIs
+%here, the result should be 1/1000 = 0.001
+dsTest2 = SCDataset;
+dsTest2.genes = {'A';'B';'C'};
+dsTest2.cellIds = {'1', '2', '3', '4', '5'};
+dsTest2.data = [0 3 0 0 0; 0 0 0 0 0; 6 0 6 6 9];
+[~, ~,pvalsTest2] = DSAVEGetGeneVariation(dsTest2,0,100000,10000);
+
+if abs(pvalsTest(1,1) - 0.008) > 0.002
+    error('T0024: DSAVEGetGeneVariation: not ok, pVal not right');
+elseif abs(pvalsTest2(1,1) - 0.001) > 0.0007
+    error('T0024: DSAVEGetGeneVariation: not ok, pVal2 not right');
+elseif ~all(strcmp(genesTest, expGenes))
+    error('T0024: DSAVEGetGeneVariation: not ok, genes not correct');
+elseif abs(logCVTest - CVDiffExp) > 0.01
+    error('T0024: DSAVEGetGeneVariation: not ok, pVal2 not right');
+else
+    disp('T0024: DSAVEGetTotalVariationVsPoolSize: ok');
+end
+
 
