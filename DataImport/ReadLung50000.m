@@ -48,13 +48,13 @@ for i = 1:numCells
         temp(1,i) = Celltype.Langerhans;
     elseif strcmp(clust,'Myeloid_7')
         temp(1,i) = Celltype.Granulocyte;
-    elseif strcmp(clust,'Myeloid_9') | strcmp(clust,'Myeloid_12')
+    elseif strcmp(clust,'Myeloid_9') || strcmp(clust,'Myeloid_12')
         temp(1,i) = Celltype.Dendritic;
     elseif strcmp(clust,'T_cell_6')
         temp(1,i) = Celltype.NKCell;
-    elseif strcmp(clust,'T_cell_2') | strcmp(clust,'T_cell_4') | strcmp(clust,'T_cell_5') | strcmp(clust,'T_cell_8') 
+    elseif strcmp(clust,'T_cell_2') || strcmp(clust,'T_cell_4') || strcmp(clust,'T_cell_5') || strcmp(clust,'T_cell_8') 
         temp(1,i) = Celltype.TCellCD8Pos;
-    elseif strcmp(clust,'T_cell_1') | strcmp(clust,'T_cell_3') | strcmp(clust,'T_cell_9')
+    elseif strcmp(clust,'T_cell_1') || strcmp(clust,'T_cell_3') || strcmp(clust,'T_cell_9')
         temp(1,i) = Celltype.TCellCD4Pos;
     elseif strcmp(clust,'T_cell_7')
         temp(1,i) = Celltype.TCellReg;

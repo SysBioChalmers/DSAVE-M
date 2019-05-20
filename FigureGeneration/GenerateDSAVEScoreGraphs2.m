@@ -1,94 +1,4 @@
-
-%%Some initial data exploration
-%{
-figure
-histogram(categorical(SCDep.scd_bc2.sampleIds))
-[lc,scd_lc_healthy] = SCDep.scd_lc;
-figure
-histogram(categorical(lc.sampleIds))
-title('Whole LC tumor patients');
-figure
-histogram(categorical(scd_lc_healthy.sampleIds))
-title('Whole LC healthy tissue patients');
-figure
-histogram(categorical(CelltypeId2CelltypeName(lc.cellType)))
-title('Whole LC tumor cell types');
-
-lcpat1 = lc.cellSubset(strcmp(lc.sampleIds,'1'));
-figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat1.cellType)))
-title('LC pat 1 tumor cell types');
-
-
-lcpat2 = lc.cellSubset(strcmp(lc.sampleIds,'2'));
-figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat2.cellType)))
-title('LC pat 2 tumor cell types');
-
-lcpat3 = lc.cellSubset(strcmp(lc.sampleIds,'3'));
-figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat3.cellType)))
-title('LC pat 3 tumor cell types');
-
-lcpat4 = lc.cellSubset(strcmp(lc.sampleIds,'4'));
-figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat4.cellType)))
-title('LC pat 4 tumor cell types');
-
-lcpat5 = lc.cellSubset(strcmp(lc.sampleIds,'5'));
-figure
-histogram(categorical(CelltypeId2CelltypeName(lcpat5.cellType)))
-title('LC pat 5 tumor cell types');
-
-umispat5 = sum(lcpat5.data,1);
-mean(umispat5)
-
-lcpat5mal = lcpat5.cellSubset(lcpat5.cellType == Celltype.Malignant);
-mn = TPM(mean(lcpat5mal.data,2));
-sum(mn >= 1)
-sel5 = mn >= 5;
-sum(sel5)
-mean(sum(lcpat5mal.data,1))
-lcpat5end = lcpat5.cellSubset(lcpat5.cellType == Celltype.Endothelial);
-mnEnd = TPM(mean(lcpat5end.data,2));
-mnEndInCanc = mnEnd(sel5,:);
-sum(mnEndInCanc > 5)
-mean(sum(lcpat5end.data,1))
-
-lcpat5b = lcpat5.cellSubset(lcpat5.cellType == Celltype.BCell);
-mean(sum(lcpat5b.data,1))
-
-healthyEndo = scd_lc_healthy.cellSubset(scd_lc_healthy.cellType == Celltype.Endothelial);
-mean(sum(healthyEndo.data,1))
-
-ovasc = SCDep.scd_ovasc;
-bc2 = SCDep.scd_bc2;
-pbmc68000 = SCDep.scd_pbmc68000;
-ovm = ovasc.cellSubset(ovasc.cellType == Celltype.MacrophageOrMonocyte);
-bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
-bc2t_bc4tumor = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC4_TUMOR'));
-bc2t_blood = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC4_BLOOD'));
-lct = lc.cellSubset(lc.cellType == Celltype.TCellCD4Pos | lc.cellType == Celltype.TCellCD8Pos | lc.cellType == Celltype.TCellReg);
-lcb = lc.cellSubset(lc.cellType == Celltype.BCell);
-lcm = lc.cellSubset(lc.cellType == Celltype.Malignant);
-t68000 = pbmc68000.cellSubset(pbmc68000.cellType == Celltype.TCellCD4Pos | pbmc68000.cellType == Celltype.TCellCD8Pos | pbmc68000.cellType == Celltype.TCellReg);
-
-
-tdss = {ovm, bc2t, bc2t_bc4tumor, bc2t_blood, b10000, t68000, lct};
-%}
-
-
 %% Fig A - comparison between datasets
-
-%bc2, mixed pat blood t cells
-%ovasc macrophages/monocytes, mixed pat
-%lc healthy tissue, mixed pat
-%livt, mixed pat
-%pbmc68000 t cells, pat A
-%pbmcb10000
-%pbmctcd4mem10000
-%hca cb mixed pat t cells
-%GSE112845 CD8+ t cells
 
 templInfo = DSAVEGetStandardTemplate();
 
@@ -154,22 +64,50 @@ dss = { bc2t_2blood, ...
 
 
 numds = size(dss,2);
-resdata = cell(1,numds);
-scores = zeros(1,numds);
+resdataA = cell(1,numds);
+scoresA = zeros(1,numds);
 
 progbar = ProgrBar('DSAVE Score 2: Fig A');
 
 
 for i = 1:numds
-    resdata{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfo, progbar.GetSubContext(1/numds));
-    scores(1,i) = resdata{1,i}.DSAVEScore;
+    resdataA{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfo, progbar.GetSubContext(1/numds));
+    scoresA(1,i) = resdataA{1,i}.DSAVEScore;
 end
 
 progbar.Done();
 
 disp('Comparison between datasets: Copy into excel sheet');
-scores %just copy these values into the excel sheet
+scoresA %just copy these values into the excel sheet
 
+%% Fig 3E Suppl. (run fig A first)
+
+progbar = ProgrBar('DSAVE Score 2: Fig 3E Suppl.');
+resdata3ES = cell(1,numds);
+scores3ES = zeros(1,numds);
+
+for i = 1:numds
+    resdata3ES{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfo, progbar.GetSubContext(1/numds), false, 15, true);
+    scores3ES(1,i) = resdata3ES{1,i}.DSAVEScore;
+end
+
+progbar.Done();
+
+%figure out slope
+b1 = (scores3ES.')\(scoresA.');
+
+figure
+plot([0 0.45], [0 b1*0.45]);
+hold on
+scatter(scores3ES, scoresA);
+xlabel('BTM score using log transformation')
+ylabel('BTM score')
+title('BTM Score - Impact of Log Transformation');
+%axis([0 1000 0 0.31]);
+set(gca,'FontSize',11);
+
+disp('Correlation matrix (3E Suppl.): ');
+cc = corrcoef(scores3ES, scoresA)
 
 
 %% Fig B - patient to patient variation
@@ -394,7 +332,7 @@ progbar.Done();
 disp('Technical validation: Copy into excel sheet');
 scores %just copy these values into the excel sheet
 
-%% Fig 3B Supplementary - Mix of monocytes and T cells
+%% Fig 3B Suppl. - Mix of monocytes and T cells
 hcacb = SCDep.scd_hca_cb;
 hca_cb1 = hcacb.cellSubset(strcmp(hcacb.sampleIds,'CB1'));
 hcat = hca_cb1.cellSubset(hca_cb1.cellType == Celltype.TCell | hca_cb1.cellType == Celltype.TCellCD4Pos | hca_cb1.cellType == Celltype.TCellCD8Pos);
@@ -430,9 +368,9 @@ xlabel('Percent monocytes in mix');
 ylabel('DSAVE variation score');
 title('Variation per Cell Type Fractions');
 set(gca,'FontSize',11);
-axis([0 100 0 0.08]);
+axis([0 100 0 0.06]);
 
-%% Evaluate number of iterations
+%% Fig 3D Suppl. - Evaluate number of iterations for the DSAVE score
 
 ds = bc2t_2blood;
 
@@ -444,8 +382,10 @@ differenceCVs = cell(1,runs);
 
 templInfo = DSAVEGetStandardTemplate();
 
+progbar = ProgrBar('DSAVE Score 2: Fig 3D Suppl.');
+
 for r = 1:runs
-    [resdata{1,r}, differenceCVs{1,r}] = DSAVECalcBTMScore(ds, templInfo, false, iterations);
+    [resdata{1,r}, differenceCVs{1,r}] = DSAVECalcBTMScore(ds, templInfo, progbar.GetSubContext(0.49/runs), false, iterations);
 end
 
 xvals = 1:iterations;
@@ -456,12 +396,17 @@ for r = 1:runs
     allScores(r,:) = mean(diffCVsRun, 2);% This is not exactly the way it is done in the score, but since we're only using means, that should be fine
 end
 
+
+
 % now loop through all iteration sizes s and use the 1:s first iterations
 % to form a mean. Then look at the std for those
 for i = xvals
     meanVals = mean(allScores(:,1:i),2);
     stds(1,i) = std(meanVals, [], 1);
 end
+
+progbar.Done();
+
 
 figure
 plot(xvals, stds);
@@ -481,14 +426,14 @@ b10000 = SCDep.scd_pbmcb10000;
 [scd_GSE112845_pat_a,scd_GSE112845_pat_b,scd_GSE112845_cd8] = SCDep.scd_GSE112845;
 
 dss = {ovm,bc2t_bc4tumor, b10000, scd_GSE112845_cd8};
-templSpec = DSAVEGenerateTemplateInfo(bc2t_bc4tumor, datasets, 1000, 750, 0.025, 0.025);
+templSpec = DSAVEGenerateTemplateInfo(bc2t_bc4tumor, datasets, 1000, 750, 0.025, 0.025, progbar.GetSubContext(0.02));
 
 
 resdata2 = cell(1,runs);
 differenceCVs2 = cell(1,runs);
 
 for r = 1:runs
-    [resdata2{1,r}, differenceCVs2{1,r}] = DSAVECalcBTMScore(ds, templSpec, false, iterations);
+    [resdata2{1,r}, differenceCVs2{1,r}] = DSAVECalcBTMScore(ds, templSpec, progbar.GetSubContext(0.49/runs), false, iterations);
 end
 
 allScores = zeros(runs, iterations);

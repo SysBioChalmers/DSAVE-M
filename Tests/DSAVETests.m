@@ -254,7 +254,7 @@ s1.sampleIds = {'1_11','1_21','1_31','1_41'};
 s2 = TPM(s1);
 a3 = TPM(s1.data);
 
-if a3(2,1) ~= 250000 | a3(3,4) ~= 120000
+if a3(2,1) ~= 250000 || a3(3,4) ~= 120000
     error('T0015: TPM function incorrect');
 elseif ~isequal(s2.data, a3)
     error('T0015: different results between matrix and object');
@@ -271,6 +271,18 @@ if max(abs(adj-expAdj)) < 10^-7%this reflects the number of decimals produced by
 else
     error('T0005: Multiple testing Benjamini failed');
 end
+
+%% T0025 LogTrans
+logTestData = [0 9 99 999; 9999 99999 999999 9999999];
+expLogRes = [0 1 2 3; 4 5 6 7];
+logRes = LogTrans(logTestData, true);
+restoredLogData = LogTrans(logRes, false); 
+if ~(isequal(logTestData, restoredLogData) && isequal(logRes, expLogRes))
+    disp('T0025: LogTrans failed');
+else
+    disp('T0025: LogTrans: ok');
+end
+
 
 %T0016: LogMultinomialPDF
 %tests that this function gives the same
@@ -300,7 +312,7 @@ exps1s2 = {'E'};
 exps1s3 = {'A','I'};
 exps2s3 = {'L'};
 exps1s2s3 = {'B','C','G','H','J'};
-if ~(all(strcmp(s1, exps1)) & all(strcmp(s2, exps2)) & all(strcmp(s3, exps3)) & all(strcmp(s1s2, exps1s2)) & all(strcmp(s1s3, exps1s3)) & all(strcmp(s2s3, exps2s3)) & all(strcmp(s1s2s3, exps1s2s3)))
+if ~(all(strcmp(s1, exps1)) && all(strcmp(s2, exps2)) && all(strcmp(s3, exps3)) && all(strcmp(s1s2, exps1s2)) && all(strcmp(s1s3, exps1s3)) && all(strcmp(s2s3, exps2s3)) && all(strcmp(s1s2s3, exps1s2s3)))
     error('T0017: CreateVennDiagramSets failed');
 else
     disp('T0017: CreateVennDiagramSets ok');
@@ -316,7 +328,7 @@ geneSel = strcmp(lc.genes, 'NOC2L');
 cellSel = strcmp(lc.cellIds,'AAATCCCTCTAGAC_1');
 if lc.data(geneSel,cellSel) ~= 2
     error('T0006: LC dataset data incorrect');
-elseif sum(strcmp('AAACATACTCAGAC_6',lc.cellIds)) ~= 0 | sum(strcmp('AAACATACTCAGAC_6',hlc.cellIds)) ~= 1
+elseif sum(strcmp('AAACATACTCAGAC_6',lc.cellIds)) ~= 0 || sum(strcmp('AAACATACTCAGAC_6',hlc.cellIds)) ~= 1
     error('T0006: LC dataset tumor/healthy incorrect');
 elseif lc.cellType(strcmp(lc.cellIds,'TTTGGTTTCGAGAGCA_15')) ~= Celltype.BCell
     error('T0006: LC dataset cell type incorrect');
@@ -490,7 +502,7 @@ ds3.data = [0 3 2 1;3 0 1 2];
 lls3 = DSAVEGetSingleCellDivergence(ds3, 3);
 
 
-if ~(lls(1,4) > lls(1,3) & lls(1,4) > lls(1,1) & lls(1,4) >= lls(1,2)) % 2 could become the same or worse than 4, depending on which reads gets discarded
+if ~((lls(1,4) > lls(1,3)) && (lls(1,4) > lls(1,1)) && (lls(1,4) >= lls(1,2))) % 2 could become the same or worse than 4, depending on which reads gets discarded
     error('T0021: DSAVEGenerateSNODataset: UMIDistr not ok');
 elseif ~isequal(lls2, lls3)
     error('T0021: DSAVEGenerateSNODataset: down-sampling not ok');
@@ -560,8 +572,10 @@ else
     disp('T0023: DSAVEGetTotalVariationVsPoolSize: ok');
 end
 
+% T0024 is the progress bar test case
 
-%% T0024: DSAVEGetGeneVariation
+
+%% T0026: DSAVEGetGeneVariation
 %Create a dataset where we can easily calculate the p value
 %and see that it gets somewhat right. 
 %There is a risk that this test will have problems with stability, since
@@ -609,15 +623,15 @@ dsTest2.data = [0 3 0 0 0; 0 0 0 0 0; 6 0 6 6 9];
 [~, ~,pvalsTest2] = DSAVEGetGeneVariation(dsTest2,0,100000,10000);
 
 if abs(pvalsTest(1,1) - 0.008) > 0.002
-    error('T0024: DSAVEGetGeneVariation: not ok, pVal not right');
+    error('T0026: DSAVEGetGeneVariation: not ok, pVal not right');
 elseif abs(pvalsTest2(1,1) - 0.001) > 0.0007
-    error('T0024: DSAVEGetGeneVariation: not ok, pVal2 not right');
+    error('T0026: DSAVEGetGeneVariation: not ok, pVal2 not right');
 elseif ~all(strcmp(genesTest, expGenes))
-    error('T0024: DSAVEGetGeneVariation: not ok, genes not correct');
+    error('T0026: DSAVEGetGeneVariation: not ok, genes not correct');
 elseif abs(logCVTest - CVDiffExp) > 0.01
-    error('T0024: DSAVEGetGeneVariation: not ok, pVal2 not right');
+    error('T0026: DSAVEGetGeneVariation: not ok, pVal2 not right');
 else
-    disp('T0024: DSAVEGetTotalVariationVsPoolSize: ok');
+    disp('T0026: DSAVEGetTotalVariationVsPoolSize: ok');
 end
 
 

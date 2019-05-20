@@ -6,7 +6,7 @@ this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
 
 # Read data
-regrData = read.table(file="../TempData/RegrData.txt", header=T, sep="\t", row.names = 1)
+regrData = read.table(file="../../TempData/RegrData.txt", header=T, sep="\t", row.names = 1)
 head(regrData)
 dim(regrData)
 

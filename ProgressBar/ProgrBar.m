@@ -23,14 +23,14 @@ classdef ProgrBar < handle
             obj@handle();%call super class, not sure if that is needed
             obj.id = nextId;
             nextId = nextId + 1;
-            if nargin < 2 | isempty(context)
+            if nargin < 2 || isempty(context)
                 obj.parent = [];
                 obj.silent = false;
             else
                 %Check that the fraction is ok
                 %need to take care of the case where a context with no
                 %parent is sent in as well
-                if ~isempty(context.parent) & (isempty(context.fraction) | context.fraction < 0 | context.fraction > 1)
+                if ~isempty(context.parent) && (isempty(context.fraction) || context.fraction < 0 || context.fraction > 1.1)
                     error('ProgrBar: If a parent is supplied, a valid fraction must be supplied as well')
                 end
                 obj.parent = context.parent;
@@ -56,7 +56,7 @@ classdef ProgrBar < handle
             
             %print first phrase (before the progress in itself) in case of
             %no parent
-            if isempty(obj.parent) & ~obj.silent
+            if isempty(obj.parent) && ~obj.silent
                 fprintf('%s: ',obj.text);
             end
         end
@@ -108,7 +108,7 @@ classdef ProgrBar < handle
                 ss = ss + values{1,i}.fraction;
             end
             
-            if (ss > 1)
+            if (ss > 1.1) % leave some slack due to roundoff errors
                 error(strcat('ProgrBar/RegisterChild - The sum of the children fractions exceed 1. Value=', num2str(ss)));
             end
             

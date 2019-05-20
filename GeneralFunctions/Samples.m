@@ -21,7 +21,7 @@ classdef Samples
                sortGenes = 0;
            end
            s = this;
-           if isnumeric(genesToKeep) | islogical(genesToKeep)
+           if isnumeric(genesToKeep) || islogical(genesToKeep)
                s.genes = this.genes(genesToKeep);
                s.data = s.data(genesToKeep,:);
                if sortGenes

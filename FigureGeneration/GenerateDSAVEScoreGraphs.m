@@ -65,9 +65,9 @@ end
 
 legend(legendsA)
 xlabel('Gene expression (CPM)')
-ylabel('Log_2(CV+1)')
+ylabel('ln(CV+1)')
 title('Variation per Gene Expression, Unaligned Cell Pop.');
-axis([0 1000 0 4]);
+axis([0 1000 0 3]);
 set(gca,'FontSize',11);
 
 progbar.Done();
@@ -83,14 +83,12 @@ lStyles = {'k','k--','m','m--','b','b--','g','g--','c','c--','r-','r--'};
 
 numds = size(origdatasets,2);
 resdata = cell(1,numds);
-scores = zeros(1,numds);
 
 
 % Create data
 
 for i = 1:numds
     resdata{1,i} = DSAVECalcBTMScore(origdatasets{1,i}, templInfoAllOutliers, progbar.GetSubContext(1/numds));
-    scores(1,i) = resdata{1,i}.DSAVEScore;
 end
 
 progbar.Done();
@@ -100,7 +98,7 @@ legNames = {};
 figure
 for i = 1:numds
     %skip sample 3 and 4 for this graph
-    if i ~= 3 & i ~= 4
+    if i ~= 3 && i ~= 4
         res = resdata{1,i};
         plot (res.tpms, res.alignedCVs, lStyles{1,i*2-1});
         hold on;
@@ -112,9 +110,9 @@ end
 
 legend(legNames)
 xlabel('Gene expression (CPM)')
-ylabel('Log_2(CV+1)')
+ylabel('ln(CV+1)')
 title('Variation per Gene Expression, Aligned Cell Pop.');
-axis([0 1000 1 3]);
+axis([0 1000 0.8 2.5]);
 set(gca,'FontSize',11);
 
 %fig C (zoomed in fig 2)
@@ -122,7 +120,7 @@ legNames = {};
 figure
 for i = 1:numds
     %skip sample 3 and 4 for this graph
-    if i ~= 3 & i ~= 4
+    if i ~= 3 && i ~= 4
         res = resdata{1,i};
         plot (res.tpms, res.alignedCVs, lStyles{1,i*2-1});
         hold on;
@@ -134,9 +132,9 @@ end
 
 legend(legNames)
 xlabel('Gene expression (CPM)')
-ylabel('Log_2(CV+1)')
+ylabel('ln(CV+1)')
 title('Variation per Gene Expression, Aligned Cell Pop. (Zoomed)');
-axis([400 450 1.5 1.9]);
+axis([800 850 0.85 1.3]);
 set(gca,'FontSize',11);
 
 %fig D
@@ -153,6 +151,7 @@ legend(legNames)
 xlabel('Gene expression (CPM)')
 ylabel('BTM variation')
 title('BTM Variation per Gene Expression');
-axis([0 1000 0 0.41]);
+axis([0 1000 0 0.31]);
 set(gca,'FontSize',11);
+
 

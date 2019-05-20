@@ -3,7 +3,7 @@
 function res = CelltypeId2CelltypeName(x)
 
 [r,c] = size(x);
-if (r > 1) | (c > 1)
+if (r > 1) || (c > 1)
     xscalar = 0;
 else
     xscalar = 1;

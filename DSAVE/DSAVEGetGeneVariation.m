@@ -1,5 +1,4 @@
-%function [logCVDifference, genes, pVals, SNOVariances, SNOCountsPerGene, varianceDS] = DSAVEGetGeneVariation2(ds, lb, iterations, maxNumCells, progrBarCtxt)
-function [genes, logCVDifference, pVals, SNOVariances] = DSAVEGetGeneVariation(ds, lb, iterations, maxNumCells, progrBarCtxt)
+function [genes, logCVDifference, pVals, SNOVariances, SNOCountsPerGene] = DSAVEGetGeneVariation(ds, lb, iterations, maxNumCells, progrBarCtxt)
 if nargin < 5
     progrBarCtxt = [];
 end

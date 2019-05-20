@@ -45,7 +45,7 @@ classdef SCDataset
 
        function [ds,ia] = geneSubset(this, genesToKeep) %genesToKeep should be a vertical cell array, logical array or array of indices
            ds = this;
-           if isnumeric(genesToKeep) | islogical(genesToKeep)
+           if isnumeric(genesToKeep) || islogical(genesToKeep)
                ds.genes = this.genes(genesToKeep);
                ds.data = ds.data(genesToKeep,:);
            else

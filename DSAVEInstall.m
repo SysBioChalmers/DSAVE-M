@@ -2,7 +2,7 @@
 %Run DSAVEInstall.Uninstall() to clear the path from matlab
 classdef DSAVEInstall
     methods (Static)
-        function Install
+        function install
             mainDir = fileparts(which(mfilename));
             %Add paths of all directories
             addpath(mainDir);
@@ -14,7 +14,7 @@ classdef DSAVEInstall
             addpath(strcat(mainDir,'/Tests'));
             savepath;
         end
-        function Uninstall
+        function uninstall
             mainDir = fileparts(which(mfilename));
             %Remove paths of all directories
             rmpath(mainDir);

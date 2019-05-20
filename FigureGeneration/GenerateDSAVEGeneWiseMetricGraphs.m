@@ -1,4 +1,8 @@
 
+iterations = 100000;
+%iterations = 100;
+
+
 %% Fig A
 
 progbar = ProgrBar('Gene-wise: Fig A');
@@ -7,21 +11,21 @@ progbar = ProgrBar('Gene-wise: Fig A');
 %breast cancer
 bc2 = SCDep.scd_bc2;
 bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
-bc2tSub = bc2t.randSample(10000);
-[genesbc,logCVDifferencebc,pvalsbc,bcSNOVariances] = DSAVEGetGeneVariation(bc2tSub,1,100,10000, progbar.GetSubContext(0.33));
+bc2tSub = bc2t.cellSubset(1:2000);%do not do random sampling for reproducability reasons.
+[genesbc,logCVDifferencebc,pvalsbc,bcSNOVariances,bcSNOCountsPerGene] = DSAVEGetGeneVariation(bc2tSub,1,iterations,10000, progbar.GetSubContext(0.33));
 
 %lung cancer
 [lc,~] = SCDep.scd_lc;
 lct = lc.cellSubset(lc.cellType == Celltype.TCellCD4Pos | lc.cellType == Celltype.TCellCD8Pos | lc.cellType == Celltype.TCellReg);
-lctSub = lct.randSample(10000);
-[geneslc,logCVDifferencelc,pvalslc,lcSNOVariances] = DSAVEGetGeneVariation(lctSub,1,10000,10000, progbar.GetSubContext(0.33));
+lctSub = lct.cellSubset(1:2000);%do not do random sampling for reproducability reasons.
+[geneslc,logCVDifferencelc,pvalslc,lcSNOVariances,lcSNOCountsPerGene] = DSAVEGetGeneVariation(lctSub,1,iterations,10000, progbar.GetSubContext(0.33));
 
 %hca
 hcacb = SCDep.scd_hca_cb;
 hca_cb1 = hcacb.cellSubset(strcmp(hcacb.sampleIds,'CB1'));
 hcat = hca_cb1.cellSubset(hca_cb1.cellType == Celltype.TCell | hca_cb1.cellType == Celltype.TCellCD4Pos | hca_cb1.cellType == Celltype.TCellCD8Pos);
-hcatSub = hcat.randSample(10000);
-[geneshca,logCVDifferencehca,pvalshca,hcaSNOVariances] = DSAVEGetGeneVariation(hcatSub,1,10000,10000, progbar.GetSubContext(0.33));
+hcatSub = hcat.cellSubset(1:2000);%do not do random sampling for reproducability reasons.
+[geneshca,logCVDifferencehca,pvalshca,hcaSNOVariances,hcaSNOCountsPerGene] = DSAVEGetGeneVariation(hcatSub,1,iterations,10000, progbar.GetSubContext(0.33));
 
 progbar.Done();%finish progress bar here, some printouts below
 
@@ -30,6 +34,9 @@ sum(pValsbcAdj< 0.05)
 
 [sortedValsBc,ibc] = sort(logCVDifferencebc.', 'descend');
 xValsBc = 1:size(logCVDifferencebc,1);
+sortedGenesBC = genesbc(ibc,:);
+sortedPValsbcAdj = pValsbcAdj(ibc,:);
+
 figure
 plot(xValsBc(1,1:10:end),sortedValsBc(1,1:10:end),'LineWidth',2);%the plot looks bad if you have too many points, so we only use every 10th point
 xlabel('Gene index')
@@ -38,19 +45,23 @@ title('Variation per Gene');
 hold on
 
 [sortedValsLc, ilc] = sort(logCVDifferencelc.', 'descend');
+sortedGenesLC = geneslc(ilc,:);
 xValsLc = 1:size(logCVDifferencelc,1);
 plot(xValsLc(1,1:10:end),sortedValsLc(1,1:10:end),'LineWidth',2);
 hold on
 axis([0 14000 -0.1 2.5]);
 pValslcAdj = AdjustPval(pvalslc,'benjamini',1);
+sortedPValslcAdj = pValslcAdj(ilc,:);
 
 [sortedValsHca, ihca] = sort(logCVDifferencehca.', 'descend');
+sortedGenesHCA = geneshca(ihca,:);
 xValsHca = 1:size(logCVDifferencehca,1);
 plot(xValsHca(1,1:10:end),sortedValsHca(1,1:10:end),'LineWidth',2);
 legend({'BC T cells','LC T cells', 'HCA CB T cells'});
 set(gca,'FontSize',11);
 
 pValshcaAdj = AdjustPval(pvalshca,'benjamini',1);
+sortedPValshcaAdj = pValshcaAdj(ihca,:);
 
 
 
@@ -69,6 +80,92 @@ xlabel('Bc T cells gene-wise BTM variation')
 ylabel('Lc T cells gene-wise BTM variation')
 title('Gene-wise BTM variation correlation between datasets.');
 %}
+%% Fig 4A-D Supl. - Reproducability
+progbar = ProgrBar('Gene-wise: Reproducibility');
+
+%create a second run with 100,000 iterations
+[genesbc2,logCVDifferencebc2,pvalsbc2,bcSNOVariances2,bcSNOCountsPerGene2] = DSAVEGetGeneVariation(bc2tSub,1,iterations,10000, progbar.GetSubContext(1));
+
+progbar.Done();
+
+%p value correlation between 2 runs - Fig B
+figure
+plot([0;10], [0;10])
+hold on
+scatter(pvalsbc, pvalsbc2);
+xlabel('BTM Variation p-value run 1')
+ylabel('BTM variation p-value run 2')
+title('Gene-wise BTM Variation P-value Reproducibility, 100,000 It.');
+axis([0 0.05 0 0.05]);
+set(gca,'FontSize',11);
+
+%for correlation - only look at the values below 0.05 - the rest is not
+%interesting and will likely dominate the picture
+pvalsbcbelow005 = pvalsbc(pvalsbc <= 0.05, :);
+pvalsbc2below005 = pvalsbc2(pvalsbc <= 0.05, :);%select on the same dataset to get the same genes in both datasets
+corrcoef(pvalsbcbelow005, pvalsbc2below005)
+
+%run 2 runs with 100 iterations
+[genesbc3,logCVDifferencebc3,pvalsbc3,bcSNOVariances3,bcSNOCountsPerGene3] = DSAVEGetGeneVariation(bc2tSub,1,100,10000);
+[genesbc4,logCVDifferencebc4,pvalsbc4,bcSNOVariances4,bcSNOCountsPerGene4] = DSAVEGetGeneVariation(bc2tSub,1,100,10000);
+%Fig A:
+figure
+plot([0;10], [0;10])
+hold on
+scatter(logCVDifferencebc3, logCVDifferencebc4);
+xlabel('BTM Variation run 1')
+ylabel('BTM variation run 2')
+title('Gene-wise BTM Variation Reproducibility, 100 It.');
+axis([0 3 0 3]);
+set(gca,'FontSize',11);
+
+corrcoef(logCVDifferencebc3, logCVDifferencebc4)
+
+
+%run 2 runs with 10,000 iterations
+[genesbc5,logCVDifferencebc5,pvalsbc5,bcSNOVariances5,bcSNOCountsPerGene5] = DSAVEGetGeneVariation(bc2tSub,1,10000,10000);
+[genesbc6,logCVDifferencebc6,pvalsbc6,bcSNOVariances6,bcSNOCountsPerGene6] = DSAVEGetGeneVariation(bc2tSub,1,10000,10000);
+
+%p value correlation between 2 runs
+figure
+plot([0;10], [0;10])
+hold on
+scatter(pvalsbc5, pvalsbc6);
+xlabel('BTM Variation p-value run 1')
+ylabel('BTM variation p-value run 2')
+title('Gene-wise BTM Variation P-value Reproducibility, 10,000 It.');
+axis([0 0.05 0 0.05]);
+set(gca,'FontSize',11);
+
+%for correlation - only look at the values below 0.05 - the rest is not
+%interesting and will likely dominate the picture
+pvalsbc5below005 = pvalsbc5(pvalsbc5 <= 0.05, :);
+pvalsbc6below005 = pvalsbc6(pvalsbc5 <= 0.05, :);%select on the same dataset to get the same genes in both datasets
+corrcoef(pvalsbc5below005, pvalsbc6below005)
+
+
+%run 2 runs with 1,000 iterations
+[genesbc7,logCVDifferencebc7,pvalsbc7,bcSNOVariances7,bcSNOCountsPerGene7] = DSAVEGetGeneVariation(bc2tSub,1,1000,10000);
+[genesbc8,logCVDifferencebc8,pvalsbc8,bcSNOVariances8,bcSNOCountsPerGene8] = DSAVEGetGeneVariation(bc2tSub,1,1000,10000);
+
+%p value correlation between 2 runs
+figure
+plot([0;10], [0;10])
+hold on
+scatter(pvalsbc7, pvalsbc8);
+xlabel('BTM Variation p-value run 1')
+ylabel('BTM variation p-value run 2')
+title('Gene-wise BTM Variation P-value Reproducibility, 1,000 It.');
+axis([0 0.05 0 0.05]);
+set(gca,'FontSize',11);
+
+%for correlation - only look at the values below 0.05 - the rest is not
+%interesting and will likely dominate the picture
+pvalsbc7below005 = pvalsbc7(pvalsbc7 <= 0.05, :);
+pvalsbc8below005 = pvalsbc8(pvalsbc7 <= 0.05, :);%select on the same dataset to get the same genes in both datasets
+corrcoef(pvalsbc7below005, pvalsbc8below005)
+
+
 
 %% Fig D
 %check what happens if we replace the 50/250 worst genes with SNO counterparts
@@ -77,9 +174,10 @@ templInfo = DSAVEGetStandardTemplate();
 
 progbar = ProgrBar('Gene-wise: Fig D');
 
-bc2tSub2 = bc2tSub.randSample(2000);%make sure we compare the same datasets to avoid stochaisticity
-lctSub2 = lctSub.randSample(2000);%make sure we compare the same datasets to avoid stochaisticity
-hcatSub2 = hcatSub.randSample(2000);%make sure we compare the same datasets to avoid stochaisticity
+bc2tSub2 = bc2tSub;
+lctSub2 = lctSub;
+hcatSub2 = hcatSub;
+
 
 %generate a template for each dataset
 bcSNO = DSAVEGenerateSNODataset(bc2tSub2, progbar.GetSubContext(0.015));
@@ -151,7 +249,14 @@ format short % default
 
 %% Fig C - Wenn diagram over intersection of 50 most variable genes
 
-[bc,lc,hca,bclc,bchca,lchca,all_] = CreateVennDiagramSets(worstGenesBc2,worstGenesLc2,worstGenesHca2);
+worstGenesBCAdj = sortedGenesBC(sortedPValsbcAdj < 0.05);
+worstGenesLCAdj = sortedGenesLC(sortedPValslcAdj < 0.05);
+worstGenesHCAAdj = sortedGenesHCA(sortedPValshcaAdj < 0.05);
+worstGenesBCAdj = worstGenesBCAdj(1:250,:);
+worstGenesLCAdj = worstGenesLCAdj(1:250,:);
+worstGenesHCAAdj = worstGenesHCAAdj(1:250,:);
+
+[bc,lc,hca,bclc,bchca,lchca,all_] = CreateVennDiagramSets(worstGenesBCAdj,worstGenesLCAdj,worstGenesHCAAdj);
 
 a = zeros(1,7);
 a(1,1) = size(bc,1);
@@ -174,41 +279,73 @@ all_
 %% Fig B Variation value at p = 0.05 (uncorrected) per gene expression
 
 %we don't have all the genes in the results
+%{
 [~,ia,ib] = intersect(bc2tSub2.genes,genesbc);
 
-%first calculate mean expression
-meanExpr = mean(TPM(bc2tSub2.data(ia,:)),2);
+bcSubData = bc2tSub2.data(ia,:);
 
-variances = var(bcSNOVariances,0,2);
+%first calculate mean expression
+meanExpr = mean(TPM(bcSubData),2);
+
+
 
 %need to fix the indices of the variances as well to match the intersect
 %above
-variances = variances(ib,:);
+variances = bcSNOVariances(ib,:);
 
-numGenes = size(genesbc,1);
-confvars = zeros(numGenes,1);
-means = zeros(numGenes,1);
+%get the unique count sums
+[countSums, iauc , ~] = unique(sum(bcSubData,2));
+
+%now throw away the variances not needed so we only have the ones for the
+%unique counts left
+varu = variances(iauc,:);
+meanExpr = meanExpr(iauc,:);
+%}
+
+totUMIs = sum(sum(bc2tSub2.data,1),2);
+meanExpr = 10^6*bcSNOCountsPerGene/totUMIs;
+
+%sort the rows of the variances
+varSorted = sort(bcSNOVariances,2);
+lcvSorted = log(sqrt(varSorted) ./ (meanExpr+0.05) + 1);
+
+numGenes = size(lcvSorted,1);
+confvars005 = zeros(numGenes,1);
+confvars001 = zeros(numGenes,1);
+numRep = size(lcvSorted,2);
+
+conf005Index = round(0.95 * numRep);
+conf001Index = round(0.99 * numRep);
 
 for g = 1:numGenes
-    %fit variances to a normal distribution
-    pd = fitdist(bcSNOVariances(g,:).','Normal');
-    ci = paramci(pd,'Alpha',.1);%for one-sided test
-    confvars(g,1) = ci(2,1);%this is the value at the confidence interval; the value means the variance of the data at the conf interval
-    means(g,1) = pd.mu;
+    confvars005(g,1) = lcvSorted(g,conf005Index);
+    %if there are several identical values in a row, this must be taken
+    %care of if there is an identical value to the left; then we must find
+    %the next value and take that
+    if lcvSorted(g,conf005Index) == lcvSorted(g,conf005Index-1)
+        nextIndex = conf005Index;
+        while (nextIndex < numRep) && (lcvSorted(g,conf005Index) == lcvSorted(g,nextIndex))
+            nextIndex = nextIndex + 1;
+        end
+        confvars005(g,1) = lcvSorted(g,nextIndex);
+    end
+    confvars001(g,1) = lcvSorted(g,conf001Index);
+    if lcvSorted(g,conf001Index) == lcvSorted(g,conf001Index-1)
+        nextIndex = conf001Index;
+        while (nextIndex < numRep) && (lcvSorted(g,conf001Index) == lcvSorted(g,nextIndex))
+            nextIndex = nextIndex + 1;
+        end
+        confvars001(g,1) = lcvSorted(g,nextIndex);    
+    end
 end
 
-%recalculate to log(cv + 1);
-confcvs = (confvars + 0.05) ./ (meanExpr+0.05);
-logconfcvs = log(confcvs + 1);
+%calculate the BTM variation by subtracting the mean CV val (which is the
+%sampling noise) from the value at the conf interval
+meanCvs = mean(lcvSorted, 2);
 
-meancvs = means ./ meanExpr;
-logmeancvs = log(meancvs + 1);
-
-diffs = logconfcvs - logmeancvs;
-
-%figure
-%scatter(meanExpr,diffs);
-
+btm005 = confvars005 - meanCvs;
+btm001 = confvars001 - meanCvs;
+%{
 %skip for the genes < 1 TPM
 sel = meanExpr >= 1 & meanExpr <= 5000;
 
@@ -227,7 +364,18 @@ for i = 1:numPoints
     ys(1,i) = mean(rs(i:i+299,1));
     xs(1,i) = mean(es(i:i+299,1));
 end
-
+%}
+figure
+semilogx(meanExpr, btm001);
+hold on
+semilogx(meanExpr, btm005);
+xlabel('Gene expression (CPM)')
+ylabel('BTM variation')
+title('Confidence Interval of BTM Variation per Gene Expression');
+axis([0 5000 0 0.80]);
+set(gca,'FontSize',11);
+legend({'p = 0.01', 'p = 0.05'})
+%{
 figure
 h = area(xs,ys,'LineWidth',1);
 xlabel('Gene expression (CPM)')
@@ -236,11 +384,11 @@ title('Confidence Interval of BTM Variation per Gene Expression');
 axis([0 100 0 0.04]);
 h(1).FaceColor = [0.75 0.75 1]
 set(gca,'FontSize',11);
-
+%}
 
 
 %%some tests
-
+%{
 ovm = SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.MacrophageOrMonocyte);
 SNOOvm = DSAVEGenerateSNODataset(ovm);
 
@@ -254,5 +402,5 @@ histogram(log(SNOOvmHighlyExpr.data(1,:) + 0.05))
 SNOOvmLowlyExpr = SNOOvm.geneSubset(mean(SNOOvm.data,2) > 0.5 & mean(SNOOvm.data,2) < 1);
 figure
 histogram(SNOOvmLowlyExpr.data(1,:))
-
+%}
 

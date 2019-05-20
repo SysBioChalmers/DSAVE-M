@@ -347,7 +347,7 @@ ylabel('UMI counts')
 title('UMI Counts vs Cell Divergence');
 legend({'Individual cell', 'Mean log-likelihood'});
 set(gca,'FontSize',11);
-axis([-4500 -1400 0 14000]);
+axis([-2700 -1000 0 14000]);
 
 %% Fig D. MT-genes
 
@@ -383,8 +383,9 @@ ylabel('Fraction mitochondrial gene counts')
 title('Fraction MT Counts vs Cell Divergence');
 legend({'Individual cell', 'Mean log-likelihood'});
 set(gca,'FontSize',11);
+axis([-1600 -800 0 0.25]);
 
-%% Fig 4B in supplementary - Number of detected genes
+%% Fig 5B in supplementary - Number of detected genes
 detGenes = sum(hcatSub2.data > 0,1);
 
 linevalYs = 500:50:2400;
@@ -409,7 +410,7 @@ ylabel('Number of detected genes')
 title('Number of Detected Genes vs Cell Divergence');
 legend({'Individual cell', 'Mean log-likelihood'});
 set(gca,'FontSize',11);
-axis([-4500 -1400 450 2800]);
+axis([-2700 -1000 450 2800]);
 
 
 %% Fig F - Mix of B and T cells
@@ -483,7 +484,7 @@ set(gca,'FontSize',11);
 
 
 
-%% Fig 4A in supplementary. Technical verification - run1 vs run 2.
+%% Fig 5A in supplementary. Technical verification - run1 vs run 2.
 %run divergence 2 times and plot
 progbar = ProgrBar('Cell-wise: Fig 4A Suppl.');
 

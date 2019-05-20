@@ -1,5 +1,5 @@
 %differenceCVs can be used for evaluating the number of iterations
-function [results,differenceCVs] = DSAVECalcBTMScore(origDs, templInfo, progrBarCtxt, skipAlignment, iterations)
+function [results,differenceCVs] = DSAVECalcBTMScore(origDs, templInfo, progrBarCtxt, skipAlignment, iterations, useLogTransform, logTPMAddon)
 
 if nargin < 3
     progrBarCtxt = ProgrBarContext;
@@ -11,6 +11,14 @@ end
 
 if nargin < 5
     iterations = 15;
+end
+
+if nargin < 6
+    useLogTransform = false;
+end
+
+if nargin < 7
+    logTPMAddon = 1;
 end
 
 progbar = ProgrBar(['Calculating DSAVE score for dataset  ''' origDs.name ''''], progrBarCtxt);
@@ -34,12 +42,17 @@ for it = 1:iterations
     if (skipAlignment)
         aligned = origDs;
     else
-        aligned = DSAVEAlignDataset(origDs, templInfo, progbar.GetSubContext(0.66/iterations));%use a different subset of cells in each loop iteration
+        aligned = DSAVEAlignDataset(origDs, templInfo, progbar.GetSubContext(0.59/iterations));%use a different subset of cells in each loop iteration
     end
-    alignedGeneCVs = GetGeneCVs(aligned, templInfo);
     
-    SNO = DSAVEGenerateSNODataset(aligned, progbar.GetSubContext(0.33/iterations));
-    SNOGeneCVs = GetGeneCVs(SNO, templInfo);
+    SNO = DSAVEGenerateSNODataset(aligned, progbar.GetSubContext(0.40/iterations));
+    if useLogTransform
+        alignedGeneCVs = GetGeneCVsLog(aligned, templInfo, logTPMAddon);
+        SNOGeneCVs = GetGeneCVsLog(SNO, templInfo, logTPMAddon);
+    else
+        alignedGeneCVs = GetGeneCVs(aligned, templInfo);
+        SNOGeneCVs = GetGeneCVs(SNO, templInfo);
+    end
     
     %throw away the most and least variable genes
     numGenes = size(aligned.data,1);
@@ -83,6 +96,7 @@ for it = 1:iterations
     alignedCVs(it,:) = interp1(alXes,alCVs,xes);
     samplingCVs(it,:) = interp1(saXes,saCVs,xes);
     
+    %differenceCVs(it,:) = alignedCVs(it,:) - samplingCVs(it,:);
     differenceCVs(it,:) = alignedCVs(it,:) - samplingCVs(it,:);
     
 end
@@ -102,18 +116,29 @@ end
 
 
 function logcv = GetGeneCVs(ds, templInfo)
-ds_red = TPM(ds);
+    ds_red = TPM(ds);
 
-totset = ds_red.data;
-numGenes = size(totset, 1);
+    totset = ds_red.data;
+    numGenes = size(totset, 1);
 
-avgRefExpr = mean(totset,2);
-%calc variances
-variances = var(totset, 0, 2);
-sd = sqrt(variances);
-cv_ = sd ./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
-logcv = log(cv_ + 1);%the + 1 says that no variance -> 0 value
+    avgRefExpr = mean(totset,2);
+    %calc variances
+    variances = var(totset, 0, 2);
+    sd = sqrt(variances);
+    cv_ = sd ./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
+    logcv = log(cv_ + 1);%the + 1 says that no variance -> 0 value
+end
 
+
+function logcv = GetGeneCVsLog(ds, templInfo, logTPMAddon)
+    ds_red = TPM(ds);
+    ds_red.data = LogTrans(ds.data, 1, logTPMAddon);
+    totset = ds_red.data;
+    avgRefExpr = mean(totset,2);
+    %calc variances
+    variances = var(totset, 0, 2);
+    sd = sqrt(variances);
+    logcv = sd ./ (avgRefExpr + 0.01);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
 end
 
 
@@ -133,7 +158,7 @@ for i = 1:numBins
     %select the genes within the expression range
     sel = avgRefExpr >= templInfo.binningInfo.lbs(1,i) & avgRefExpr <= templInfo.binningInfo.ubs(1,i);
     cv(1, i) = mean(logcv(sel));%y value in the graph
-    meanGeneExpr(1,i) = 2^mean(log(avgRefExpr(sel)+0.05)) - 0.05;%geometric-ish mean
+    meanGeneExpr(1,i) = 2^mean(log2(avgRefExpr(sel)+0.05)) - 0.05;%geometric-ish mean
 end
 
 

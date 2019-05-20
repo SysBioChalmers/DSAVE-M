@@ -159,6 +159,8 @@ bc1n_t = bc1n.cellSubset(bc1n.cellType == Celltype.TCellCD4Pos | bc1n.cellType =
 bc1n_t.name = 'bc1n_t';
 bc1t_t = bc1t.cellSubset(bc1t.cellType == Celltype.TCellCD4Pos | bc1t.cellType == Celltype.TCellCD8Pos | bc1t.cellType == Celltype.TCellReg |  bc1t.cellType == Celltype.TCell);
 bc1t_t.name = 'bc1t_t';
+%remove the cells with fewest genes to ensure having enough UMIs per cell:
+bc1t_t = bc1t_t.cellSubset(sum(bc1t_t.data,1) > 400);
 bc2ln_t = bc2ln.cellSubset(bc2ln.cellType == Celltype.TCellCD4Pos | bc2ln.cellType == Celltype.TCellCD8Pos | bc2ln.cellType == Celltype.TCellReg |  bc2ln.cellType == Celltype.TCell);
 bc2ln_t.name = 'bc2ln_t';
 bc2ln_b = bc2ln.cellSubset(bc2ln.cellType == Celltype.BCell);
@@ -379,14 +381,16 @@ for i = 1:numSets
     end
 end
 %}
+progbar = ProgrBar('DSAVE Relative importance data prep');
 
 scores = zeros(numSets,1);
 
 for i = 1:numSets
-    disp(strcat('running set: ', num2str(i)));
-    DSAVERes = DSAVECalcBTMScore(datasets{1,i}, templSpec)
+    %disp(strcat('running set: ', num2str(i)));
+    DSAVERes = DSAVECalcBTMScore(datasets{1,i}, templSpec, progbar.GetSubContext(1/numSets));
     scores(i,1) = DSAVERes.DSAVEScore;
 end
+progbar.Done();
 
 %% setup design matrix and run regression
 %intercept = t cell + hca + blood

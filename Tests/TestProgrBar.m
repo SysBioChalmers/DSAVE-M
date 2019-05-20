@@ -1,4 +1,4 @@
-%T0024: Progress bar
+ %T0024: Progress bar
 %The expected output is a progress bar called "B1 - sub", that progresses
 %at different speeds. It should progress to 60%, then halt for a while,
 %then go faster to 75%, then go slower to 90%, then halt for a while, then
