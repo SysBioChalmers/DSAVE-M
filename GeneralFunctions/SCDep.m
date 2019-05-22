@@ -90,7 +90,7 @@ classdef SCDep
                 filename = '../../TempData/bc2.mat';
                 if(~exist(filename,'file'))
                     disp('No .mat file found, importing data');
-                    v = ReadBC2('../../ImportableData/bc2_raw_corrected.csv', '../ImportableData/bc2_cluster_ids.txt');
+                    v = ReadBC2('../../ImportableData/bc2_raw_corrected.csv', '../../ImportableData/bc2_cluster_ids.txt');
                     %convert to sparse matrix before saving not to exceed limit for
                     %saving. Also keep it that way.
                     v.data = sparse(v.data);

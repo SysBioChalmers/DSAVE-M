@@ -12,7 +12,7 @@ function ds = ReadBC2(path, clusterInfoPath)
 %   path            Path to the data file,
 %   clusterInfoPath Path to the cell type info file
 %
-% Usage: ds = ReadBC2('../../ImportableData/bc2_raw_corrected.csv', '../ImportableData/bc2_cluster_ids.txt');
+% Usage: ds = ReadBC2('../../ImportableData/bc2_raw_corrected.csv', '../../ImportableData/bc2_cluster_ids.txt');
 %
 % Johan Gustafsson, 2019-05-20
 %
