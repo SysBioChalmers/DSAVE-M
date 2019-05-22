@@ -1,7 +1,3 @@
-%Reads breast cancer data from file
-
-
-
 function ds = ReadBC2(path, clusterInfoPath)
 % ReadBC2
 %   Reads breast cancer data from file. 
