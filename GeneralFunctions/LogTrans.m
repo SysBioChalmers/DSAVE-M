@@ -1,9 +1,16 @@
-%Reads housekeeping genes from file
-%set forward to false if you want to delog
-%numToAdd - If you don't want to do TPM + 1 since this ruins the lowly
-%expressed genes, send in another number that corresponds to something
-%a little bit lower than the lowest signal
 function result = LogTrans(M, forward, numToAdd)
+% LogTrans
+%   Transforms data to log scale
+% Input:
+%   M               A matrix to transform
+%   forward         True if transforming to log scale, false if from log
+%                   scale.
+%   numToAdd        (optional) The number to add to all data before log.
+%                   Defaults to 1.
+% Usage: result = LogTrans(M, true);
+%
+% Johan Gustafsson, 2019-05-20
+%
 if nargin < 3
     numToAdd = 1;
 end

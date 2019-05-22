@@ -60,7 +60,6 @@ dss = { bc2t_2blood, ...
         hcat_3pat, ...
         scd_GSE112845_cd8 ...
       };
-%names = { 'bc tumor mix 2 pat','bc tumor single pat','bc blood mix 2 pat','bc blood single pat','lc tumor mix 3 pat', 'lc tumor single pat', 'lc ht mix 3 pat', 'lc ht single pat', 'hca cb 3 pat', 'hca cb pat 1', };
 
 
 numds = size(dss,2);
@@ -166,7 +165,6 @@ numds = size(dss,2);
 resdata = cell(1,numds);
 scores = zeros(1,numds);
 
-%templInfo = DSAVEGetStandardTemplate();
 %Generate a special template with only 1941 cells to be able to show both
 %breast cancer patients
 ovm = SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.MacrophageOrMonocyte);
@@ -191,19 +189,6 @@ disp('Patient to patient: Copy into excel sheet');
 scores %just copy these values into the excel sheet
 
 %% Fig C - effect of mixing cell types
-
-%ovasc = SCDep.scd_ovasc;
-%b10000 = SCDep.scd_pbmcb10000;
-%pbmc68000 = SCDep.scd_pbmc68000;
-%hcacb = SCDep.scd_hca_cb;
-
-%add to test SynchronizeGenes
-%a = {ovasc, bc2, lc, hcacb, pbmc68000, b10000};
-
-
-%add to test SynchronizeGenes - sum should be 0
-%b = SynchronizeGenes(a,[], true);
-%sum(~strcmp(b{1,1}.genes, ovasc.genes))
 
 %from breast cancer
 bc2 = SCDep.scd_bc2;
@@ -283,10 +268,6 @@ hcat = hcacb.cellSubset(hcacb.cellType == Celltype.TCell | hcacb.cellType == Cel
 ovm = ovasc.cellSubset(ovasc.cellType == Celltype.MacrophageOrMonocyte);
 t68000 = pbmc68000.cellSubset(pbmc68000.cellType == Celltype.TCellCD4Pos | pbmc68000.cellType == Celltype.TCellCD8Pos | pbmc68000.cellType == Celltype.TCellReg);
 
-
-%figure
-%histogram(categorical(hcab.sampleIds));
-
 %throw away some cells to save computational time
 hcatc = hcat.randSample(10000);
 bc2tc = bc2t.randSample(10000);
@@ -315,8 +296,6 @@ dss = { bc2tGenNoise, ...
         t68000GenNoise, ...
         b10000GenNoise ...
       };
-%names = { 'bc tumor mix 2 pat','bc tumor single pat','bc blood mix 2 pat','bc blood single pat','lc tumor mix 3 pat', 'lc tumor single pat', 'lc ht mix 3 pat', 'lc ht single pat', 'hca cb 3 pat', 'hca cb pat 1', };
-
 
 numds = size(dss,2);
 resdata = cell(1,numds);

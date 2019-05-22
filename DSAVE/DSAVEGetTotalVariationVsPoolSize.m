@@ -1,4 +1,19 @@
 function meanRes = DSAVEGetTotalVariationVsPoolSize(ds, maxSizeSet, upperBoundTPM, lowerBoundTPM, progrBarCtxt)
+% DSAVEGetTotalVariationFromBulk
+%   Calculates the mean pairwise total variation between two randomly
+%   selected cell pools. Returns 100 points at different pool sizes
+%   suitable for a graph. The genes can be filtered on TPM.
+% Input:
+%   ds              The dataset (cell population) to be investigated
+%   maxSizeSet      The maximum pool size to investigate
+%   upperBoundTPM   All genes above this threshold are discarded.
+%   lowerBoundTPM   All genes below this threshold are discarded.
+%   progrBarCtxt    (optional) Progress bar context.
+%
+% Usage: templInfo = DSAVEGetTotalVariationVsPoolSize(ds, 6000, 10000000, 0);
+%
+% Johan Gustafsson, 2019-05-21
+%
 
 if nargin < 5
     progrBarCtxt = [];

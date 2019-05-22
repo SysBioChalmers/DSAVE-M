@@ -1,4 +1,31 @@
 function lls = DSAVEGetSingleCellDivergence(ds, minUMIsPerCell, progrBarCtxt, TPMLowerBound, iterations)
+% DSAVEGetSingleCellDivergence
+%   Calculates the DSAVE cell-wise divergence metric.
+% Input:
+%   ds              The dataset (cell population) to be investigated
+%   minUMIsPerCell  (optional) All cells are downsampled to this number.
+%                   Cells that have less UMIs will have a NaN divergence.
+%                   Defaults to 200 TPM/CPM.
+%   progrBarCtxt    (optional) Progress bar context.
+%   TPMLowerBound   (optional) Genes below this threshold are not 
+%                   investigated. Note that use of this parameter reduces
+%                   the number of UMIs per cell. Defaults to 0.
+%   iterations      (optional) Number of times the process will be repeated.
+%                   The result is the median of several runs; there is
+%                   stochasticity here since cells are randomly
+%                   down-sampled before the calculation is made.
+%
+% Output:
+%   lls             Log-likelihood for getting the observed counts'
+%                   distribution for each cell when sampling counts from 
+%                   the mean dataset gene expression. The values are 
+%                   negative, and the lower (i.e. more negative) the value, 
+%                   the more divergent the cell is.
+%
+% Usage: lls = DSAVEGetSingleCellDivergence(ds);
+%
+% Johan Gustafsson, 2019-05-21
+%
 if nargin < 2
     minUMIsPerCell = 200;
 end
@@ -16,7 +43,6 @@ end
 me = TPM(mean(ds.data,2));
 ds = ds.geneSubset(me >= TPMLowerBound);
 
-numGenes = size(ds.data,1);
 numCells = size(ds.data,2);
 
 %Figure out what to downsample to. If we have cells with fewer UMIs than

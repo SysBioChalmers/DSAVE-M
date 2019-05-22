@@ -1,14 +1,29 @@
 %Reads breast cancer data from file
-%The publication covers roughly 60000 cells, but only 47000 immune cells
-%are included in this dataset; the rest need to be extracted from the raw files.
-%Note that this code can read both raw and 'imputed' data, where the latter
-%is treated with biscuit (see the article 'Single-Cell Map of Diverse Immune Phenotypes in the Breast Tumor Microenvironment')
-%The imputed one is probably better for an analysis where only this dataset
-%is involved.
-%The data are stored in files with the same format.
+
 
 
 function ds = ReadBC2(path, clusterInfoPath)
+% ReadBC2
+%   Reads breast cancer data from file. 
+%   The publication covers roughly 60000 cells, but only 47000 immune cells
+%   are included in this dataset; the rest need to be extracted from the raw files.
+%   Note that this code can read both raw and 'imputed' data, where the latter
+%   is treated with biscuit (see the article 'Single-Cell Map of Diverse Immune Phenotypes in the Breast Tumor Microenvironment')
+%   The imputed one is probably better for an analysis where only this dataset
+%   is involved.
+%   The data are stored in files with the same format.%
+% Input:
+%   path            Path to the data file,
+%   clusterInfoPath Path to the cell type info file
+%
+% Usage: ds = ReadBC2('../../ImportableData/bc2_raw_corrected.csv', '../ImportableData/bc2_cluster_ids.txt');
+%
+% Johan Gustafsson, 2019-05-20
+%
+
+
+
+
 %path = '../../ImportableData/bc2_raw_corrected.csv';
 %path = '../../ImportableData/bc2_test.csv';
 %clusterInfoPath = '../../ImportableData/bc2_cluster_ids.txt';
@@ -43,12 +58,6 @@ ds = ds.fillEmpties();
             ret = Celltype.TCellCD8Pos;
         elseif strcmp(str,'Tcell_Reg')
             ret = Celltype.TCellReg;
-%        elseif strcmp(str,'Tcell_CD4Naive')
-%            ret = Celltype.TCellCD4Naive;
-%        elseif strcmp(str,'Tcell_CD8Naive')
-%            ret = Celltype.TCellCD8Naive;
-%        elseif strcmp(str,'NKTcell')
-%            ret = Celltype.NKTCell;
         elseif strcmp(str,'Bcell')
             ret = Celltype.BCell;
         elseif strcmp(str,'NKcell')

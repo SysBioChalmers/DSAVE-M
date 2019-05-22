@@ -1,5 +1,5 @@
 function Padj = AdjustPval(P,method,dim)
-%adjust_pval  Adjust p-values for multiple comparisons. Returned p-vals
+%AdjustPval  Adjust p-values for multiple comparisons. Returned p-vals
 %will reflect FDR, so 0.05 means a false detection rate of 0.05
 %
 % P         A vector or matrix of p-values. Does not need to be sorted, 

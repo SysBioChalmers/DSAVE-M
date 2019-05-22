@@ -1,7 +1,20 @@
-%Reads 10x files into a SCDataset, i.e. the files  '/matrix.mtx',
-%'/genes.tsv' and '/barcodes.tsv'
+%Reads 10x files into a SCDataset, 
 function ds = Read10xMatrix(directoryPath)
-%directoryPath = 'C:/Work/MatlabCode/components/SCLib/ImportableData/PBMC10000BCells/filtered_matrices_mex/hg19';
+% Read10xMatrix
+%   Reads the standard output single-cell data from 10x Genomics into an
+%   SCDataset
+%
+% Input:
+%   directoryPath    Path to the directory in which the 10x files are,
+%                    i.e. the files  'matrix.mtx', 'genes.tsv' and 
+%                    'barcodes.tsv'. No slash at the end!
+%
+% Usage: ds = Read10xMatrix('../../ImportableData/SomePath')
+%
+% Johan Gustafsson, 2019-05-20
+%
+
+
 matrixPath = strcat(directoryPath,'/matrix.mtx');
 genesPath = strcat(directoryPath,'/genes.tsv');
 barcodesPath = strcat(directoryPath,'/barcodes.tsv');
@@ -37,7 +50,6 @@ formatSpec = '%d\t%d\t%d';
 sizeA = [3 Inf];
 A = fscanf(fileID,formatSpec,sizeA);
 A = A.';
-%max(A,[],1)
 ds.data = spconvert(A);
 
 fclose(fileID);
@@ -56,7 +68,5 @@ f = readtable(barcodesPath, 'ReadVariableNames',false, 'ReadRowNames', false, 'D
 ds.cellIds = table2cell(f(:, 1)).';
 
 ds = ds.fillEmpties();
-
-%ds = TPM(ds);
 
 end

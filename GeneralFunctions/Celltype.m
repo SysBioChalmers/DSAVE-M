@@ -1,7 +1,13 @@
 
-%previously tried an enum, but they have some irritating properties, so now
-%we just use constants in a class
 classdef Celltype
+% Celltype
+%   Enumeration for human cell types. We avoided using an enum due to some 
+%   irritating properties, so now we just use constants in a class.
+%   Also includes a cell type hierarchy tree.
+%
+% Johan Gustafsson, 2019-05-20
+%
+
     properties( Constant = true )
  		Invalid = 0
 		Unknown = 1

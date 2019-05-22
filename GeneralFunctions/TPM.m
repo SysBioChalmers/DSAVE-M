@@ -1,5 +1,15 @@
-%converts the dataset to TPM
 function outObj = TPM(obj)
+% TPM
+%   Converts an object to TPM/CPM
+% Input:
+%   obj             Could either be a matrix or an object with a .data
+%                   member
+% Usage: Two possibilities:
+%   1. ds.data = TPM(ds.data)
+%   2. ds = TPM(ds)
+%
+% Johan Gustafsson, 2019-05-21
+%
     if isobject(obj)
         outObj = obj;
         currSum = sum(obj.data);

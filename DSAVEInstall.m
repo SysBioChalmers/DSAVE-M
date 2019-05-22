@@ -1,6 +1,11 @@
-%Run DSAVEInstall.Install() to install (will set up the path in matlab)
-%Run DSAVEInstall.Uninstall() to clear the path from matlab
 classdef DSAVEInstall
+% DSAVEInstall
+%   Support for installing and uninstalling DSAVE
+%   Run DSAVEInstall.install() to install (will set up the path in MATLAB)
+%   Run DSAVEInstall.uninstall() to clear the path from MATLAB
+%
+% Johan Gustafsson, 2019-05-20
+%
     methods (Static)
         function install
             mainDir = fileparts(which(mfilename));

@@ -1,6 +1,18 @@
-%will downsample (i.e. match the count distribution) and adapt the number of cells to match the template
-%will also remove any genes not in the template
 function ds = DSAVEAlignDataset(inDs, templInfo, progrBarCtxt)
+% DSAVEAlignDataset
+%   Aligns the dataset to the template, by removing genes, removing cells and
+%   down-sampling the data to match the template as good as possible.
+%   All datasets successfully aligned to the same template will have almost
+%   identical sampling noise.
+% Input:
+%   inDs            The input dataset (cell population) to align.
+%   templInfo       The template to align to
+%   progrBarCtxt    (optional) Progress bar context.
+%
+% Usage: ds = DSAVEAlignDataset(inDs, templInfo)
+%
+% Johan Gustafsson, 2019-05-20
+%
 
 if nargin < 3
     progrBarCtxt = ProgrBarContext;

@@ -1,5 +1,28 @@
-%differenceCVs can be used for evaluating the number of iterations
 function [results,differenceCVs] = DSAVECalcBTMScore(origDs, templInfo, progrBarCtxt, skipAlignment, iterations, useLogTransform, logTPMAddon)
+% DSAVECalcBTMScore
+%   Aligns the dataset to the template, by removing genes, removing cells and
+%   down-sampling the data to match the template as good as possible.
+%   All datasets successfully aligned to the same template will have almost
+%   identical sampling noise.
+% Input:
+%   origDs          The input dataset (cell population)
+%   templInfo       The template to align to
+%   progrBarCtxt    (optional) Progress bar context.
+%   skipAlignment   (optional) If true, alignment is skipped
+%   iterations      (optional) Number of iterations; defaults to 15
+%   useLogTransform (optional) If true, calculation will be done on 
+%                   log transformed data. Defaults to false.
+%   logTPMAddon     (optional) When using log transformed data, this number
+%                   is added to the data before transforming to avoid
+%                   log(0).
+% Output:
+%   results         struct containing the score and other variation info
+%   differenceCVs   difference CVs of the individual runs - can be used for 
+%                   evaluating the number of iterations needed
+% Usage: res = DSAVECalcBTMScore(ds, templInfo)
+%
+% Johan Gustafsson, 2019-05-20
+%
 
 if nargin < 3
     progrBarCtxt = ProgrBarContext;

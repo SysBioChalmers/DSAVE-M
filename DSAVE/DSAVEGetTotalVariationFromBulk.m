@@ -1,8 +1,20 @@
-%Calculates the average pairwise total variation between a list of bulk samples, with a TPM
-%filtration on the genes. If pool4samples is true, it will compare the mean
-%of 4 randomly selected samples with the mean of 4 others. This expects a
-%list of 8 samples.
 function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBoundTPM, lowerBoundTPM)
+% DSAVEGetTotalVariationFromBulk
+%   Calculates the average pairwise total variation between a list of bulk samples, with a TPM
+%   filtration of the genes.
+% Input:
+%   s               The samples to be investigated
+%   pool4samples    If true, the algorithm compares the means of two groups
+%                   of samples with 4 samples in each group. s is
+%                   expected to have 8 samples in total for this option.
+%   upperBoundTPM   All genes above this threshold are discarded.
+%   lowerBoundTPM   All genes below this threshold are discarded.
+%
+% Usage: templInfo = DSAVEGetTotalVariationFromBulk(s, false, 10000000, 0);
+%
+% Johan Gustafsson, 2019-05-21
+%
+
     means = mean(s.data,2);
     badGenes = means < lowerBoundTPM | means > upperBoundTPM;
     s = s.geneSubset(s.genes(~badGenes)); 
@@ -12,6 +24,7 @@ function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBoundTPM, lo
     index = 1;
 
     if ~pool4samples
+        %loop though each pair of the samples
         for i = 1:numSamp-1
            for j = i+1:numSamp
                diffs(:,index) = log((s.data(:,i)+0.05)./(s.data(:,j)+0.05));

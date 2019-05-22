@@ -1,7 +1,17 @@
-%Reads PBMC68000 data from file
-%do not add a slash at the end of directoryPath
 function ds = ReadPBMC68000(directoryPath)
-%function ds = ReadPBMC68000()
+% ReadPBMC68000
+%   Reads the PBMC68k cells from file into an SCDataset.  
+%   The dataset covers roughly 68000 cells from blood.
+%   The file 68k_pbmc_barcodes_annotation.tsv is expected in directoryPath
+% Input:
+%   directoryPath       Path to the 10x files. No slash at the end.
+%
+% Usage: ds = ReadPBMC68000('../../ImportableData/PBMC68000PatAFresh/filtered_matrices_mex/hg19');
+%
+% Johan Gustafsson, 2019-05-20
+%
+
+
 %directoryPath = 'C:/Work/MatlabCode/components/SCLib/ImportableData/PBMC68000PatAFresh/filtered_matrices_mex/hg19';
 classificationPath = strcat(directoryPath,'/68k_pbmc_barcodes_annotation.tsv');
 

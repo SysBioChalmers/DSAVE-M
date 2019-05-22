@@ -1,4 +1,12 @@
 function ret = DSAVEGetStandardTemplate()
+% DSAVEGetStandardTemplate
+%   Gets the standard DSAVE template. The template is generated if needed,
+%   but cached both in memory and on disc.
+%
+% Usage: templInfo = DSAVEGetStandardTemplate();
+%
+% Johan Gustafsson, 2019-05-21
+%
 
 SCDep.init();
 persistent v;

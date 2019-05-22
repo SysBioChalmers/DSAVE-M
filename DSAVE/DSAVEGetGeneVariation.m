@@ -1,4 +1,39 @@
 function [genes, logCVDifference, pVals, SNOVariances, SNOCountsPerGene] = DSAVEGetGeneVariation(ds, lb, iterations, maxNumCells, progrBarCtxt)
+% DSAVEGetGeneVariation
+%   Calculates the DSAVE gene-wise BTM variation metric.
+% Input:
+%   ds              The dataset (cell population) to be investigated
+%   lb              (optional) TPM lower bound, genes below this will not be
+%                   investigated. Defaults to 10 TPM/CPM.
+%   iterations      (optional) The number of SNO datasets to generate. 
+%                   Recommended value is 100 if no p values are needed, 
+%                   10,000 - 100,000 if p-values are of interest. Defaults
+%                   to 100,000.
+%   maxNumCells     (optional) ds is reduced to this number of cells if it
+%                   contains more, to save computation time. Defaults to 10,000. 
+%   progrBarCtxt    (optional) Progress bar context.
+%
+% Output:
+%   genes           The genes that passed the lower bound filter. The order
+%                   of the genes here is the same as the order in
+%                   logCVDifference and pVals.
+%   logCVDifference The BTM variation for each gene.
+%   pVals           The p values for each gene.
+%   SNOVariances    The variances for all iterations. As an optimization,
+%                   only a single row is stored for each total count value
+%                   per gene in the dataset. Thus, this does not match the
+%                   genes in the genes output variable. The size of this
+%                   variable can be very large. A standard user normally do
+%                   not need this output variable.
+%   SNOCountsPerGene The total counts per gene used for each row in 
+%                   SNOVariances. Each gene need to be mapped to these
+%                   counts before being able to use SNOVariances. A standard 
+%                   user normally do not need this output variable.
+%
+% Usage: templ = DSAVEGetGeneVariation(ds, 1, 10000, 1000);
+%
+% Johan Gustafsson, 2019-05-20
+%
 if nargin < 5
     progrBarCtxt = [];
 end

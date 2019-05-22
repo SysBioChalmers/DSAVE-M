@@ -1,13 +1,20 @@
-%Reads HCA cord blood from file
-%The dataset covers roughly 354000 cells
-%Classification was received from the authors (Bo Li)
-
-
 function ds = ReadHCACordBlood(path, classPath)
+% ReadHCACordBlood
+%   Reads HCA cord blood from file into an SCDataset.  
+%   The dataset covers roughly 354000 cells.
+%   Classification was received from the authors (Bo Li)
+% Input:
+%   path                Path to the .h5 file
+%   classPath           Path to the cell type info file
+%
+% Usage: ds = ReadHCACordBlood('../../ImportableData/ica_cord_blood_h5.h5', '../../ImportableData/cord_blood_cell_type_processed.txt');
+%
+% Johan Gustafsson, 2019-05-20
+%
+
 %path = '../../ImportableData/ica_cord_blood_h5.h5';
 %path = 'C:/Work/MatlabCode/components/SCLib/ImportableData/ica_cord_blood_h5.h5';
 %classPath = 'C:/Work/MatlabCode/components/SCLib/ImportableData/HCA_cb_ct.txt';
-%data = h5read(path,'/ica_cord_blood_h5/GRCh38/data');
 data = h5read(path,'/GRCh38/data');
 %genes = h5read(path,'/GRCh38/genes');%this is ensembl gene ids
 geneNames = h5read(path,'/GRCh38/gene_names');
@@ -97,49 +104,6 @@ function ret = String2CellTypeId(str)
         ret = Celltype.Unknown;
     end
 end
-
-
-
-%{
-
-%read classification exported from R:
-f = readtable(classPath, 'ReadRowNames', false, 'Delimiter', '\t');
-c = table2cell(f);
-%transform from string type to SCLib cell type enum
-ct = cellfun(@String2CellTypeId, c(:,2));
-
-[~, ia, ib] = intersect(ds.cellIds, c(:, 1));
-ds.cellType(1,ia) = ct(ib,1).';
-
-%remove the cells with cell type 'unknown' - these are low quality cells
-%that did not have a classification in the file
-ds = ds.cellSubset(ds.cellType ~= Celltype.Unknown);
-
-
-function ret = String2CellTypeId(str)
-    if strcmp(str,'CD4 T cells')
-        ret = Celltype.TCell;%the type of t cell is not very reliable 
-    elseif strcmp(str,'CD8 T cells')
-        ret = Celltype.TCell;%the type of t cell is not very reliable
-    elseif strcmp(str,'B cells')
-        ret = Celltype.BCell;
-    elseif strcmp(str,'CD14+ Monocytes')
-        ret = Celltype.Monocyte;%ignore subset for now
-    elseif strcmp(str,'FCGR3A+ Monocytes')
-        ret = Celltype.Monocyte;
-    elseif strcmp(str,'NK cells')
-        ret = Celltype.NKCell;
-    elseif strcmp(str,'Dendritic cells')
-        ret = Celltype.Dendritic;
-    elseif strcmp(str,'Megakaryocytes')
-        ret = Celltype.Megakaryocyte;
-    else
-        disp(strcat('unknown type: ',str));
-        ret = Celltype.Unknown;
-    end
-end
-
-%}
 
 
 end

@@ -1,5 +1,3 @@
-%need to run SetupCTProfiles before running this file
-
 
 %% Fig A
 
@@ -184,7 +182,7 @@ dss = { SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.Macropha
 legs = { 'OC macr.','LIVC T cells', 'PBMC68k T cells', 'LC tumor T cells', 'LC healthy tiss. T cells', 'TCD8 T cells'};
   
 figure
-for i = 1:size(dss, 2);
+for i = 1:size(dss, 2)
     avg = TPM(full(mean(dss{1,i}.data,2)));
     sel = avg >= 0.5 & avg <= 4000;
 

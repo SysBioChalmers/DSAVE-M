@@ -1,7 +1,17 @@
-%converts an enum value of cell type into a readable text string
+%
 
 function res = CelltypeId2CelltypeName(x)
-
+% CelltypeId2CelltypeName
+%   Converts an numeric value of cell type into a readable text string
+% Input:
+%   x               The input constant from the class Celltype. Can also be
+%                   a scalar.
+% Output:
+%   res             A single char array or a cell array of such, depending on input.
+% Usage: res = CelltypeId2CelltypeName(ds.cellType);
+%
+% Johan Gustafsson, 2019-05-20
+%
 [r,c] = size(x);
 if (r > 1) || (c > 1)
     xscalar = 0;

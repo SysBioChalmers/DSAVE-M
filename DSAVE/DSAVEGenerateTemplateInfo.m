@@ -1,4 +1,25 @@
 function templInfo = DSAVEGenerateTemplateInfo(ds, datasetsForGenes, numCells, numUMIs, fractionUpperOutliers, fractionLowerOutliers, progrBarCtxt)
+% DSAVEGenerateTemplateInfo
+%   Generates a template that datasets can be aligned to.
+% Input:
+%   ds              The dataset (cell population) from which the UMI counts 
+%                   per cell are taken
+%   datasetsForGenes The genes in the template will be the intersection of
+%                   the genes in the datasets of this horizontal cell array.
+%   numCells        The number of cells to include in the template. 
+%                   Defaults to the number of cells in the input dataset.
+%   numUMIs         A random number of UMIs will be discarded from ds until
+%                   the average number of UMIs per cell equals numUMIs
+%   fractionUpperOutliers Sets the fraction of the most variable genes that
+%                   should be discarded.
+%   fractionLowerOutliers Sets the fraction of the least variable genes that
+%                   should be discarded.
+%   progrBarCtxt    (optional) Progress bar context.
+%
+% Usage: templ = DSAVEGenerateTemplateInfo(ds, {ds1, ds2, ds3}, 1000, 1000, 0.025, 0.025);
+%
+% Johan Gustafsson, 2019-05-20
+%
 
 if nargin < 7
     progrBarCtxt = [];

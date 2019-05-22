@@ -70,16 +70,6 @@ sum(pValsbcAdj < 0.05)
 sum(pValslcAdj < 0.05)
 sum(pValshcaAdj < 0.05)
 
-%% Corr Fig, not used
-%{
-%make correlation graph; doesn't look as good though
-[~,ia,ib] = intersect(geneshca,geneslc);
-figure
-scatter(logCVDifferencehca(ia), logCVDifferencelc(ib));
-xlabel('Bc T cells gene-wise BTM variation')
-ylabel('Lc T cells gene-wise BTM variation')
-title('Gene-wise BTM variation correlation between datasets.');
-%}
 %% Fig 4A-D Supl. - Reproducability
 progbar = ProgrBar('Gene-wise: Reproducibility');
 
@@ -231,21 +221,6 @@ progbar.Done();
 disp('Copy the values below into the excel sheet, figure D.')
 values = [bcNoRemDSAVEScore.DSAVEScore bcNoW50DSAVEScore.DSAVEScore bcNoW250DSAVEScore.DSAVEScore lcNoRemDSAVEScore.DSAVEScore lcNoW50DSAVEScore.DSAVEScore lcNoW250DSAVEScore.DSAVEScore hcaNoRemDSAVEScore.DSAVEScore hcaNoW50DSAVEScore.DSAVEScore hcaNoW250DSAVEScore.DSAVEScore]
 
-%% Test if the most variable genes are mainly lowly expressed:
-%[logCVDifferencebc,genesbc,bcSNOVariances, pvalsbc] = DSAVEGetGeneVariation(bc2tSub,1,150,10000);
-%[sortedValsBc,ibc] = sort(logCVDifferencebc.', 'descend');
-
-[~,ia,~] = intersect(bc2tSub.genes,worstGenesBc);
-meanexprbc = mean(TPM(bc2tSub.data),2);
-meanexprbclowly = full(meanexprbc(ia,:));
-data50worst = full(bc2tSub.data(ia,:));
-a = sum(data50worst > 1,2);
-format longG
-b = [meanexprbclowly a]
-format short % default
-%conclusion: Most of the most variably genes are lowly expressed; but the
-%variation comes from a few cells only (i.e. cells with more than one count). Therefore filter on 10 CPM, since those are not that interesting.
-
 
 %% Fig C - Wenn diagram over intersection of 50 most variable genes
 
@@ -277,30 +252,6 @@ lchca
 all_
 
 %% Fig B Variation value at p = 0.05 (uncorrected) per gene expression
-
-%we don't have all the genes in the results
-%{
-[~,ia,ib] = intersect(bc2tSub2.genes,genesbc);
-
-bcSubData = bc2tSub2.data(ia,:);
-
-%first calculate mean expression
-meanExpr = mean(TPM(bcSubData),2);
-
-
-
-%need to fix the indices of the variances as well to match the intersect
-%above
-variances = bcSNOVariances(ib,:);
-
-%get the unique count sums
-[countSums, iauc , ~] = unique(sum(bcSubData,2));
-
-%now throw away the variances not needed so we only have the ones for the
-%unique counts left
-varu = variances(iauc,:);
-meanExpr = meanExpr(iauc,:);
-%}
 
 totUMIs = sum(sum(bc2tSub2.data,1),2);
 meanExpr = 10^6*bcSNOCountsPerGene/totUMIs;
@@ -345,26 +296,7 @@ meanCvs = mean(lcvSorted, 2);
 
 btm005 = confvars005 - meanCvs;
 btm001 = confvars001 - meanCvs;
-%{
-%skip for the genes < 1 TPM
-sel = meanExpr >= 1 & meanExpr <= 5000;
 
-dfs = diffs(sel);
-exp_ = meanExpr(sel);
-%now sort the values
-[es,ie] = sort(exp_);
-rs = dfs(ie);
-
-%create a plot using sliding window of 300 genes (makes it somewhat smooth)
-numPoints = size(rs,1) - 299;
-xs = zeros(1,numPoints);
-ys = zeros(1,numPoints);
-
-for i = 1:numPoints
-    ys(1,i) = mean(rs(i:i+299,1));
-    xs(1,i) = mean(es(i:i+299,1));
-end
-%}
 figure
 semilogx(meanExpr, btm001);
 hold on
@@ -375,32 +307,4 @@ title('Confidence Interval of BTM Variation per Gene Expression');
 axis([0 5000 0 0.80]);
 set(gca,'FontSize',11);
 legend({'p = 0.01', 'p = 0.05'})
-%{
-figure
-h = area(xs,ys,'LineWidth',1);
-xlabel('Gene expression (CPM)')
-ylabel('BTM variation')
-title('Confidence Interval of BTM Variation per Gene Expression');
-axis([0 100 0 0.04]);
-h(1).FaceColor = [0.75 0.75 1]
-set(gca,'FontSize',11);
-%}
-
-
-%%some tests
-%{
-ovm = SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.MacrophageOrMonocyte);
-SNOOvm = DSAVEGenerateSNODataset(ovm);
-
-SNOOvmHighlyExpr = SNOOvm.geneSubset(mean(SNOOvm.data,2) > 50);
-figure
-histogram(SNOOvmHighlyExpr.data(1,:))
-
-figure
-histogram(log(SNOOvmHighlyExpr.data(1,:) + 0.05))
-
-SNOOvmLowlyExpr = SNOOvm.geneSubset(mean(SNOOvm.data,2) > 0.5 & mean(SNOOvm.data,2) < 1);
-figure
-histogram(SNOOvmLowlyExpr.data(1,:))
-%}
 

@@ -1,6 +1,16 @@
-%Reads liver cancer T-cells from file into an SCDataset class
-%
 function  ds = ReadLiverTCells(pathData, pathCellFilter)
+% ReadLiverTCells
+%   Reads Liver cancer T cells from file into an SCDataset.  
+%   The dataset covers roughly 4000 cells.
+%   No classification other than that they are T cells is available.
+% Input:
+%   path                Path to the data file
+%   pathCellFilter      Path to the cell quality file
+%
+% Usage: ds = ReadLiverTCells('../../ImportableData/GSE98638_HCC.TCell.S5063.count.txt', '../../ImportableData/GSE98638_HCC.TCell.OkCellIds.txt');
+%
+% Johan Gustafsson, 2019-05-20
+%
 
 ds = SCDataset;
 ds.name = 'LCTCells';

@@ -1,6 +1,24 @@
-%Reads lung cancer data from file.Note that the file has been divided into
-%chunks for matlab to be able to read it.
 function [tumor,healthy] = ReadLung50000(pathchunk1, pathchunk2, pathchunk3, metaDataPath)
+% ReadLung50000
+%   Reads lung cancer data from file. Note that the file has been divided into 
+%   chunks for matlab to be able to read it.
+% Input:
+%   pathchunk1          Path to the first data file
+%   pathchunk2          Path to the second data file
+%   pathchunk3          Path to the third data file
+%   metaDataPath        Path to the metadata file
+%
+% Output: (optional)
+%   tumor               SCDataset containing the cells from the tumors
+%   healthy             SCDataset containing the cells from the healthy tissue
+% Usage: [ds1,ds2] = ReadLung50000('../../ImportableData/LungCancer50000/AllCells_chunk1.txt', 
+%                       '../../ImportableData/LungCancer50000/AllCells_chunk2.txt', 
+%                       '../../ImportableData/LungCancer50000/AllCells_chunk3.txt', 
+%                       '../../ImportableData/LungCancer50000/MetaData.txt');
+%
+% Johan Gustafsson, 2019-05-20
+%
+
 %path = 'C:/Work/MatlabCode/components/SCLib/ImportableData/LungCancer50000/TestData.txt';
 %metaDataPath = 'C:/Work/MatlabCode/components/SCLib/ImportableData/LungCancer50000/MetaData.txt';
 

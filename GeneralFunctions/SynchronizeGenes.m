@@ -1,11 +1,22 @@
-%Makes sure the datasets/profiles/samples have the same genes in the same
-%order. Genes that don't exist in all are set to zero or discarded,
-%depending on the discardGenes flag
-%two uses:
-%1. [res1,res2] = SynchronizeGenes(ds1, ds2, discardGenes)
-%2. [res1,~] = SynchronizeGenes(dslist, [], discardGenes) - where dslist is a horizontal cell
-%array of objects to be synchronized
 function [res1,res2] = SynchronizeGenes(obj1, obj2, discardGenes)
+% SynchronizeGenes
+%   Makes sure the datasets/profiles/samples have the same genes in the same
+%   order. Genes that don't exist in all are set to zero or discarded,
+%   depending on the discardGenes flag
+% Input:
+%   obj1            First object or object list, horizontal cell array
+%   ds2             Second objectTrue if transforming to log scale, false if from log
+%                   scale.
+%   numToAdd        (optional) The number to add to all data before log.
+%                   Defaults to 1.
+% Usage: Two possibilities:
+%   1. [res1,res2] = SynchronizeGenes(ds1, ds2, discardGenes)
+%   2. [res1,~] = SynchronizeGenes(dslist, [], discardGenes) - where dslist 
+%   is a horizontal cell array of objects to be synchronized
+%
+% Johan Gustafsson, 2019-05-21
+%
+
 if (iscell(obj1))
     %obj 2 is expected to be empty
     if discardGenes

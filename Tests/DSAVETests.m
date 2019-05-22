@@ -1,3 +1,7 @@
+% DSAVE Test cases
+% Johan Gustafsson, 2019-05-21
+% See VerificationMatrix.csv for how test cases map to code
+
 %% T0001: SCDataset: Test geneSubset and cellSubset
 ds1 = SCDataset;
 ds1.genes = {'A';'B';'C';'D'};
