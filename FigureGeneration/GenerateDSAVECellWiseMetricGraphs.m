@@ -70,23 +70,25 @@ b10kDSAVEScore500Less = DSAVECalcBTMScore(b10k500Less, templInfo, progbar.GetSub
 %Now plot fig A:
 xs = 1:2500;
 figure
-plot(xs, -bcx, '-', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
+plot(xs, bcx, '-', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
 hold on
-plot(xs, -bcsnox, '--', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
+plot(xs, bcsnox, '--', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
 hold on
-plot(xs, -b10kx, '-', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
+plot(xs, b10kx, '-', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
 hold on
-plot(xs, -b10ksnox, '--', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
+plot(xs, b10ksnox, '--', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
 hold on
-plot(xs, -hcatx, '-', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
+plot(xs, hcatx, '-', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
 hold on
-plot(xs, -hcatsnox, '--', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
+plot(xs, hcatsnox, '--', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
 hold on
 xlabel('Cell index')
-ylabel('-Log likelihood')
+ylabel('Log likelihood')
 title('Cell Divergence');
-legend({'BC LN T cells, single pat', 'BC LN T cells, single pat - SNO', 'B10k B cells, single pat', 'B10k B cells, single pat - SNO', 'HCA CB T cells, single pat', 'HCA CB T cells, single pat - SNO'});
+h = legend({'BC LN T cells, single pat', 'BC LN T cells, single pat - SNO', 'B10k B cells, single pat', 'B10k B cells, single pat - SNO', 'HCA CB T cells, single pat', 'HCA CB T cells, single pat - SNO'});
+set(h, 'Position', [0.4637    0.15    0.4179    0.2583])
 set(gca,'FontSize',11);
+axis([0, 2500, -3100, -500]);
 
 progbar.Done();
 
@@ -101,7 +103,7 @@ numUMIshcatSub2 = sum(hcatSub2.data,1);
 linevalYs = 1500:500:10500;
 linevalXes = zeros(1,size(linevalYs,2));
 %generate line
-for i = 1:size(linevalYs,2);
+for i = 1:size(linevalYs,2)
    ii = linevalYs(i);
    lb = ii - 250;
    ub = ii + 250;
