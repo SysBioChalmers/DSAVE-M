@@ -38,7 +38,7 @@ templInfo.binningInfo.means = 10.^meansLog;
 poolSize = 500;
 
 %get mean values of the genes
-gm = TPM(mean(ds.data,2));
+gm = mean(TPM(ds.data),2);
 gmLog = log10(gm);
 
 templInfo.binningInfo.lbs = zeros(1, numPoints);
