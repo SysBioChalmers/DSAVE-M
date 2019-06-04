@@ -36,10 +36,6 @@ templInfoAllOutliers.fractionLowerOutliers = 0;
 progbar = ProgrBar('DSAVE Score 1: Fig A');
 
 
-ub = 100000;
-lb = 0.5;
-n = 6000;
-
 dss = { bc2t.randSample(2500), ...
         ovm, ...
         scd_GSE112845_cd8.randSample(2500) ...
