@@ -10,7 +10,7 @@ function [genes, logCVDifference, pVals, SNOVariances, SNOCountsPerGene] = DSAVE
 %                   10,000 - 100,000 if p-values are of interest. Defaults
 %                   to 100,000.
 %   maxNumCells     (optional) ds is reduced to this number of cells if it
-%                   contains more, to save computation time. Defaults to 10,000. 
+%                   contains more, to save computation time. Defaults to 2,000. 
 %   progrBarCtxt    (optional) Progress bar context.
 %
 % Output:
