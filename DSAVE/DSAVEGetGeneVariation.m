@@ -56,7 +56,7 @@ if (numCells > maxNumCells)
     numCells = maxNumCells;%keep this line if we start using numCells below later
 end
 
-dstpm = TPM(mean(ds.data, 2));
+dstpm = mean(TPM(ds.data), 2);
 
 sel = dstpm >= lb & dstpm ~= 0 & sum(ds.data,2) ~= 1; %skip all below threshold, and all with 0 or 1 counts, doesn't make sense to look at those 
 
