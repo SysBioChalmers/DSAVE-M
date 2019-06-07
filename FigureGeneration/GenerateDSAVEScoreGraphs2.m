@@ -1,6 +1,7 @@
 %% Fig A - comparison between datasets
 
 templInfo = DSAVEGetStandardTemplate();
+hcacb = SCDep.scd_hca_cb;
 
 
 %from breast cancer
@@ -96,7 +97,7 @@ progbar.Done();
 b1 = (scores3ES.')\(scoresA.');
 
 figure
-plot([0 0.45], [0 b1*0.45]);
+plot([0 0.35], [0 b1*0.35]);
 hold on
 scatter(scores3ES, scoresA);
 xlabel('BTM score using log transformation')
