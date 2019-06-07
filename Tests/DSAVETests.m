@@ -632,7 +632,7 @@ elseif abs(pvalsTest2(1,1) - 0.001) > 0.0007
     error('T0026: DSAVEGetGeneVariation: not ok, pVal2 not right');
 elseif ~all(strcmp(genesTest, expGenes))
     error('T0026: DSAVEGetGeneVariation: not ok, genes not correct');
-elseif abs(logCVTest - CVDiffExp) > 0.01
+elseif abs(logCVTest(1,1) - CVDiffExp) > 0.01
     error('T0026: DSAVEGetGeneVariation: not ok, pVal2 not right');
 else
     disp('T0026: DSAVEGetTotalVariationVsPoolSize: ok');
