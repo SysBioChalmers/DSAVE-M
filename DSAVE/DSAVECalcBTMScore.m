@@ -140,7 +140,7 @@ end
 
 function logcv = GetGeneCVs(ds, templInfo)
     ds_red = TPM(ds);
-
+    
     totset = ds_red.data;
     numGenes = size(totset, 1);
 
@@ -155,13 +155,13 @@ end
 
 function logcv = GetGeneCVsLog(ds, templInfo, logTPMAddon)
     ds_red = TPM(ds);
-    ds_red.data = LogTrans(ds.data, 1, logTPMAddon);
+    ds_red.data = LogTrans(ds_red.data, 1, logTPMAddon);
     totset = ds_red.data;
     avgRefExpr = mean(totset,2);
     %calc variances
     variances = var(totset, 0, 2);
     sd = sqrt(variances);
-    logcv = sd ./ (avgRefExpr + 0.01);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
+    logcv = sd ./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
 end
 
 
