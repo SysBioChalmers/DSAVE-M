@@ -124,6 +124,8 @@ axis([-2700 -1000 0 14000]);
 
 %% Fig D. MT-genes
 
+progbar = ProgrBar('Cell-wise: Fig D');
+
 matches = regexp(bc2tSub.genes, '^(MT-.*)$', 'match');
 a = cellfun(@isempty, matches);
 b = ~a;
@@ -134,6 +136,15 @@ sumMito = sum(bc2tSub.data(b,:),1);
 sumUMIs = sum(bc2tSub.data,1);
 percMito = sumMito ./ sumUMIs;
 
+bc2tSubNoMT = bc2tSub.geneSubset(a);
+
+%calc divergence for the dataset when the MT genes have been removed to
+%make sure that the divergence is not affected by the MT genes in
+%themselves.
+llsbc2NoMT = DSAVEGetSingleCellDivergence(bc2tSubNoMT, 200, progbar.GetSubContext(1));
+progbar.Done();
+
+
 linevalYs = 0.01:0.01:0.2;
 linevalXes = zeros(1,20);
 %generate line
@@ -142,7 +153,7 @@ for i = 1:20;
    lb = ii - 0.01;
    ub = ii + 0.01;
    sel = percMito >= lb & percMito <= ub;
-   linevalXes(1,i) = mean(llsbc2(sel));
+   linevalXes(1,i) = mean(llsbc2NoMT(sel));
 end
 
 
