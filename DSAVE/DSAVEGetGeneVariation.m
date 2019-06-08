@@ -61,21 +61,14 @@ dstpm = mean(TPM(ds.data), 2);
 sel = dstpm >= lb & dstpm ~= 0 & sum(ds.data,2) ~= 1; %skip all below threshold, and all with 0 or 1 counts, doesn't make sense to look at those 
 
 ds = ds.geneSubset(sel);%filter genes to avoid problems with division by zero, etc, and to save compilation time. No point in looking at too lowly expressed ones anyway, they will not become significant.
-numGenes = size(ds.data,1);
 
 %generate SNO TPMs
-%SNOTPMs = (10.^(-.3:0.005:4)).';
 %convert the TPMs into counts
 SNOUMIsPerCell = sum(ds.data,1);
-%sumUMIsPerCell = sum(SNOUMIsPerCell,2);
 
 SNOCountsPerGene = full(unique(sum(ds.data,2)));
 %skip 0 and 1
 SNOCountsPerGene(SNOCountsPerGene < 2) = [];
-
-%countsPerGenePre = round(SNOTPMs.*sumUMIsPerCell./10^6);
-%SNOCountsPerGene = unique(countsPerGenePre); %some of the low TPMs are sometimes the same count
-
 numCountVals = size(SNOCountsPerGene,1);
 
 
