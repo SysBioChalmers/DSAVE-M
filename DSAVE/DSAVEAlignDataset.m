@@ -39,23 +39,6 @@ matchUMIs = templInfo.UMIDistr;%sum of UMIs for each cell
 %First duplicate the template until there are fewer cells left than in the
 %template; then randomly select from the template to fill out the rest.
 
-%{ 
-%This code was for if we wanted to use all cells in a dataset. We concluded
-in the end that this will bias the results and that it is not good to do.
-ts = size(templInfo.UMIDistr,2);
-numDupl = floor(numCells/ts);
-cellsToRand = numCells - ts*numDupl;
-
-matchUMIs = zeros(1,numCells);%sum of UMIs for each cell
-%duplicate (if enough cells)
-for i = 1:numDupl
-    matchUMIs(1,(1+(i-1)*ts):i*ts) = templInfo.UMIDistr;
-end
-%fill randomly in the end
-if (cellsToRand ~= 0)
-    matchUMIs(1,(1+numDupl*ts):end) = templInfo.UMIDistr(1,randsample(ts,cellsToRand));
-end
-%}
 %sort both UMI vectors and try to downsample to match the match set
 %as good as possible
 [~,iOrig] = sort(origUMIs);
