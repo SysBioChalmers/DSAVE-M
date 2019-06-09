@@ -507,11 +507,11 @@ lls3 = DSAVEGetSingleCellDivergence(ds3, 3);
 
 
 if ~((lls(1,4) > lls(1,3)) && (lls(1,4) > lls(1,1)) && (lls(1,4) >= lls(1,2))) % 2 could become the same or worse than 4, depending on which reads gets discarded
-    error('T0021: DSAVEGenerateSNODataset: UMIDistr not ok');
+    error('T0021: DSAVEGetSingleCellDivergence: Value not ok');
 elseif ~isequal(lls2, lls3)
-    error('T0021: DSAVEGenerateSNODataset: down-sampling not ok');
+    error('T0021: DSAVEGetSingleCellDivergence: Down-sampling not ok');
 else
-    disp('T0020: DSAVEGenerateSNODataset: ok');
+    disp('T0021: DSAVEGetSingleCellDivergence: ok');
 end
 
 %% T0022: DSAVEGetTotalVariationFromBulk
