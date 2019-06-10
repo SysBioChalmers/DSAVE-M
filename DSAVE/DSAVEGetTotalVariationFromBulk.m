@@ -1,7 +1,7 @@
-function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBoundTPM, lowerBoundTPM)
+function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBound, lowerBound)
 % DSAVEGetTotalVariationFromBulk
-%   Calculates the average pairwise total variation between a list of bulk samples, with a TPM
-%   filtration of the genes.
+%   Calculates the average pairwise total variation between a list of bulk
+%   samples, with an expression filtration of the genes.
 % Input:
 %   s               The samples to be investigated
 %   pool4samples    If true, the algorithm compares the means of two groups
@@ -16,7 +16,7 @@ function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBoundTPM, lo
 %
 
     means = mean(s.data,2);
-    badGenes = means < lowerBoundTPM | means > upperBoundTPM;
+    badGenes = means < lowerBound | means > upperBound;
     s = s.geneSubset(s.genes(~badGenes)); 
     numSamp = size(s.sampleIds,2);
     numGenes = size(s.genes,1);
