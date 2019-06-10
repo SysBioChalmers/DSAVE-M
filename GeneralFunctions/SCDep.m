@@ -59,27 +59,6 @@ classdef SCDep
             cd(prevDir);
         end
         
-        %Median from all gtex tissue samples
-        function ret = gtex_mdn()
-            SCDep.init();
-            persistent v;
-            if isempty(v)
-                disp('reading GTEx median...');
-                prevDir = SCDep.setPathToSource();
-                filename = '../../TempData/GTExMed.mat';
-                if(~exist(filename,'file'))
-                    disp('No .mat file found, importing data');
-                    v = ReadGTExMedian('../../ImportableData/GTEx_Analysis_2016-01-15_v7_RNASeQCv1.1.8_gene_median_tpm.gct');
-                    save(filename, 'v');
-                else
-                    a = load(filename);
-                    v = a.v;
-                end
-                SCDep.restoreDir(prevDir);
-            end
-            ret = v;
-        end
-        
         %50 000 breast cancer immune cells
         function ret = scd_bc2()
             SCDep.init();
