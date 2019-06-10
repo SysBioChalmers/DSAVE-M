@@ -1,3 +1,5 @@
+%% Data initializatiom
+totVarFromBulk = DSAVEGetPrecalcTotVarFromBulk()
 
 %% Fig A
 
@@ -5,20 +7,8 @@ ub = 100000;
 lb = 0.5;
 n = 6000;
 
-%calculate mean deviance between bulk samples (CD4+ T cells) from Blueprint
-%read TMM normalization
-samp = ImportTabSepSamples('../../ImportableData/tcellCD4ProfilesTMMNormalized.txt');
-
-bulkSamples = samp.sampleSubset(32:39);
-
-%Rescale the bulk samples so that they on average have 10^6 counts per
-%sample, even though the TMM normalization leads to that they will have a
-%different number of counts
-normFact = 10^6 / mean(sum(bulkSamples.data,1),2);
-bulkSamples.data = bulkSamples.data .* normFact;
-
-bulkMean1Vs1 = DSAVEGetTotalVariationFromBulk(bulkSamples, false, ub, lb);
-bulkMean4Vs4 = DSAVEGetTotalVariationFromBulk(bulkSamples, true, ub, lb);
+bulkMean1Vs1 = totVarFromBulk.totalVariation_1vs1(1,1);
+bulkMean4Vs4 = totVarFromBulk.totalVariation_4vs4(1,1);
 
 %create bulk data matrix
 X = [0;repelem(n,99).'];
@@ -71,8 +61,8 @@ ub = 2;
 lb = 0.5;
 n = 6000;
 
-bulkMean1Vs1 = DSAVEGetTotalVariationFromBulk(bulkSamples, false, ub, lb);
-bulkMean4Vs4 = DSAVEGetTotalVariationFromBulk(bulkSamples, true, ub, lb);
+bulkMean1Vs1 = totVarFromBulk.totalVariation_1vs1(1,2);
+bulkMean4Vs4 = totVarFromBulk.totalVariation_4vs4(1,2);
 
 %create bulk data matrix
 X2 = [0;repelem(n,99).'];
@@ -121,8 +111,8 @@ ub = 100000;
 lb = 100;
 n = 2000;
 
-bulkMean1Vs1 = DSAVEGetTotalVariationFromBulk(bulkSamples, false, ub, lb);
-bulkMean4Vs4 = DSAVEGetTotalVariationFromBulk(bulkSamples, true, ub, lb);
+bulkMean1Vs1 = totVarFromBulk.totalVariation_1vs1(1,3);
+bulkMean4Vs4 = totVarFromBulk.totalVariation_4vs4(1,3);
 
 %create bulk data matrix
 X3 = [0;repelem(n,99).'];

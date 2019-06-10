@@ -1,7 +1,9 @@
 function ret = DSAVEGetStandardTemplate()
 % DSAVEGetStandardTemplate
 %   Gets the standard DSAVE template. The template is generated if needed,
-%   but cached both in memory and on disc.
+%   but cached both in memory and on disc. The idea is that a user should
+%   not be dependent on the data used to generate the template, but instead
+%   be able to just use the .mat file directly.
 %
 % Usage: templInfo = DSAVEGetStandardTemplate();
 %
@@ -13,7 +15,7 @@ persistent v;
 if isempty(v) 
     disp('reading DSAVE standard template...');
     prevDir = SCDep.setPathToSource();
-    filename = '../../TempData/DSAVE_std_template.mat';
+    filename = '../data/DSAVE_std_template.mat';
     if(~exist(filename,'file'))    
         disp('no .mat file found, regenerating template');
         ovm = SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.MacrophageOrMonocyte);
