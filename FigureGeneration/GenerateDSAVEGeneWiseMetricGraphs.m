@@ -308,3 +308,12 @@ axis([0 5000 0 0.80]);
 set(gca,'FontSize',11);
 legend({'p = 0.01', 'p = 0.05'})
 
+%Check that the results are reasonable:
+cvsTest = log(sqrt(bcSNOVariances(4,:))/(meanExpr(4,:)+0.05) + 1);% TPM around 2
+cvsMean = mean(cvsTest);
+fakeBTM = cvsTest - cvsMean;
+larg = fakeBTM > btm005(4);
+pval = sum(larg) / size(larg,2);%supposed to b5 0.05, which it is
+figure
+histogram(cvsTest - cvsMean) 
+
