@@ -303,6 +303,21 @@ else
     disp('T0016: LogMultinomialPDF: ok');
 end
 
+%T0027: LogBinomialPDF
+%tests that this function gives the same
+%results as the built-in matlab function (which can't be used for large
+%number of bins due to 64-bit double overflow)
+obs = [1;1;4;2;0;1];
+prob = [0.2;0.2;0.1;0.3;0.1;0.1];
+n = sum(obs);
+y = binopdf(obs, n, prob);
+a = log(y);
+ll = LogBinomialPDF(obs, prob);
+if abs(a - ll) > 0.00001 %check that they are the same, with some reasonable round-off error
+    error('T0027: LogBinomialPDF failed');
+else
+    disp('T0016: LogBinomialPDF: ok');
+end
 
 %T0017 CreateVennDiagramSets
 s1in = {'A','B','C','E','G','H','I','J','K'};

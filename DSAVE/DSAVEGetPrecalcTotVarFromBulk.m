@@ -20,16 +20,8 @@ if isempty(v)
         disp('no .mat file found, generating data');
         
         %calculate mean deviance between bulk samples (CD4+ T cells) from Blueprint
-        %read TMM normalized data
-        samp = ImportTabSepSamples('../../ImportableData/tcellCD4ProfilesTMMNormalized.txt');
-
-        bulkSamples = samp.sampleSubset(32:39);
-
-        %Rescale the bulk samples so that they on average have 10^6 counts per
-        %sample, even though the TMM normalization leads to that they will have a
-        %different number of counts
-        normFact = 10^6 / mean(sum(bulkSamples.data,1),2);
-        bulkSamples.data = bulkSamples.data .* normFact;
+        %read scaled TMM normalized data
+        bulkSamples = ImportTabSepSamples('../../ImportableData/scaledTMMMatrix.txt');
 
         bulkMean1Vs1_05_100k = DSAVEGetTotalVariationFromBulk(bulkSamples, false, 100000, 0.5);
         bulkMean4Vs4_05_100k = DSAVEGetTotalVariationFromBulk(bulkSamples, true, 100000, 0.5);

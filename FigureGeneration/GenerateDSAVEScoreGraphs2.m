@@ -191,6 +191,18 @@ scores %just copy these values into the excel sheet
 
 %% Fig C - effect of mixing cell types
 
+%create special template with 1346 cells
+ovm = SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.MacrophageOrMonocyte);
+bc2t = SCDep.scd_bc2.cellSubset(SCDep.scd_bc2.cellType == Celltype.TCellCD4Pos | SCDep.scd_bc2.cellType == Celltype.TCellCD8Pos | SCDep.scd_bc2.cellType == Celltype.TCellReg);
+bc2t_bc4tumor = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC4_TUMOR'));
+b10000 = SCDep.scd_pbmcb10000;
+[scd_GSE112845_pat_a,scd_GSE112845_pat_b,scd_GSE112845_cd8] = SCDep.scd_GSE112845;
+datasets = {ovm,bc2t_bc4tumor, b10000, scd_GSE112845_cd8};
+spec1346Templ = DSAVEGenerateTemplateInfo(bc2t_bc4tumor, datasets, 1346, 750, 0.025, 0.025);
+
+
+
+
 %from breast cancer
 bc2 = SCDep.scd_bc2;
 bc2_bc4blood = bc2.cellSubset(strcmp(bc2.sampleIds, 'BC4_BLOOD'));
@@ -202,14 +214,9 @@ bc2_bc4blood_mixbc50_50 = bc2_bc4blood_b.innerJoin(bc2_bc4blood_t.randSample(num
 %from human cell atlas cord blood
 hcacb = SCDep.scd_hca_cb;
 hcat = hcacb.cellSubset(hcacb.cellType == Celltype.TCell | hcacb.cellType == Celltype.TCellCD4Pos | hcacb.cellType == Celltype.TCellCD8Pos);
-hcatCD8 = hcacb.cellSubset(hcacb.cellType == Celltype.TCellCD8Pos);
 hcab = hcacb.cellSubset(hcacb.cellType == Celltype.BCell);
 hcat_cb1 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB1'));
-hcat_cb2 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB2'));
-hcat_cb3 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB3'));
 hcab_cb1 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB1'));
-hcab_cb2 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB2'));
-hcab_cb3 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB3'));
 num = size(hcat_cb1.data,2);
 numb1 = size(hcab_cb1.data,2);
 hcat_1bt50_50 = hcab_cb1.innerJoin(hcat_cb1.randSample(numb1));%50/50 b and t
@@ -224,6 +231,7 @@ lc50_50 = lcp5b.innerJoin(lcp5t.randSample(numb));%50/50 b and t
 
 
 dss = { bc2_bc4blood_t, ...
+        bc2_bc4blood_b, ...
         bc2_bc4blood_mixbc50_50, ...
         lcp5t, ...
         lcp5b, ...
@@ -237,12 +245,10 @@ numds = size(dss,2);
 resdata = cell(1,numds);
 scores = zeros(1,numds);
 
-templInfo = DSAVEGetStandardTemplate();
-
 progbar = ProgrBar('DSAVE Score 2: Fig C');
 
 for i = 1:numds
-    resdata{1,i} = DSAVECalcBTMScore(dss{1,i}, templInfo, progbar.GetSubContext(1/numds));
+    resdata{1,i} = DSAVECalcBTMScore(dss{1,i}, spec1346Templ, progbar.GetSubContext(1/numds));
     scores(1,i) = resdata{1,i}.DSAVEScore;
 end
 
@@ -434,4 +440,126 @@ hold on
 plot(xvals, stds2);
 legend({'Standard template - 2,000 cells', 'Specialized template - 1,000 cells'});
  
+%% Test to create a PCA plot
+
+[lct, lch] = SCDep.scd_lc();
+[~,~,gse112845cd8] = SCDep.scd_GSE112845();
+dsList = {SCDep.scd_hca_cb, lct, lch, SCDep.scd_pbmc68000(), SCDep.scd_pbmctcd4mem10000(), SCDep.scd_pbmcb10000(), gse112845cd8, SCDep.scd_bc2()};
+
+dsList = SynchronizeGenes(dsList, [], true);
+
+hca = dsList{1};
+lct = dsList{2};
+lch = dsList{3};
+pbmc68k = dsList{4};
+tcd4mem = dsList{5};
+b10k = dsList{6};
+gse112845cd8 = dsList{7};
+bc = dsList{8};
+
+%% HCA TCells and BCells from 8 patients, in total 16 samples
+hcat = hca.cellSubset(hca.cellType == Celltype.TCellCD4Pos | hca.cellType == Celltype.TCellCD8Pos | hca.cellType == Celltype.TCellReg |  hca.cellType == Celltype.TCell );
+hcab = hca.cellSubset(hca.cellType == Celltype.BCell);
+
+hcat1 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB1'));
+hcat2 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB2'));
+hcat3 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB3'));
+hcat4 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB4'));
+hcat5 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB5'));
+hcat6 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB6'));
+hcat7 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB7'));
+hcat8 = hcat.cellSubset(strcmp(hcat.sampleIds,'CB8'));
+
+hcab1 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB1'));
+hcab2 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB2'));
+hcab3 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB3'));
+hcab4 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB4'));
+hcab5 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB5'));
+hcab6 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB6'));
+hcab7 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB7'));
+hcab8 = hcab.cellSubset(strcmp(hcab.sampleIds,'CB8'));
+
+%% PBMC68k : one sample of each, this is just one patient
+pbmc68kt = pbmc68k.cellSubset(pbmc68k.cellType == Celltype.TCellCD4Pos | pbmc68k.cellType == Celltype.TCellCD8Pos | pbmc68k.cellType == Celltype.TCellReg |  pbmc68k.cellType == Celltype.TCell );
+pbmc68kb = pbmc68k.cellSubset(pbmc68k.cellType == Celltype.BCell);
+
+%% BC
+bc1 = bc.cellSubset(strcmp(bc.sampleIds, 'BC1_BLOOD'));
+bc4 = bc.cellSubset(strcmp(bc.sampleIds, 'BC4_BLOOD'));
+bc1b = bc1.cellSubset(bc1.cellType == Celltype.BCell);%too few cells
+bc1t = bc1.cellSubset(bc1.cellType == Celltype.TCellCD4Pos | bc1.cellType == Celltype.TCellCD8Pos | bc1.cellType == Celltype.TCellReg |  bc1.cellType == Celltype.TCell);
+bc4b = bc4.cellSubset(bc4.cellType == Celltype.BCell);%1300 cells, a bit too few
+bc4t = bc4.cellSubset(bc4.cellType == Celltype.TCellCD4Pos | bc4.cellType == Celltype.TCellCD8Pos | bc4.cellType == Celltype.TCellReg |  bc4.cellType == Celltype.TCell);
+
+unique(bc.sampleIds)
+figure
+histogram(categorical(bc.sampleIds))
+
+
+%% LC : use pat 3, 4 and 5 from the cancer and all patients for the healthy
+%tissue; there are fewer cells there
+
+lctpat3 = lct.cellSubset(strcmp(lct.sampleIds,'3'));
+lctpat4 = lct.cellSubset(strcmp(lct.sampleIds,'4'));
+lctpat5 = lct.cellSubset(strcmp(lct.sampleIds,'5'));
+
+lctpat3t = lctpat3.cellSubset(lctpat3.cellType == Celltype.TCellCD4Pos | lctpat3.cellType == Celltype.TCellCD8Pos | lctpat3.cellType == Celltype.TCellReg |  lctpat3.cellType == Celltype.TCell );
+lctpat4t = lctpat4.cellSubset(lctpat4.cellType == Celltype.TCellCD4Pos | lctpat4.cellType == Celltype.TCellCD8Pos | lctpat4.cellType == Celltype.TCellReg |  lctpat4.cellType == Celltype.TCell );
+lctpat5t = lctpat5.cellSubset(lctpat5.cellType == Celltype.TCellCD4Pos | lctpat5.cellType == Celltype.TCellCD8Pos | lctpat5.cellType == Celltype.TCellReg |  lctpat5.cellType == Celltype.TCell );
+
+lctpat3b = lctpat3.cellSubset(lctpat3.cellType == Celltype.BCell);
+lctpat4b = lctpat4.cellSubset(lctpat4.cellType == Celltype.BCell);
+lctpat5b = lctpat5.cellSubset(lctpat5.cellType == Celltype.BCell);
+
+lcht = lch.cellSubset(lch.cellType == Celltype.TCellCD4Pos | lch.cellType == Celltype.TCellCD8Pos | lch.cellType == Celltype.TCellReg |  lch.cellType == Celltype.TCell );
+lchb = lch.cellSubset(lch.cellType == Celltype.BCell);
+
+
+%% TCD4Mem
+
+
+%% B10k
+
+
+%% GSE112845
+
+%% Export them all to a Samples object
+%dss = { hcat1, hcat2, hcat3, hcat4, hcat5, hcat6, hcat7, hcat8, hcab1, hcab2, hcab3, hcab4, hcab5, hcab6, hcab7, hcab8, ...
+%        lctpat3t, lctpat4t, lctpat5t, lctpat3b, lctpat4b, lctpat5b, lcht, lchb, pbmc68kt, pbmc68kb, tcd4mem, b10k, gse112845cd8, };
+dss = { hcat1, hcat2, hcat3, hcat4, hcat5, hcat6, hcat7, hcat8, ...
+        lcht, pbmc68kt, tcd4mem, gse112845cd8, bc1t, bc4t };
+numSets = size(dss,2);
+numGenes = size(hcat1.data,1);
+
+samp = Samples;
+samp.data = zeros(numGenes,numSets);
+%samp.sampleIds = {'hcat1', 'hcat2', 'hcat3', 'hcat4', 'hcat5', 'hcat6', 'hcat7', 'hcat8', 'hcab1', 'hcab2', 'hcab3', 'hcab4', 'hcab5', ...
+%                  'hcab6', 'hcab7', 'hcab8', 'lctpat3t', 'lctpat4t', 'lctpat5t', 'lctpat3b', 'lctpat4b', 'lctpat5b', 'lcht', 'lchb', ...
+%                  'pbmc68kt', 'pbmc68kb', 'tcd4mem', 'b10k', 'gse112845cd8', };
+samp.sampleIds = {'hcat1', 'hcat2', 'hcat3', 'hcat4', 'hcat5', 'hcat6', 'hcat7', 'hcat8', ...
+                  'lcht', 'pbmc68kt', 'tcd4mem', 'gse112845cd8', 'bc1t', 'bc4t'};
+samp.genes = hcat1.genes;
+
+
+for i = 1:numSets
+    ds = dss{1,i};
+    %we do not tpm normalize until after summing up all cells, since we
+    %want the counts to truly represent the noise. This should not matter
+    %much
+    datasum = sum(ds.data,2);
+    samp.data(:,i) = TPM(datasum);
+end
+
+
+%log transform
+logSamp = LogTrans(samp.data,1);
+
+[coeff, score, latent] = pca(logSamp.');
+colors = [0 0 0 0 0 0 0 0 1 2 3 4 5 5];
+figure
+gscatter(score(:,1),score(:,2),colors);
+
+
+%dlmwrite('scTotCounts.txt',totcounts,'\t');
+
 

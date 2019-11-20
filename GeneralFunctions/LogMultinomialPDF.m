@@ -5,13 +5,13 @@ function ll = LogMultinomialPDF(obs, prob, specCalcLimit)
 %   The idea with this function is that it is not easy to calculate the PDF of
 %   a multinomial if n is large, since we cannot practically calculate n! of a
 %   large number. The logarithm of the pdf is fine to calculate however, since 
-%   log(n!) = sum(log(n) + log(n-1) + ... + log(1)). So we cannot use the
+%   log(n!) = log(n) + log(n-1) + ... + log(1). So we cannot use the
 %   built-in function for the pdf and afterwards log it, but need to implement
 %   the function ourselves instead.
 % Input:
 %   obs             Vertical vector of observed values
 %   prob            Vertical vector of probabilities
-%   specCalcLimit   Any n! where n is larger than this number will be
+%   specCalcLimit   (optional) Any n! where n is larger than this number will be
 %                   calculated using a specialized method. Defaults to 150.
 %                   This can be set lower from the test case, that is the
 %                   only purpose of this parameter.

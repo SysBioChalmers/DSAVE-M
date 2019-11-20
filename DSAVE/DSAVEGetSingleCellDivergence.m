@@ -1,4 +1,4 @@
-function lls = DSAVEGetSingleCellDivergence(ds, minUMIsPerCell, progrBarCtxt, TPMLowerBound, iterations)
+function [lls, genes, geneLls] = DSAVEGetSingleCellDivergence(ds, minUMIsPerCell, progrBarCtxt, TPMLowerBound, iterations)
 % DSAVEGetSingleCellDivergence
 %   Calculates the DSAVE cell-wise divergence metric.
 % Input:
@@ -43,7 +43,10 @@ end
 me = TPM(mean(ds.data,2));
 ds = ds.geneSubset(me >= TPMLowerBound);
 
+genes = ds.genes;
+
 numCells = size(ds.data,2);
+numGenes = size(ds.data,1);
 
 %Figure out what to downsample to. If we have cells with fewer UMIs than
 %minUMIsPerCell, those can not be evaluated
@@ -61,7 +64,11 @@ prob = full(prob);
 
 allLls = zeros(iterations,numCells);
 
+allGeneLls = zeros(iterations,numGenes,numCells);
+
 progbar = ProgrBar(['GetSingleCellDivergence ''' ds.name ''''], progrBarCtxt);
+
+logFacs = GetLogFactorials(targetUMIsPerCell);
 
 %run several times since there is randomness in downsampling
 for it = 1:iterations
@@ -83,32 +90,29 @@ for it = 1:iterations
         dsd.data(:,i) = dsd.data(:,i) - subtr.';
     end
 
-
-    
-
     %loop through all cells and calculate log likelihood
     for i = 1:numCells
         if UMIsPerCell(1,i) < targetUMIsPerCell
             allLls(it,i) = NaN;
+            allGeneLls(it,:,i) = NaN;
         else
-            %generate probability of the actual value for each gene in the cell
-            %according to a binomial distribution
-            %Y = binopdf(dsd.data(:,i),targetUMIsPerCell,prob);
-            %calculate log likelihood:
-            %The likelihood is the product of all probabilities. The log 
-            %likelihood is thus the sum of the log of all likelihoods
-            %allLls(it,i) = sum(log(Y));
-
-            %Use multinomial distribution instead
+            %Use multinomial distribution pdf
             allLls(it,i) = LogMultinomialPDF(dsd.data(:,i), prob);
+            %Also fill in gene binomial pdf
+            allGeneLls(it,:,i) = LogBinomialPDF(dsd.data(:,i), prob, logFacs);
         end
     end
     progbar.Progress(it/iterations);
 end
-
 %take the median of all runs
 lls = median(allLls,1);
 
+%replace all nan in the gene-wise with 0. So, nan means that the gene is not
+%expressed, and then we are certain of the outcome -> PDF = 1
+%->log(PDF) = 0
+allGeneLls(:,isnan(prob),:) = 0;
+
+geneLls = reshape(median(allGeneLls,1), numGenes, numCells);
 progbar.Done();
 
 end

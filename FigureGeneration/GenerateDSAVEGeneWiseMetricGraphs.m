@@ -29,6 +29,22 @@ hcatSub = hcat.cellSubset(1:2000);%do not do random sampling for reproducability
 
 progbar.Done();%finish progress bar here, some printouts below
 
+%% Save/load data
+oldDir = SCDep.setPathToSource();
+save('../../TempData/BCGW.mat', 'genesbc','logCVDifferencebc','pvalsbc','bcSNOVariances','bcSNOCountsPerGene');
+save('../../TempData/LCGW.mat', 'geneslc','logCVDifferencelc','pvalslc','lcSNOVariances','lcSNOCountsPerGene');
+save('../../TempData/HCAGW.mat', 'geneshca','logCVDifferencehca','pvalshca','hcaSNOVariances','hcaSNOCountsPerGene');
+
+
+load('../../TempData/BCGW.mat');
+load('../../TempData/LCGW.mat');
+load('../../TempData/HCAGW.mat');
+
+SCDep.restoreDir(oldDir);
+
+
+
+
 pValsbcAdj = AdjustPval(pvalsbc,'benjamini',1);
 sum(pValsbcAdj< 0.05)
 
