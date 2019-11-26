@@ -1,4 +1,4 @@
-%% Data initializatiom
+%% Data initialization
 totVarFromBulk = DSAVEGetPrecalcTotVarFromBulk()
 
 %% Fig A
@@ -155,7 +155,7 @@ set(gca,'FontSize',11);
 axis([0 500 0.038 0.52]);
 
 
-%% Fig 4
+%% Fig D
 %Typical histogram over gene expression
 
 [dsc,dsh] = SCDep.scd_lc();
@@ -170,7 +170,10 @@ dss = { SCDep.scd_ovasc.cellSubset(SCDep.scd_ovasc.cellType == Celltype.Macropha
       };
 
 legs = { 'OC macr.','LIVC T cells', 'PBMC68k T cells', 'LC tumor T cells', 'LC healthy tiss. T cells', 'TCD8 T cells'};
-  
+
+lineStyles4 = {'b-','k-','r-','m-','g-','c-'};
+
+
 figure
 for i = 1:size(dss, 2)
     avg = TPM(full(mean(dss{1,i}.data,2)));
@@ -188,7 +191,7 @@ for i = 1:size(dss, 2)
 
     b = 10 .^a;
 
-    semilogx(b.',res);
+    semilogx(b.',res, lineStyles4{i});
     hold on;
 end
 

@@ -56,7 +56,8 @@ i = 1;
 %take care of the fact that the match dataset may
 %have more UMIs than the ds to downsample
 if (UMIsToSpend > sum(toRemUMIs))
-    disp(strcat('Warning: Failed to downsample due to that the template had more UMIs than the target dataset!'));
+    %changed this to error - the results are unpredictable otherwise!
+    error(strcat('Error: Failed to downsample due to that the template had more UMIs than the target dataset!'));
     toRemUMIs = zeros(1,numCells);
 else
 

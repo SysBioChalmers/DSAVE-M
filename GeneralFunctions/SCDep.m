@@ -104,6 +104,27 @@ classdef SCDep
             ret = v;
         end
         
+        %liver cancer 10x
+        function ret = scd_livc2()
+            SCDep.init();
+            persistent v;
+            if isempty(v)
+                disp('reading livc2...');
+                prevDir = SCDep.setPathToSource();
+                filename = '../../TempData/livc2.mat';
+                if(~exist(filename,'file'))
+                    disp('No .mat file found, importing data');
+                    v = ReadLivC2('../../ImportableData/LiverT2');
+                    save(filename, 'v');
+                else
+                    a = load(filename);
+                    v = a.v;
+                end
+                SCDep.restoreDir(prevDir);
+            end
+            ret = v;
+        end
+
         %ovarian ascites
         function ret = scd_ovasc()
             SCDep.init();

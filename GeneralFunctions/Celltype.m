@@ -40,6 +40,7 @@ classdef Celltype
         HematopeticStemOrProgenitor = 28
         TCellCD4Memory = 29 % CD4+/CD45RO+
         Erythrocyte = 30
+        InnateLymphoid = 31
         %TCellCD4Naive = 23
         %TCellCD8Naive = 24
         %NKTCell = 25

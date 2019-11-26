@@ -20,6 +20,7 @@ GenerateDSAVETechVsBiologyGraphs.m;Not tested, this is just code for generating 
 GenerateSamplingSSDataset.m;T0020 partly tests the function. Also implicitly verified since Figure 3A in supplementary information shows that different datasets with the same noise get similar scores, and that this function is used for generating them.
 GenerateTotalVariationGraphs.m;Not tested, this is just code for generating graphs
 ImportTabSepSamples.m;Not tested, a simple load function
+LogBinomialPDF.m;T0027
 LogMultinomialPDF.m;T0016
 ProgressBar.m;Not tested, just a graphical effect when running scripts
 Read10xMatrix.m;Verified as part of Read functions for datasets
@@ -32,6 +33,7 @@ ReadOvarianAscites.m;T0010
 ReadPBMC68000.m;T0011
 ReadPBMCB10000.m;T0012
 ReadPBMCTCD4Mem10000.m;T0013
+ReadLivC2.m;Verified with a TSNE (LivC2_tSNE.m), the separation looks reasonable, not random at least!
 RelativeImportanceScript.R;Not tested, this is just code for generating graph data
 Samples.m;T0014
 SCDataset.m;T0001,T0002,T0003

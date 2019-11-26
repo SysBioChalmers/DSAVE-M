@@ -10,19 +10,23 @@ sel_bulk_counts = bulk_counts[,c(30:36,39)]
 
 #normalize using TMM
 normFactors <-  calcNormFactors(sel_bulk_counts)
-#for some weird reason I need to transpose the data matrix back and forth to get the
-#row wise multiplication to work...
-A = t(sel_bulk_counts);
-B = A / normFactors;
 
-tmms = t(B);
+libSizes = colSums(sel_bulk_counts)
+effectiveLibSizes = libSizes * normFactors
 
-#Now scale the TMM normalized data to have on average 10^6 counts per sample
 
-sumPerSamp = colSums(tmms)
+#I need to transpose the data matrix back and forth to get the
+#row wise division to work...
+scaledTMMs = t(t(sel_bulk_counts) * (10^6/ effectiveLibSizes))
+
+
+#There are some issues with roundoff or similar making the mean of the sum of all 
+#genes not to be exactly 10^6. Fix this:
+sumPerSamp = colSums(scaledTMMs)
 meanSampSum = mean(sumPerSamp)
 
-scaledTMMs = tmms * 10^6 / meanSampSum;
+scaledTMMs = scaledTMMs * 10^6/meanSampSum
+
 
 #Test
 colSums(scaledTMMs)
