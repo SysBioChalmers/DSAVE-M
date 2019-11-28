@@ -50,7 +50,7 @@ xlabel('Pool size (number of cells)')
 ylabel('Variation (R_m_e_a_n)')
 title('Variation per Cell Pool Size. CPM > 0.5');
 set(gca,'FontSize',11);
-
+axis([0 6000 0.0 1.5]);
 
 
 
