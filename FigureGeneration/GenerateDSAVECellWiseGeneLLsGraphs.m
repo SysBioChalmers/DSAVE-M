@@ -410,6 +410,45 @@ progbar.Done();
 sprintf('TCells - before: %f, after: %f', befScoreT.DSAVEScore, aftScoreT.DSAVEScore)
 sprintf('Fol B cells - before: %f, after: %f', befScoreB.DSAVEScore, aftScoreB.DSAVEScore)
 
+%now, repeat this 100 times for each of those two populations, where we
+%instead of removing the misclassified cells remove randomly selected cells
+%Only need to run this code once, it takes ~4 hours, just use load below
+randomT = zeros(100,1);
+progbar = ProgrBar('Generate random T scores');
+numCells = size(purT.data,2);
+for i = 1:100
+    score = DSAVECalcBTMScore(lctSub.randSample(numCells), templ, progbar.GetSubContext(0.01));
+    randomT(i) = score.DSAVEScore;
+end
+figure
+histogram(randomT);
+save('../TempData/randomT.mat', 'randomT');
+
+
+
+%Only need to run this code once, it takes ~4 hours, just use load below
+randomFolB = zeros(100,1);
+progbar = ProgrBar('Generate random FolB scores');
+numCells = size(purfolb.data,2);
+for i = 1:100
+    score = DSAVECalcBTMScore(folb.randSample(numCells), templ, progbar.GetSubContext(0.01));
+    randomFolB(i) = score.DSAVEScore;
+end
+figure
+histogram(randomFolB);
+save('../TempData/randomFolB.mat', 'randomFolB');
+
+load('../TempData/randomT.mat');
+[~,pT] = ttest(randomT, aftScoreT.DSAVEScore, 'Tail','right');
+disp('P value for T cell DSAVE Score reduction: ');
+pT % 4.1885e-86
+load('../TempData/randomFolB.mat');
+[~,pFolB] = ttest(randomFolB, aftScoreB.DSAVEScore, 'Tail','right');
+disp('P value for Fol B cell DSAVE Score reduction: ');
+pFolB % 3.7198e-91
+
+
+
 %% Make a PCA plot
 
 logSampT = LogTrans(lctSub.data,1);
