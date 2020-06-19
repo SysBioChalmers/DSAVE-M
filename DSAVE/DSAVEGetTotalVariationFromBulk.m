@@ -1,4 +1,4 @@
-function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBound, lowerBound)
+function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBound, lowerBound, pseudoCount)
 % DSAVEGetTotalVariationFromBulk
 %   Calculates the average pairwise total variation between a list of bulk
 %   samples, with an expression filtration of the genes.
@@ -9,11 +9,17 @@ function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBound, lower
 %                   expected to have 8 samples in total for this option.
 %   upperBoundTPM   All genes above this threshold are discarded.
 %   lowerBoundTPM   All genes below this threshold are discarded.
+%	pseudoCount		(optional) Small number added to both the nominator and denominator 
+%					to avoid division by zero and taking the log of zero.
+%					Defaults to 0.05
 %
 % Usage: templInfo = DSAVEGetTotalVariationFromBulk(s, false, 10000000, 0);
 %
 % Johan Gustafsson, 2019-05-21
 %
+	if nargin < 5
+		pseudoCount = 0.05;
+	end
 
     means = mean(s.data,2);
     badGenes = means < lowerBound | means > upperBound;
@@ -27,7 +33,7 @@ function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBound, lower
         %loop though each pair of the samples
         for i = 1:numSamp-1
            for j = i+1:numSamp
-               diffs(:,index) = log((s.data(:,i)+0.05)./(s.data(:,j)+0.05));
+               diffs(:,index) = log((s.data(:,i)+pseudoCount)./(s.data(:,j)+pseudoCount));
                index = index + 1;
            end
         end
@@ -50,7 +56,7 @@ function res = DSAVEGetTotalVariationFromBulk(s, pool4samples, upperBound, lower
             b = s.data(:,notind);
             ma = mean(a,2);
             mb = mean(b,2);
-            diffs(:,i) = log((ma+0.05)./(mb+0.05));
+            diffs(:,i) = log((ma+pseudoCount)./(mb+pseudoCount));
         end
     end
     res = mean(mean(abs(diffs),2),1);

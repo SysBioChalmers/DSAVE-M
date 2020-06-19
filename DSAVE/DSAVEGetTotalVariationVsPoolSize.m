@@ -1,4 +1,4 @@
-function meanRes = DSAVEGetTotalVariationVsPoolSize(ds, maxSizeSet, upperBoundTPM, lowerBoundTPM, progrBarCtxt)
+function meanRes = DSAVEGetTotalVariationVsPoolSize(ds, maxSizeSet, upperBoundTPM, lowerBoundTPM, progrBarCtxt, pseudoCount)
 % DSAVEGetTotalVariationFromBulk
 %   Calculates the mean pairwise total variation between two randomly
 %   selected cell pools. Returns 100 points at different pool sizes
@@ -9,6 +9,9 @@ function meanRes = DSAVEGetTotalVariationVsPoolSize(ds, maxSizeSet, upperBoundTP
 %   upperBoundTPM   All genes above this threshold are discarded.
 %   lowerBoundTPM   All genes below this threshold are discarded.
 %   progrBarCtxt    (optional) Progress bar context.
+%	pseudoCount		(optional) Small number added to both the nominator and denominator 
+%					to avoid division by zero and taking the log of zero.
+%					Defaults to 0.05
 %
 % Usage: templInfo = DSAVEGetTotalVariationVsPoolSize(ds, 6000, 10000000, 0);
 %
@@ -17,6 +20,9 @@ function meanRes = DSAVEGetTotalVariationVsPoolSize(ds, maxSizeSet, upperBoundTP
 
 if nargin < 5
     progrBarCtxt = [];
+end
+if nargin < 6
+	pseudoCount = 0.05;
 end
 
 ds_red = TPM(ds);
@@ -73,7 +79,7 @@ for sz = 1:steps
         bs = ind(bsInd);
         b = mean(totset(:,bs),2);
         
-        geneScore = abs(log((a+0.05)./(b+0.05)));
+        geneScore = abs(log((a+pseudoCount)./(b+pseudoCount)));
         index = (sz-1)*repetitions + repetition;
         res(1,index) = sz;
         res(2,index) = mean(geneScore);
