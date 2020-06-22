@@ -10,7 +10,7 @@ bc2 = SCDep.scd_bc2;
 bc2t = bc2.cellSubset(bc2.cellType == Celltype.TCellCD4Pos | bc2.cellType == Celltype.TCellCD8Pos | bc2.cellType == Celltype.TCellReg);
 bc2t_bc2ln = bc2t.cellSubset(strcmp(bc2t.sampleIds, 'BC2_LYMPHNODE'));
 bc2tSub = bc2t_bc2ln.randSample(2500);
-llsbc2 = DSAVEGetSingleCellDivergence(bc2tSub, 200, progbar.GetSubContext(0.10));
+[llsbc2, genesbc2, genellsbc2] = DSAVEGetSingleCellDivergence(bc2tSub, 200, progbar.GetSubContext(0.10));
 
 %plot against number of umis
 [bcx,bci] = sort(llsbc2);
@@ -25,7 +25,7 @@ bcDSAVEScore500Less = DSAVECalcBTMScore(bc2tSub500Less, templInfo, progbar.GetSu
 
 %now for the SNO
 bcSNO = DSAVEGenerateSNODataset(bc2tSub, progbar.GetSubContext(0.01));
-llsbcSNO = DSAVEGetSingleCellDivergence(bcSNO, 200, progbar.GetSubContext(0.10));
+[llsbcSNO, genesbc2SNO, genellsbc2SNO] = DSAVEGetSingleCellDivergence(bcSNO, 200, progbar.GetSubContext(0.10));
 [bcsnox,bcsnoi] = sort(llsbcSNO);
 
 %hca
@@ -91,6 +91,35 @@ set(gca,'FontSize',11);
 axis([0, 2500, -3100, -500]);
 
 progbar.Done();
+
+%check if we can explain why the SNO is lower in the right part
+% bcx
+% genesPerCell = sum(bc2tSub.data > 0, 1);
+% genesPerCellSort = genesPerCell(bci);
+% figure
+% scatter(genesPerCellSort,bcx);
+% meanExprTest = TPM(sum(bc2tSub.data,2));
+% lowGenes = meanExprTest < 10;
+% highGenes = meanExprTest > 1000;
+% lowGenesPerCell = sum(bc2tSub.data(lowGenes,:) > 0, 1);
+% fracLowGenes = lowGenesPerCell ./ genesPerCell;
+% fracLowGenesSort = fracLowGenes(bci);
+% highGenesPerCell = sum(bc2tSub.data(highGenes,:) > 0, 1);
+% fracHighGenes = highGenesPerCell ./ genesPerCell;
+% fracHighGenesSort = fracHighGenes(bci);
+% figure
+% scatter(fracLowGenesSort,bcx);
+% lsline
+% %compare with SNO
+% genesPerCellSno = sum(bcSNO.data > 0, 1);
+% lowGenesPerCellSno = sum(bcSNO.data(lowGenes,:) > 0, 1);
+% fracLowGenesSno = lowGenesPerCellSno ./ genesPerCellSno;
+% fracLowGenesSortSno = fracLowGenesSno(bcsnoi);
+% figure
+% scatter(fracLowGenesSortSno,bcsnox);
+% lsline
+%conclusion - it cannot be explained by that some cells in the real datasets has less lowly
+%expressed genes - the reason is likely more complex
 
 %Data for Fig B:
 disp('Fig 5B data, copy to excel:');
