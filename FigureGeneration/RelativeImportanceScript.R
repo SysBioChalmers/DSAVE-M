@@ -21,9 +21,6 @@ summary(fit_regrData)
 # Run relative importance analysis
 results = calc.relimp(fit_regrData, type = "lmg", rank = TRUE, diff = TRUE, rela = TRUE)$lmg
 #Look at results convert to %. Copy these values to excel.
-#results*100
-# Plot (for an overview only, the graphs are created in Excel)
-#barplot(sort(results*100, decreasing = TRUE), las=2, ylim=c(0,100), ylab="Relative explained variance (%)")
 
 #scale the results to balance out the unequal number of samples per factor
 #These are the values used in the paper!
@@ -42,8 +39,6 @@ sel = substr(rows,1,2) == "bc"
 regrData2 = regrData[!sel, c(-4,-12,-13,-14)]
 head(regrData2)
 dim(regrData2)
-
-hcapat2 = hcapat[!sel,]
 
 ds2tot = cbind()
 
@@ -65,3 +60,4 @@ scaledResults2 = results2 / sampPerFactor2
 scaledResults2 = scaledResults2 / sum(scaledResults2)
 scaledResults2*100
 barplot(sort(scaledResults2*100, decreasing = TRUE), las=2, ylim=c(0,100), ylab="Relative explained variance (%)")
+
