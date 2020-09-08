@@ -70,25 +70,25 @@ b10kDSAVEScore500Less = DSAVECalcBTMScore(b10k500Less, templInfo, progbar.GetSub
 %Now plot fig A:
 xs = 1:2500;
 figure
-plot(xs, bcx, '-', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
+plot(xs, -bcx, '-', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
 hold on
-plot(xs, bcsnox, '--', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
+plot(xs, -bcsnox, '--', 'Color', [0, 0.4470, 0.7410],'LineWidth',2);
 hold on
-plot(xs, b10kx, '-', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
+plot(xs, -b10kx, '-', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
 hold on
-plot(xs, b10ksnox, '--', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
+plot(xs, -b10ksnox, '--', 'Color', [0.8500, 0.3250, 0.0980],'LineWidth',2);
 hold on
-plot(xs, hcatx, '-', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
+plot(xs, -hcatx, '-', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
 hold on
-plot(xs, hcatsnox, '--', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
+plot(xs, -hcatsnox, '--', 'Color',[0.800, 0.600, 0.100],'LineWidth',2);
 hold on
 xlabel('Cell index')
-ylabel('Log likelihood')
+ylabel('Cell divergence')
 title('Cell Divergence');
 h = legend({'BC LN T cells, single pat', 'BC LN T cells, single pat - SNO', 'B10k B cells, single pat', 'B10k B cells, single pat - SNO', 'HCA CB T cells, single pat', 'HCA CB T cells, single pat - SNO'});
-set(h, 'Position', [0.4637    0.15    0.4179    0.2583])
+set(h, 'Position', [0.4637    0.647    0.4179    0.2583])
 set(gca,'FontSize',11);
-axis([0, 2500, -3100, -500]);
+axis([0, 2500, 500, 3100]);
 
 progbar.Done();
 
@@ -141,15 +141,15 @@ for i = 1:size(linevalYs,2)
 end
 
 figure
-scatter(llshcat,numUMIshcatSub2,3);
+scatter(-llshcat,numUMIshcatSub2,3);
 hold on
-plot(linevalXes,linevalYs,'Color',[0, 0.8, 0.0],'LineWidth',2);
-xlabel('Log likelihood')
+plot(-linevalXes,linevalYs,'Color',[0, 0.8, 0.0],'LineWidth',2);
+xlabel('Cell divergence')
 ylabel('UMI counts')
 title('UMI Counts vs Cell Divergence');
-legend({'Individual cell', 'Mean log-likelihood'});
+legend({'Individual cell', 'Mean divergence'});
 set(gca,'FontSize',11);
-axis([-2700 -1000 0 14000]);
+axis([1000 2700 0 14000]);
 
 %% Fig D. MT-genes
 
@@ -187,16 +187,15 @@ end
 
 
 figure
-scatter(llsbc2,percMito,3);
+scatter(-llsbc2,percMito,3);
 hold on
-plot(linevalXes,linevalYs,'Color',[0, 0.8, 0.0],'LineWidth',2);
-
-xlabel('Log likelihood')
+plot(-linevalXes,linevalYs,'Color',[0, 0.8, 0.0],'LineWidth',2);
+xlabel('Cell divergence')
 ylabel('Fraction mitochondrial gene counts')
 title('Fraction MT Counts vs Cell Divergence');
-legend({'Individual cell', 'Mean log-likelihood'});
+legend({'Individual cell', 'Mean divergence'});
 set(gca,'FontSize',11);
-axis([-1600 -800 0 0.25]);
+axis([800 1600 0 0.25]);
 
 %% Fig 5B in supplementary - Number of detected genes
 detGenes = sum(hcatSub2.data > 0,1);
@@ -215,15 +214,15 @@ end
 
 
 figure
-scatter(llshcat,detGenes,3);
+scatter(-llshcat,detGenes,3);
 hold on
-plot(linevalXes,linevalYs,'Color',[0, 0.8, 0.0],'LineWidth',2);
-xlabel('Log likelihood')
+plot(-linevalXes,linevalYs,'Color',[0, 0.8, 0.0],'LineWidth',2);
+xlabel('Cell divergence')
 ylabel('Number of detected genes')
 title('Number of Detected Genes vs Cell Divergence');
-legend({'Individual cell', 'Mean log-likelihood'});
+legend({'Individual cell', 'Mean divergence'});
 set(gca,'FontSize',11);
-axis([-2700 -1000 450 2800]);
+axis([1000 2700 450 2800]);
 
 
 %% Fig 5A in supplementary. Technical verification - run1 vs run 2.
@@ -241,9 +240,9 @@ hcamix = hcatSub.innerJoin(hcamSub);%the 500 first cells will be b cells
 llshcamix1 = DSAVEGetSingleCellDivergence(hcamix,200,progbar.GetSubContext(0.48),10,15);
 llshcamix2 = DSAVEGetSingleCellDivergence(hcamix,200,progbar.GetSubContext(0.48),10,15);
 figure
-scatter(llshcamix1,llshcamix2,3);
-xlabel('Log likelihood run 1')
-ylabel('Log likelihood run 2')
+scatter(-llshcamix1,-llshcamix2,3);
+xlabel('Divergence run 1')
+ylabel('Divergence run 2')
 title('Difference in Cell Divergence Between Two Runs');
 pointsToRem = isnan(llshcamix1) | isnan(llshcamix2);
 c1 = llshcamix1(~pointsToRem);

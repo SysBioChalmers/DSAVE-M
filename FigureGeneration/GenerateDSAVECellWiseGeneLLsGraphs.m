@@ -140,20 +140,20 @@ colT = [0.8 0.8 0.8; 1 0 0; 0 0.5 0; 0 0 0];
 logNumUMIsLct = log2(numUMIsLct);
 
 figure
-gscatter(llsLct,logNumUMIsLct,group,colT,'o',3);
-xlabel('Log likelihood')
+gscatter(-llsLct,logNumUMIsLct,group,colT,'o',3);
+xlabel('Cell divergence')
 ylabel('Log2(UMI counts)')
 title('Classification of Divergent T Cells');
 set(gca,'FontSize',11);
-axis([-1000 -450 7 16]);
+axis([450 1000 7 16]);
 
 %make sure the colored plots are on top, so draw them again:
 hold on;
-scatter(llsLct(selLDHA),logNumUMIsLct(selLDHA),10,[0 0 0]);
+scatter(-llsLct(selLDHA),logNumUMIsLct(selLDHA),10,[0 0 0]);
 hold on;
-scatter(llsLct(selB),logNumUMIsLct(selB),10,[0,0.5,0]);
+scatter(-llsLct(selB),logNumUMIsLct(selB),10,[0,0.5,0]);
 hold on;
-scatter(llsLct(selRb),logNumUMIsLct(selRb),10,[1,0,0]);
+scatter(-llsLct(selRb),logNumUMIsLct(selRb),10,[1,0,0]);
 legend({'No anomaly found', 'Red blood cell precursors', 'B/plasma cells', 'High lactate dehydrogenase A'});
 
 
@@ -337,12 +337,12 @@ group(selT) = 3;
 col = [0.8 0.8 0.8; 1 0 0; 0 0.5 0; 0 0 1];
 logNumUMIsFol = log2(numUMIsFol);
 figure
-gscatter(llsFol,logNumUMIsFol,group,col,'o',3);
-xlabel('Log likelihood')
+gscatter(-llsFol,logNumUMIsFol,group,col,'o',3);
+xlabel('Cell divergence')
 ylabel('log2(UMI counts)')
 title('Classification of Divergent Follicular B Cells');
 set(gca,'FontSize',11);
-axis([-2650 -800 8.6 14.5]);
+axis([800 2650 8.6 15]);
 %make sure the colored plots are on top, so draw them again:
 hold on;
 scatter(llsFol(selIG),logNumUMIsFol(selIG),10,[0,0.5,0]);
