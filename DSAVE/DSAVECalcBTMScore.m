@@ -148,7 +148,7 @@ function logcv = GetGeneCVs(ds, templInfo)
     %calc variances
     variances = var(totset, 0, 2);
     sd = sqrt(variances);
-    cv_ = (sd + 0.05)./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
+    cv_ = (sd)./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
     logcv = log(cv_ + 1);%the + 1 says that no variance -> 0 value
 end
 
@@ -161,7 +161,7 @@ function logcv = GetGeneCVsLog(ds, templInfo, logTPMAddon)
     %calc variances
     variances = var(totset, 0, 2);
     sd = sqrt(variances);
-    logcv = (sd + 0.05) ./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
+    logcv = (sd) ./ (avgRefExpr + 0.05);%Coefficient of Variation = std/mean. Adding 0.05, a neglectably small number, to handle too lowly expressed genes
 end
 
 
