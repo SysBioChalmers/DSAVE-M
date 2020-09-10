@@ -19,6 +19,9 @@ lcbSubTPM = TPM(lcbSub);
 
 %% T cells
 
+%set random seed to make the results reproducable
+rng(1);
+
 progbar = ProgrBar('Cell-wise: Fig E');
 
 tic
@@ -412,13 +415,12 @@ sprintf('Fol B cells - before: %f, after: %f', befScoreB.DSAVEScore, aftScoreB.D
 
 %now, repeat this 100 times for each of those two populations, where we
 %instead of removing the misclassified cells remove randomly selected cells
-%Only need to run this code once, it takes ~4 hours, just use load below
-randomT = zeros(100,1);
+%Only need to run this code once, it takes ~40 hours, just use load below
+randomT = zeros(1000,1);
 progbar = ProgrBar('Generate random T scores');
 numCells = size(purT.data,2);
-for i = 1:100
-    score = DSAVECalcBTMScore(lctSub.randSample(numCells), templ, progbar.GetSubContext(0.01));
-    randomT(i) = score.DSAVEScore;
+parfor i = 1:1000
+    randomT(i) = DSAVECalcBTMScore(lctSub.randSample(numCells), templ, progbar.GetSubContext(0.001)).DSAVEScore;
 end
 figure
 histogram(randomT);
@@ -426,13 +428,12 @@ save('../TempData/randomT.mat', 'randomT');
 
 
 
-%Only need to run this code once, it takes ~4 hours, just use load below
-randomFolB = zeros(100,1);
+%Only need to run this code once, it takes ~40 hours, just use load below
+randomFolB = zeros(1000,1);
 progbar = ProgrBar('Generate random FolB scores');
 numCells = size(purfolb.data,2);
-for i = 1:100
-    score = DSAVECalcBTMScore(folb.randSample(numCells), templ, progbar.GetSubContext(0.01));
-    randomFolB(i) = score.DSAVEScore;
+for i = 1:1000
+    randomFolB(i) = DSAVECalcBTMScore(folb.randSample(numCells), templ, progbar.GetSubContext(0.001)).DSAVEScore;
 end
 figure
 histogram(randomFolB);
