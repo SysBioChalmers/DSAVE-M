@@ -1,6 +1,10 @@
 %% Data initialization
 totVarFromBulk = DSAVEGetPrecalcTotVarFromBulk()
 
+%set random seed to make the results reproducable
+rng(1);
+
+
 %% Fig A
 
 ub = 100000;

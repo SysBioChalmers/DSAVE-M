@@ -424,7 +424,7 @@ parfor i = 1:1000
 end
 figure
 histogram(randomT);
-save('../TempData/randomT.mat', 'randomT');
+save('../../TempData/randomT.mat', 'randomT');
 
 
 
@@ -432,21 +432,21 @@ save('../TempData/randomT.mat', 'randomT');
 randomFolB = zeros(1000,1);
 progbar = ProgrBar('Generate random FolB scores');
 numCells = size(purfolb.data,2);
-for i = 1:1000
+parfor i = 1:1000
     randomFolB(i) = DSAVECalcBTMScore(folb.randSample(numCells), templ, progbar.GetSubContext(0.001)).DSAVEScore;
 end
 figure
 histogram(randomFolB);
-save('../TempData/randomFolB.mat', 'randomFolB');
+save('../../TempData/randomFolB.mat', 'randomFolB');
 
-load('../TempData/randomT.mat');
+load('../../TempData/randomT.mat');
 [~,pT] = ttest(randomT, aftScoreT.DSAVEScore, 'Tail','right');
 disp('P value for T cell DSAVE Score reduction: ');
-pT % 4.1885e-86
-load('../TempData/randomFolB.mat');
+pT % 0 (old val): 4.1885e-86
+load('../../TempData/randomFolB.mat');
 [~,pFolB] = ttest(randomFolB, aftScoreB.DSAVEScore, 'Tail','right');
 disp('P value for Fol B cell DSAVE Score reduction: ');
-pFolB % 3.7198e-91
+pFolB %0 old val: % 3.7198e-91
 
 
 

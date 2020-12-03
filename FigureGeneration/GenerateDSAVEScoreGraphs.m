@@ -1,3 +1,5 @@
+%set random seed to make the results reproducable
+rng(1);
 
 
 %% define datasets
